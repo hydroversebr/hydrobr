@@ -7,7 +7,7 @@
 #'
 #' @param raster character vector. Input raster file path.
 #' @param projectionEPSG character vector. Input "EPSG Geodetic Parameter Dataset"
-#' @param resolution numeric vector. Projected raster resolution in meter.
+#' @param resolution value. Projected raster resolution in meter.
 #' @param rasterP_path character vector. Projected output raster file path.
 #'
 #'
@@ -22,11 +22,13 @@
 #'
 #' #
 #'
-#' projectRaster(raster = "./dem.tif", projectionEPSG = "epsg:32723", resolution = 30, rasterP_path = "./demP.tif")
+#' projectRaster(raster = "./dem.tif",
+#'               projectionEPSG = "epsg:32723",
+#'               resolution = 30,
+#'               rasterP_path = "./demP.tif")
 #'
 #'
 #' @export
-
 projectRaster = function(raster, projectionEPSG, resolution, rasterP_path){
 
 
