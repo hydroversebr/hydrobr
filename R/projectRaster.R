@@ -32,7 +32,7 @@ projectRaster = function(raster, projectionEPSG, resolution, rasterP_path){
 
   #project raster with random resolution
 
-  r = terra::project(rast(raster),
+  r = terra::project(terra::rast(raster),
                      y = projectionEPSG,
                      datatype = "INT2U")
 
@@ -42,7 +42,7 @@ projectRaster = function(raster, projectionEPSG, resolution, rasterP_path){
 
   #reproject raster base on new resolution configuration
 
-  terra::project(rast(raster),
+  terra::project(terra::rast(raster),
                  y = r, mask = TRUE,
                  filename = rasterP_path,
                  overwrite = TRUE,
