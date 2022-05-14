@@ -5,10 +5,10 @@
 #' @description Project raster to desired EPSG
 #'
 #'
-#' @param dem character vector. Input raster file path.
+#' @param raster character vector. Input raster file path.
 #' @param projectionEPSG character vector. Input "EPSG Geodetic Parameter Dataset"
 #' @param resolution numeric vector. Projected raster resolution in meter.
-#' @param demP_path character vector. Projected output raster file path.
+#' @param rasterP_path character vector. Projected output raster file path.
 #'
 #'
 #' @return Projected raster

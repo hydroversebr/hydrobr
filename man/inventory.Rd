@@ -49,7 +49,6 @@ inventory(
   as_sf = TRUE,
   aoi = NULL
 )
-
 \dontshow{\}) # examplesIf}
 }
 \references{
