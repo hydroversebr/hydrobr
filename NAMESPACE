@@ -2,3 +2,4 @@
 
 export("%>%")
 export(inventory)
+importFrom(magrittr,"%>%")
