@@ -8,13 +8,13 @@
 projectRaster(raster, projectionEPSG, resolution, rasterP_path)
 }
 \arguments{
+\item{raster}{character vector. Input raster file path.}
+
 \item{projectionEPSG}{character vector. Input "EPSG Geodetic Parameter Dataset"}
 
 \item{resolution}{numeric vector. Projected raster resolution in meter.}
 
-\item{dem}{character vector. Input raster file path.}
-
-\item{demP_path}{character vector. Projected output raster file path.}
+\item{rasterP_path}{character vector. Projected output raster file path.}
 }
 \value{
 Projected raster

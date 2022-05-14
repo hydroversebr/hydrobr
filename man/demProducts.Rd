@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{demProducts}
 \alias{demProducts}
-\title{Obtain digital elevation model products}
+\title{Digital elevation model sub-products}
 \usage{
 demProducts(demP, streamP, outputDir)
 }
@@ -16,17 +16,17 @@ demProducts(demP, streamP, outputDir)
 }
 \value{
 Create eigth DEM subproducts:
-DEM aspect
-DEM burned by streams
-DEM Sinks
-DEM slope in degrees
-DEM slop in porcent
-DEM burned by streans filled
-Flow Accumulation based on filled DEM
-Flow Direction based on filled DEM
+(1) DEM aspect;
+(2) DEM burned by streams;
+(3) DEM Sinks;
+(4) DEM slope in degrees;
+(5) DEM slop in porcent;
+(6) DEM burned by streans filled;
+(7) Flow Accumulation based on filled DEM;
+(8) Flow Direction based on filled DEM.
 }
 \description{
-Obtain digital elevation model products
+Obtain digital elevation model sub-products
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
