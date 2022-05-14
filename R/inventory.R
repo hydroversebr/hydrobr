@@ -180,9 +180,11 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
       # Reassure stations are from the desired state
       dplyr::filter(estac$V1 == states[i]) %>%
       # Eliminate duplicate rows by station_code
-      dplyr::distinct(estac$V2, .keep_all = TRUE) %>%
-      # Rename columns
-      rlang::set_names(c("state", "station_code", "lat", "long", "area_km2"))
+      dplyr::distinct_at(2, .keep_all = TRUE) %>%
+       # Rename columns
+      rlang::set_names(c("state", "station_code", "lat", "long", "area_km2")) %>%
+      # Change area_km2 class to numeric
+      dplyr::mutate(dplyr::across('area_km2', .fns = as.numeric))
 
     # Save stations by state in list format
     serief[[i]] <- estac
@@ -211,7 +213,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
       lat  = sf::st_coordinates(serief$geometry)[, 2],
       long = sf::st_coordinates(serief$geometry)[, 1]
     ) %>%
-    dplyr::select(dplyr::all_of(columns_to_select))
+    dplyr::select(dplyr::any_of(columns_to_select))
 
   # If aoi is provided, subset the stations
   if (!is.null(aoi)) {
