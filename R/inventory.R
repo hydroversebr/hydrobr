@@ -1,5 +1,7 @@
-#' Retrieve stations inventory from ANA web API
+#' Retrieve stations inventory from ANA web API.
+#'
 #' @encoding UTF-8
+#'
 #' @description Download pluviometric and fluviometric stations inventory from
 #'   the Brazilian National Water Agency (ANA) and return a tidy
 #'   data frame [tibble::tibble()] object. The inventory is optionally
@@ -9,8 +11,7 @@
 #'
 #' @param states character vector; provides state(s) name(s). Example:
 #'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
-#'   See argument details for more. Not required if argument \code{aoi} is
-#'   provided.
+#'   Ignored if argument \code{aoi} is passed.
 #' @param stationType character; indicates what type of stations
 #'   to download. Supported values are \dQuote{flu} (fluviometric)
 #'   and \dQuote{plu} (pluviometric). Default is \dQuote{plu}.
@@ -18,11 +19,19 @@
 #' @param aoi object of class \code{sf} (polygon). Alternatively provide the boundaries
 #'   where stations should be limited to.
 #'
+#' @return Create either a \code{tibble} or a \code{sf} data frame containing the
+#'  following columns:
+#'  state: state name (chr).
+#'  station_code: station unique identifier (chr).
+#'  lat: latitude (dbl).
+#'  long: longitude (dbl).
+#'  stationType: station type (chr).
+#'
 #' @references
-#' Dados Abertos da Agência Nacional de Águas e Saneamento Básico
+#' Dados Abertos da Agência Nacional de Águas e Saneamento Básico.
 #' <https://dadosabertos.ana.gov.br/>
 #'
-#' HIDRO - Inventário pluviom{é}trico/fluviométrico
+#' HIDRO - Inventário pluviométrico/fluviométrico atualizado.
 #' <https://dadosabertos.ana.gov.br/documents/ae318ebacb4b41cda37fbdd82125078b/about>
 #'
 #' @examplesIf interactive()
@@ -44,8 +53,8 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
   br_states <- xml2::read_html("http://telemetriaws1.ana.gov.br//ServiceANA.asmx/HidroEstado?codUf=") %>%
     xml2::xml_find_all(".//nome") %>%
     xml2::xml_contents() %>%
-    xml2::xml_text() %>%
-    .[1:27]
+    xml2::xml_text()
+  br_states <- br_states[1:27]
 
   ## Verification if arguments are in the desired format
   suppressMessages(sf::sf_use_s2(FALSE))
@@ -56,7 +65,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
         call. = FALSE,
         "Provided `aoi` is not a polygon/multipolygon sf object"
       )
-    } else if (!st_is(aoi, c("MULTIPOLYGON", "POLYGON"))) {
+    } else if (!sf::st_is(aoi, c("MULTIPOLYGON", "POLYGON"))) {
       stop(
         call. = FALSE,
         "Provided `aoi` is not a polygon/multipolygon sf object"
@@ -80,7 +89,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
           sf::st_intersection(aoi) %>%
           dplyr::as_tibble() %>%
           # Select states name and convert to character vector
-          dplyr::select(name_state) %>%
+          dplyr::select(dplyr::all_of('name_state')) %>%
           apply(2, toupper) %>%
           as.vector()
       )
@@ -165,9 +174,9 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
       # Convert to tibble format
       dplyr::as_tibble() %>%
       # Reassure stations are from the desired state
-      dplyr::filter(V1 == states[i]) %>%
+      dplyr::filter(estac$V1 == states[i]) %>%
       # Eliminate duplicate rows by station_code
-      dplyr::distinct(V2, .keep_all = TRUE) %>%
+      dplyr::distinct(estac$V2, .keep_all = TRUE) %>%
       # Rename columns
       rlang::set_names(c("state", "station_code", "lat", "long", "area_km2"))
 
@@ -184,29 +193,30 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
     serief <- serief %>%
       dplyr::mutate(stationType = "pluviometric") %>%
       # If stationType == 'pluviometric', remove drainage area column
-      dplyr::select(-area_km2)
+      dplyr::select(-'area_km2')
   } else {
     serief <- serief %>%
       dplyr::mutate(stationType = "fluviometric")
   }
 
   # Return final object
+  columns_to_select <- c('state', 'station_code', 'lat', 'long', 'stationType',  'area_km2', 'geometry')
+  serief <- serief %>% sf::st_as_sf(coords = c("long", "lat"), crs = 'WGS84')
   serief <- serief %>%
-    sf::st_as_sf(coords = c("long", "lat"), crs = 'WGS84') %>%
     dplyr::mutate(
-      lat = sf::st_coordinates(geometry)[, 2],
-      long = sf::st_coordinates(geometry)[, 1]
+      lat  = sf::st_coordinates(serief$geometry)[, 2],
+      long = sf::st_coordinates(serief$geometry)[, 1]
     ) %>%
-    dplyr::select(state, station_code, lat, long, stationType, geometry)
+    dplyr::select(dplyr::all_of(columns_to_select))
 
   # If aoi is provided, subset the stations
   if (!is.null(aoi)) {
-    serief <- suppressMessages(serief[aoi %>% sf::st_transform(crs = "WGS84"), ])
+    serief <- suppressMessages(serief[aoi, ])
   }
 
   # Return object either as tibble or sf
   if (as_sf == F) {
-    serief <- serief %>% dplyr::as_tibble() %>% dplyr::select(-geometry)
+    serief <- serief %>% dplyr::as_tibble() %>% dplyr::select(-'geometry')
   }
 
   class(serief) <- c(class(serief), 'inventory')
