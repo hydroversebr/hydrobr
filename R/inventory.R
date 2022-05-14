@@ -9,6 +9,7 @@
 #'   The user can alternatively provide an area of interest to download all
 #'   stations within its boundaries.
 #'
+#'
 #' @param states character vector; provides state(s) name(s). Example:
 #'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
 #'   Ignored if argument \code{aoi} is passed.
@@ -46,6 +47,7 @@
 #'   as_sf = TRUE,
 #'   aoi = NULL
 #' )
+#'
 #'
 #' @export
 inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
