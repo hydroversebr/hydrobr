@@ -3,15 +3,14 @@
 \encoding{UTF-8}
 \name{inventory}
 \alias{inventory}
-\title{Retrieve stations inventory from ANA web API}
+\title{Retrieve stations inventory from ANA web API.}
 \usage{
 inventory(states, stationType = "plu", as_sf = F, aoi = NULL)
 }
 \arguments{
 \item{states}{character vector; provides state(s) name(s). Example:
 \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
-See argument details for more. Not required if argument \code{aoi} is
-provided.}
+Ignored if argument \code{aoi} is passed.}
 
 \item{stationType}{character; indicates what type of stations
 to download. Supported values are \dQuote{flu} (fluviometric)
@@ -21,6 +20,15 @@ and \dQuote{plu} (pluviometric). Default is \dQuote{plu}.}
 
 \item{aoi}{object of class \code{sf} (polygon). Alternatively provide the boundaries
 where stations should be limited to.}
+}
+\value{
+Create either a \code{tibble} or a \code{sf} data frame containing the
+following columns:
+state: state name (chr).
+station_code: station unique identifier (chr).
+lat: latitude (dbl).
+long: longitude (dbl).
+stationType: station type (chr).
 }
 \description{
 Download pluviometric and fluviometric stations inventory from
@@ -44,9 +52,9 @@ inventory(
 \dontshow{\}) # examplesIf}
 }
 \references{
-Dados Abertos da Agência Nacional de Águas e Saneamento Básico
+Dados Abertos da Agência Nacional de Águas e Saneamento Básico.
 \url{https://dadosabertos.ana.gov.br/}
 
-HIDRO - Inventário pluviom{é}trico/fluviométrico
+HIDRO - Inventário pluviométrico/fluviométrico atualizado.
 \url{https://dadosabertos.ana.gov.br/documents/ae318ebacb4b41cda37fbdd82125078b/about}
 }

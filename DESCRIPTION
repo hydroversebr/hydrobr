@@ -13,7 +13,7 @@ Authors@R:
 Description: Package developed to download, clean, and quality check hydrological
     data freely available for Brazil and perform general hydrological analyses.
     This work is a volunteer initiative from a few Brazilian hydrologists. 
-    (improve later)
+    (improve later).
 License: GPL (>= 3)
 Imports: dplyr, geobr, rlang, sf, xml2, magrittr
 Encoding: UTF-8
