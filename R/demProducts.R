@@ -1,8 +1,8 @@
-#' Obtain digital elevation model products
+#' Digital elevation model sub-products
 #'
 #' @encoding UTF-8
 #'
-#' @description Obtain digital elevation model products
+#' @description Obtain digital elevation model sub-products
 #'
 #'
 #' @param demP character vector. Input DEM raster file path.
@@ -11,14 +11,14 @@
 #'
 #'
 #' @return Create eigth DEM subproducts:
-#'  DEM aspect
-#'  DEM burned by streams
-#'  DEM Sinks
-#'  DEM slope in degrees
-#'  DEM slop in porcent
-#'  DEM burned by streans filled
-#'  Flow Accumulation based on filled DEM
-#'  Flow Direction based on filled DEM
+#'  (1) DEM aspect;
+#'  (2) DEM burned by streams;
+#'  (3) DEM Sinks;
+#'  (4) DEM slope in degrees;
+#'  (5) DEM slop in porcent;
+#'  (6) DEM burned by streans filled;
+#'  (7) Flow Accumulation based on filled DEM;
+#'  (8) Flow Direction based on filled DEM.
 #'
 #'
 #' @references
