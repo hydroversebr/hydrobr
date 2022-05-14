@@ -12,7 +12,7 @@ projectRaster(raster, projectionEPSG, resolution, rasterP_path)
 
 \item{projectionEPSG}{character vector. Input "EPSG Geodetic Parameter Dataset"}
 
-\item{resolution}{numeric vector. Projected raster resolution in meter.}
+\item{resolution}{value. Projected raster resolution in meter.}
 
 \item{rasterP_path}{character vector. Projected output raster file path.}
 }
@@ -27,7 +27,10 @@ Project raster to desired EPSG
 
 #
 
-projectRaster(raster = "./dem.tif", projectionEPSG = "epsg:32723", resolution = 30, rasterP_path = "./demP.tif")
+projectRaster(raster = "./dem.tif",
+              projectionEPSG = "epsg:32723",
+              resolution = 30,
+              rasterP_path = "./demP.tif")
 
 \dontshow{\}) # examplesIf}
 }
