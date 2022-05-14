@@ -9,6 +9,7 @@
 #'   The user can alternatively provide an area of interest to download all
 #'   stations within its boundaries.
 #'
+#'
 #' @param states character vector; provides state(s) name(s). Example:
 #'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
 #'   Ignored if argument \code{aoi} is passed.
@@ -29,9 +30,11 @@
 #'
 #' @references
 #' Dados Abertos da Agência Nacional de Águas e Saneamento Básico.
+#'
 #' <https://dadosabertos.ana.gov.br/>
 #'
 #' HIDRO - Inventário pluviométrico/fluviométrico atualizado.
+#'
 #' <https://dadosabertos.ana.gov.br/documents/ae318ebacb4b41cda37fbdd82125078b/about>
 #'
 #' @examplesIf interactive()
@@ -44,6 +47,7 @@
 #'   as_sf = TRUE,
 #'   aoi = NULL
 #' )
+#'
 #'
 #' @export
 inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
