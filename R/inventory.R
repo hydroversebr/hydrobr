@@ -1,5 +1,5 @@
 #' Retrieve stations inventory from ANA web API
-#'
+#' @encoding UTF-8
 #' @description Download pluviometric and fluviometric stations inventory from
 #'   the Brazilian National Water Agency (ANA) and return a tidy
 #'   data frame [tibble::tibble()] object. The inventory is optionally
@@ -8,7 +8,7 @@
 #'   stations within its boundaries.
 #'
 #' @param states character vector; provides state(s) name(s). Example:
-#'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOI?S}, etc.
+#'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
 #'   See argument details for more. Not required if argument \code{aoi} is
 #'   provided.
 #' @param stationType character; indicates what type of stations
@@ -19,26 +19,23 @@
 #'   where stations should be limited to.
 #'
 #' @references
-#' Dados Abertos da Ag?ncia Nacional de ?guas e Saneamento B?sico
+#' Dados Abertos da Agência Nacional de Águas e Saneamento Básico
 #' <https://dadosabertos.ana.gov.br/>
 #'
-#' HIDRO - Invent?rio pluviom?trico/fluviom?trico
+#' HIDRO - Inventário pluviom{é}trico/fluviométrico
 #' <https://dadosabertos.ana.gov.br/documents/ae318ebacb4b41cda37fbdd82125078b/about>
 #'
 #' @examplesIf interactive()
 #'
-#' # Fetch pluviometric "plu" stations for the states of "GOI?S" and "MINAS GERAIS"
+#' # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 #'
 #' inventory(
-#'   states = c("GOI?S", "MINAS GERAIS"),
+#'   states = c("GOIÁS", "MINAS GERAIS"),
 #'   stationType = "plu",
 #'   as_sf = TRUE,
 #'   aoi = NULL
 #' )
 #' @export
-
-require(dplyr)
-
 inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
 
 

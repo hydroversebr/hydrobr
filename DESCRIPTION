@@ -1,12 +1,21 @@
 Package: hydrobr
-Title: What the Package Does (One Line, Title Case)
+Title: Access to the Brazilian National Water Agency (Agência Nacional de Águas) hydrological data
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    c(person("Arthur", "Calegario", , "tcalegario@gmail.com", role = c("aut"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+      person("Artur", "Lourenço", , "first.last@example.com", role = c("aut"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+      person("Marcel", "Confirmar", , "first.last@example.com", role = c("aut"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+      person("Daniel", "Althoff", , "daniel_althoff@hotmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-5390-575X")))
+Description: Package developed to download, clean, and quality check hydrological
+    data freely available for Brazil and perform general hydrological analyses.
+    This work is a volunteer initiative from a few Brazilian hydrologists. 
+    (improve later)
+License: GPL (>= 3)
+Imports: dplyr, geobr, rlang, sf, xml2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
