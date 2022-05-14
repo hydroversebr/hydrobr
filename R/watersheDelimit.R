@@ -39,7 +39,7 @@ watersheDelimit = function(stationsPath,
                           outputDirPath,
                           tempDirPath = "./temp"){
 
-  stationsPath = st_read(stationsPath, quiet = TRUE)
+  stationsPath = sf::st_read(stationsPath, quiet = TRUE)
   names(stationsPath) = c("state", "station_code", "area_km2", "station_type", "geometry")
   flowAcumRaster = terra::rast(flowAcumPath)
   flowDir8Raster = terra::rast(flowDir8Path)
@@ -60,18 +60,18 @@ watersheDelimit = function(stationsPath,
 
     nPixel = round(as.numeric(stationsPath$area_km2[i])*100*10000/terra::res(flowAcumRaster)[1]^2,0) #numero de pixels acumulados associado à area de drenagem da estação
 
-    buf = st_buffer(stationsPath[i,], bufferSearch) #fazer buffer do ponto
+    buf = sf::st_buffer(stationsPath[i,], bufferSearch) #fazer buffer do ponto
 
     Acum = terra::crop(flowAcumRaster, buf) #cortar fluxo acumulado pelo buffer
 
-    nearestValue = na.omit(unique(Acum))[which.min(abs(na.omit(unique(Acum))-nPixel) %>% pull()),] #pegar valor mais proximo "npixel" no flowaccumulations
+    nearestValue = base::na.omit(terra::unique(Acum))[which.min(abs(base::na.omit(terra::unique(Acum))-nPixel) %>% dplyr::pull()),] #pegar valor mais proximo "npixel" no flowaccumulations
 
     Acum[Acum!=nearestValue] = NA #todos outros valores transformados em NA
 
     ##converter raster da foz para shape formato ponto e exportar para diretório temporário
-    as.points(Acum) %>%
-      st_as_sf() %>%
-      st_write(paste(tempDirPath,
+    terra::as.points(Acum) %>%
+      sf::st_as_sf() %>%
+      sf::st_write(paste(tempDirPath,
                      "/pour_",
                      stationsPath$station_code[i],
                      ".shp",
@@ -81,7 +81,7 @@ watersheDelimit = function(stationsPath,
                quiet = TRUE)
 
     #delimitar bacia com base no ponto da foz
-    wbt_watershed(flowDir8Path,
+    whitebox::wbt_watershed(flowDir8Path,
                   paste(tempDirPath,
                         "/pour_",
                         stationsPath$station_code[i],
@@ -95,7 +95,7 @@ watersheDelimit = function(stationsPath,
                         sep = ""))
 
     #importar bacia delimitada
-    y = terra::trim(rast(paste(outputDirPath,
+    y = terra::trim(terra::rast(paste(outputDirPath,
                                "/waterShedRaster/",
                                "waterShed",
                                stationsPath$station_code[i],
@@ -118,7 +118,7 @@ watersheDelimit = function(stationsPath,
 
 
     #converter raster de bacia para shapefile e adicionar area hidroweb e estimada
-    q = st_as_sf(as.polygons(y)) %>%
+    q = sf::st_as_sf(terra::as.polygons(y)) %>%
       dplyr::mutate(station_code = stationsPath$station_code[i],
                     area_km2 = stationsPath$area_km2[i],
                     area_km2p = areaSP[i]) %>%
@@ -136,20 +136,20 @@ watersheDelimit = function(stationsPath,
   #Concatenar fozes das bacias, adicionar áreas hidroweb e estimada. Exportar depois
 
   list.files(tempDirPath, pattern = ".shp", full.names = TRUE) %>%
-    lapply(st_read, quiet = TRUE) %>%
-    bind_rows() %>%
-    mutate(station_code = stationsPath$station_code,
+    lapply(sf::st_read, quiet = TRUE) %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(station_code = stationsPath$station_code,
            area_km2 = stationsPath$area_km2,
            area_km2p = areaSP) %>%
     dplyr::select(station_code, area_km2, area_km2p, geometry) %>%
-    st_write(paste(outputDirPath, "/StationsSnaped.shp", sep = ""), delete_layer = TRUE, append = TRUE, quiet = TRUE)
+    sf::st_write(paste(outputDirPath, "/StationsSnaped.shp", sep = ""), delete_layer = TRUE, append = TRUE, quiet = TRUE)
 
   #Concatenar bacias das estações (unested)
 
   list.files(paste(outputDirPath,"/waterShedShape", sep =""), pattern = ".shp", full.names = TRUE) %>%
-    lapply(st_read, quiet = TRUE) %>%
-    bind_rows() %>%
-    st_write(paste(outputDirPath, "/Watersheds_unested.shp", sep = ""), delete_layer = TRUE, append = FALSE, quiet = TRUE)
+    lapply(sf::st_read, quiet = TRUE) %>%
+    dplyr::bind_rows() %>%
+    sf::st_write(paste(outputDirPath, "/Watersheds_unested.shp", sep = ""), delete_layer = TRUE, append = FALSE, quiet = TRUE)
 
   #Concatenar bacias das estações (unested)
 
@@ -157,7 +157,7 @@ watersheDelimit = function(stationsPath,
 
   #Gerar bacia concatenadas no formato raster
 
-  wbt_watershed(flowDir8Path,
+  whitebox::wbt_watershed(flowDir8Path,
                 paste(outputDirPath, "/StationsSnaped.shp", sep = ""),
                 paste(outputDirPath,"/Watersheds.tif", sep = ""))
 
@@ -165,9 +165,9 @@ watersheDelimit = function(stationsPath,
 
   #parei aqui #estaçoes invertidas
 
-  r = terra::trim(rast(paste(outputDirPath,"/Watersheds.tif", sep = "")))
+  r = terra::trim(terra::rast(paste(outputDirPath,"/Watersheds.tif", sep = "")))
 
-  unicos = sort(unique(na.omit(terra::values(r))))
+  unicos = sort(base::unique(na.omit(terra::values(r))))
 
   reclassMatrix = base::data.matrix(cbind(c(unicos),
                                           c(unicos[-1],unicos[length(unicos)]+1),
@@ -177,12 +177,12 @@ watersheDelimit = function(stationsPath,
 
   terra::writeRaster(r1, paste(outputDirPath,"/Watersheds_nested.tif", sep = ""), overwrite = TRUE, datatype = "INT4U")
 
-  st_as_sf(as.polygons(r1)) %>%
-    mutate(station_code = Watersheds,
+  sf::st_as_sf(terra::as.polygons(r1)) %>%
+    dplyr::mutate(station_code = Watersheds,
            areakm2 = stationsPath$area_km2,
            areakm2_p = round(areaSP,0)) %>%
     dplyr::select(station_code, areakm2, areakm2_p, geometry) %>%
-    st_write(paste(outputDirPath, "/Watersheds_nested.shp", sep = ""),
+    sf::st_write(paste(outputDirPath, "/Watersheds_nested.shp", sep = ""),
              delete_layer = TRUE,
              append = FALSE,
              quiet = TRUE)
