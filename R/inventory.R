@@ -181,9 +181,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
       dplyr::filter(estac$V1 == states[i]) %>%
       # Eliminate duplicate rows by station_code
       dplyr::distinct_at(2, .keep_all = TRUE) %>%
-       # Rename columns
-=======
->>>>>>> c79807227384dfac47d3d7e5870222b53ddd1ee9
+      # Rename columns
       rlang::set_names(c("state", "station_code", "lat", "long", "area_km2")) %>%
       # Change area_km2 class to numeric
       dplyr::mutate(dplyr::across('area_km2', .fns = as.numeric))
