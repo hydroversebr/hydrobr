@@ -23,7 +23,7 @@
 #'
 #' #
 #'
-#' watershedDelimit(stationsPath = "ana_station.shp",
+#' watersheDelimit(stationsPath = "ana_station.shp",
 #'                  flowAcumPath = "flowAccum.tif",
 #'                  flowDir8Path = "./flowDir8.tif",
 #'                  bufferSearch = 1000,
@@ -32,7 +32,7 @@
 #'
 #'
 #' @export
-waterShedDelin = function(stationsPath,
+watersheDelimit = function(stationsPath,
                           flowAcumPath,
                           flowDir8Path,
                           bufferSearch = 1000,
