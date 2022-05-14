@@ -63,7 +63,7 @@ RunTest <- function(dfStationlist, by_month = FALSE) { # se by_month for igual a
         stats::setNames(c(paste("pval_Rtest_", names(dfStationlist)[i], sep = ""), "month")) %>% # renomear colunas
         dplyr::arrange(month) %>% # ordenar por mês
         dplyr::mutate(month = as.character(lubridate::month(month, label = TRUE))) %>% # converter número do mês em nome do mÊs
-        dplyr::select(month, everything()) %>%  # ordenar colunas %>%
+        dplyr::select(month, dplyr::everything()) %>%  # ordenar colunas %>%
         suppressMessages()
     }
 
