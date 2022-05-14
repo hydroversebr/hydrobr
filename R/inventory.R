@@ -35,6 +35,7 @@
 #'   as_sf = TRUE,
 #'   aoi = NULL
 #' )
+#'
 #' @export
 inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
 
