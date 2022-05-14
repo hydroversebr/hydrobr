@@ -1,6 +1,6 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
 [![license](https://img.shields.io/badge/license-GPL3-lightgrey.svg)](https://choosealicense.com/)
-# hydrobr
+# hydrobr <img align='right' src='man/figures/logo.png'>
 
 ## Installing this package
 You can download and install the most up-to-date version directly from this repository. The procedure is
