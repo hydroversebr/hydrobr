@@ -2,24 +2,25 @@
 #'
 #' @encoding UTF-8
 #'
-#' @description Download pluviometric and fluviometric stations inventory from
-#'   the Brazilian National Water Agency (ANA) and return a tidy
+#' @description Downloads pluviometric and fluviometric stations inventory from
+#'   the Brazilian National Water Agency (ANA) and returns a tidy
 #'   data frame [tibble::tibble()] object. The inventory is optionally
 #'   returned as simple features [sf::st_as_sf()] object (CRS: WGS84).
 #'   The user can alternatively provide an area of interest to download all
 #'   stations within its boundaries.
 #'
-#' @param states character vector; provides state(s) name(s). Example:
-#'   \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
-#'   Ignored if argument \code{aoi} is passed.
+#' @param states character vector; state(s) name(s) that you wish to download
+#'   data for. Example: \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL},
+#'   \dQuote{GOIÁS}, etc. Ignored if argument \code{aoi} is passed.
 #' @param stationType character; indicates what type of stations
 #'   to download. Supported values are \dQuote{flu} (fluviometric)
-#'   and \dQuote{plu} (pluviometric). Default is \dQuote{plu}.
+#'   and \dQuote{plu} (pluviometric). The default is \dQuote{plu}.
 #' @param as_sf logical; should inventory be returned as \code{sf} object?
-#' @param aoi object of class \code{sf} (polygon). Alternatively provide the boundaries
-#'   where stations should be limited to.
+#'   The default is FALSE
+#' @param aoi object of class \code{sf} (polygon). Provides the boundaries
+#'   where stations should be limited to (optional). Overrides `states` argument.
 #'
-#' @return Create either a \code{tibble} or a \code{sf} data frame containing the
+#' @return A data frame (either a \code{tibble} or a \code{sf}) containing the
 #'  following columns:
 #'  state: state name (chr).
 #'  station_code: station unique identifier (chr).
@@ -37,7 +38,6 @@
 #' <https://dadosabertos.ana.gov.br/documents/ae318ebacb4b41cda37fbdd82125078b/about>
 #'
 #' @examplesIf interactive()
-#'
 #' # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 #'
 #' inventory(
