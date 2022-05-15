@@ -223,7 +223,8 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
     serief <- serief %>% dplyr::as_tibble() %>% dplyr::select(-'geometry')
   }
 
-  class(serief) <- c(class(serief), 'inventory')
+  # Create attribute to facilitate input/output check
+  attr(serief, 'hydrobr_class') <- 'inventory'
   return(serief)
 }
 
