@@ -46,10 +46,10 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
 
   ## Verification if arguments are in the desired format
   # is inventoryResult an outcome from inventory function?
-  if (!inherits(inventoryResult, 'inventory')) {
+  if (!iattributes(inventoryResult)$hydrobr_class %in% 'inventory') {
     stop(
       call. = FALSE,
-      '`inventoryResults` does not inherit class "inventory".
+      '`inventoryResults` does not inherit attribute "inventory".
          The outcome from the inventory() function should be passed as argument'
     )
   }
@@ -145,6 +145,7 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
     serie <- serie[serie != "No Data"]
   }
 
-  class(serie) <- c(class(serie), 'stationsData')
+  # Create attribute to facilitate input/output check
+  attr(serie, 'hydrobr_class') <- 'stationsData'
   return(serie)
 }
