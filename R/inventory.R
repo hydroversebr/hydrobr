@@ -1,4 +1,4 @@
-#' Retrieve stations inventory from ANA web API.
+#' Retrieves stations inventory from ANA web API.
 #'
 #' @encoding UTF-8
 #'

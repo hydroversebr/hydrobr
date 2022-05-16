@@ -1,4 +1,4 @@
-#' Retrieve raw data for selected stations from ANA web API
+#' Retrieves raw data for the stations inventory from ANA web API
 #'
 #' @encoding UTF-8
 #'
@@ -46,7 +46,7 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
 
   ## Verification if arguments are in the desired format
   # is inventoryResult an outcome from inventory function?
-  if (!iattributes(inventoryResult)$hydrobr_class %in% 'inventory') {
+  if (!attributes(inventoryResult)$hydrobr_class %in% 'inventory') {
     stop(
       call. = FALSE,
       '`inventoryResults` does not inherit attribute "inventory".
@@ -103,9 +103,10 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
       # Retrieve station data
       xml2::xml_find_all(".//documentelement") %>%
       xml2::xml_children() %>%
-      xml2::as_list() %>%
-      # Convert list to rows
-      lapply(., function(row) {
+      xml2::as_list()
+
+    # Convert list to rows
+    station_df<- lapply(station_df, function(row) {
         # Fill empty arguments with NA so columns are preserved
         row[sapply(row, function(x) { length(x) == 0})] <- NA
         row %>%
@@ -114,7 +115,7 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
           dplyr::as_tibble()
       }) %>%
       # Binding rows
-      do.call(dplyr::bind_rows, args = .)
+      do.call(what = dplyr::bind_rows)
 
 
     # Is there data for this station?
@@ -129,7 +130,7 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
           dplyr::across(dplyr::matches("data"), as.Date)
         ) %>%
         dplyr::rename(data = dplyr::any_of("datahora")) %>%
-        dplyr::arrange(data)
+        dplyr::arrange(dplyr::across('data'))
 
       serie[[i]] <- station_df
     }

@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{inventory}
 \alias{inventory}
-\title{Retrieve stations inventory from ANA web API.}
+\title{Retrieves stations inventory from ANA web API.}
 \usage{
 inventory(states, stationType = "plu", as_sf = F, aoi = NULL)
 }
