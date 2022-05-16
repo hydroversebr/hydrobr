@@ -3,26 +3,27 @@
 \encoding{UTF-8}
 \name{inventory}
 \alias{inventory}
-\title{Retrieve stations inventory from ANA web API.}
+\title{Retrieves stations inventory from ANA web API.}
 \usage{
 inventory(states, stationType = "plu", as_sf = F, aoi = NULL)
 }
 \arguments{
-\item{states}{character vector; provides state(s) name(s). Example:
-\dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL}, \dQuote{GOIÁS}, etc.
-Ignored if argument \code{aoi} is passed.}
+\item{states}{character vector; state(s) name(s) that you wish to download
+data for. Example: \dQuote{MINAS GERAIS}, \dQuote{DISTRITO FEDERAL},
+\dQuote{GOIÁS}, etc. Ignored if argument \code{aoi} is passed.}
 
 \item{stationType}{character; indicates what type of stations
 to download. Supported values are \dQuote{flu} (fluviometric)
-and \dQuote{plu} (pluviometric). Default is \dQuote{plu}.}
+and \dQuote{plu} (pluviometric). The default is \dQuote{plu}.}
 
-\item{as_sf}{logical; should inventory be returned as \code{sf} object?}
+\item{as_sf}{logical; should inventory be returned as \code{sf} object?
+The default is FALSE}
 
-\item{aoi}{object of class \code{sf} (polygon). Alternatively provide the boundaries
-where stations should be limited to.}
+\item{aoi}{object of class \code{sf} (polygon). Provides the boundaries
+where stations should be limited to (optional). Overrides \code{states} argument.}
 }
 \value{
-Create either a \code{tibble} or a \code{sf} data frame containing the
+A data frame (either a \code{tibble} or a \code{sf}) containing the
 following columns:
 state: state name (chr).
 station_code: station unique identifier (chr).
@@ -31,8 +32,8 @@ long: longitude (dbl).
 stationType: station type (chr).
 }
 \description{
-Download pluviometric and fluviometric stations inventory from
-the Brazilian National Water Agency (ANA) and return a tidy
+Downloads pluviometric and fluviometric stations inventory from
+the Brazilian National Water Agency (ANA) and returns a tidy
 data frame \code{\link[tibble:tibble]{tibble::tibble()}} object. The inventory is optionally
 returned as simple features \code{\link[sf:st_as_sf]{sf::st_as_sf()}} object (CRS: WGS84).
 The user can alternatively provide an area of interest to download all
@@ -40,7 +41,6 @@ stations within its boundaries.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-
 # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 
 inventory(
