@@ -4,7 +4,7 @@
 #'
 #' @description Takes as input a list containing data frames of raw records
 #'   for each station (output from [hydrobr::stationsData()]) and organizes
-#'   them into tidy data frames.
+#'   them into tidy data frames. As some dates may be provided with multiple
 #'
 #' @param stationsDataResult list, tibble data frame; provides a list containing
 #'   the data frames of raw records for each station downloaded from ANA web API
@@ -12,11 +12,10 @@
 #'
 #' @return A list containing an organized data frame [tibble::tibble()] object
 #'    for each station. The data frames will contain the following columns:
-#'    state: state name (chr).
 #'    station_code: station unique identifier (chr).
-#'    lat: latitude (dbl).
-#'    long: longitude (dbl).
-#'    stationType: station type (chr).
+#'    consistency_level: data consistency level (1 = raw, 2 = consisted) (chr).
+#'    date: date format YYYY-MM-DD (Date).
+#'    rainfall_mm/streamflow_m3_s: rain/streamflow gauge measurement (dbl).
 #'
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
