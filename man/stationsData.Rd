@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{stationsData}
 \alias{stationsData}
-\title{Retrieve raw data for selected stations from ANA web API}
+\title{Retrieves raw data for the stations inventory from ANA web API}
 \usage{
 stationsData(inventoryResult, deleteNAstations = TRUE)
 }
