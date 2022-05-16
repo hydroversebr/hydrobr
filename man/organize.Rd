@@ -23,7 +23,8 @@ rainfall_mm/streamflow_m3_s: rain/streamflow gauge measurement (dbl).
 \description{
 Takes as input a list containing data frames of raw records
 for each station (output from \code{\link[=stationsData]{stationsData()}}) and organizes
-them into tidy data frames. As some dates may be provided with multiple
+them into tidy data frames. As some dates may be provided with different
+consistency levels, priority is given to consisted data (consistency level = 2)
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
