@@ -4,7 +4,8 @@
 #'
 #' @description Takes as input a list containing data frames of raw records
 #'   for each station (output from [hydrobr::stationsData()]) and organizes
-#'   them into tidy data frames. As some dates may be provided with multiple
+#'   them into tidy data frames. As some dates may be provided with different
+#'   consistency levels, priority is given to consisted data (consistency level = 2)
 #'
 #' @param stationsDataResult list, tibble data frame; provides a list containing
 #'   the data frames of raw records for each station downloaded from ANA web API
