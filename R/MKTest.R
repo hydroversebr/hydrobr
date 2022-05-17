@@ -1,4 +1,4 @@
-#' Performs the MK trend test for list of continuous stations data.
+#' Performs the MannKendall trend test for list of continuous stations data.
 #'
 #' @encoding UTF-8
 #'
@@ -15,7 +15,45 @@
 #'
 #' @examplesIf interactive()
 #'
-#' MKTest(dfStationlist = data, by_month = FALSE)
+#'#' inv <- inventory(
+#'   states = "MINAS GERAIS",
+#'   stationType = "flu",
+#'   as_sf = TRUE,
+#'   aoi = NULL
+#' )
+#'
+#' # Download the first 10 stations from the inventory
+#'
+#' s_data <- stationsData(
+#'   inventoryResult = inv[1:10,],
+#'   deleteNAstations = TRUE
+#' )
+#'
+#' # Organize the data for the stations
+#'
+#' org_data <- organize(
+#'   stationsDataResult = s_data
+#' )
+#'
+#' # Filter the data for desired period and quality contorl
+#'
+#' final_data <- selectStations(
+#'   stationsDataResult = org_data,
+#'   mode = "yearly",
+#'   maxMissing = 10,
+#'   minYears = 15,
+#'   month = 1,
+#'   iniYear = NULL,
+#'   finYear = NULL,
+#'   consistedOnly = FALSE,
+#'   plot = TRUE
+#' )
+#'
+#' # Annual mean stream flow serie for each station
+#' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+#'
+#' #MannKendall test
+#' MKTest(dfStationlist = Qmean_years, by_month = FALSE)
 #'
 #'
 #' @export
