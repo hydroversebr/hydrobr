@@ -3,11 +3,10 @@
 #' @encoding UTF-8
 #'
 #' @description Takes as input a list containing data frames of organized records
-#'   for each station (output from [hydrobr::organize()]) and summarizes them
-#'   them either by year or month. It is possible to provide the month which
-#'   divides the water year, filter stations with a minimum years of complete
-#'   observations, and filter out periods (year or month) exceeding maximum threshold
-#'   of missing data.
+#'   for each station (output from [hydrobr::organize()]) and (i) filters the time
+#'   series within a range of years, (ii) filters out months or years exceeding
+#'   the maximum threshold of missing data, and (iii) filters out stations
+#'   with less than a minimum years of complete observations.
 #'
 #' @param organizeResult list, tibble data frame; provides a list containing
 #'   the data frames of raw records for each station downloaded from ANA web API
@@ -65,9 +64,18 @@
 #'
 #' # Filter the data for desired period and quality contorl
 #'
-#' org_data <- selectStations(
-#'   stationsDataResult = s_data
+#' final_data <- selectStations(
+#'   stationsDataResult = org_data,
+#'   mode = "yearly",
+#'   maxMissing = 10,
+#'   minYears = 15,
+#'   month = 1,
+#'   iniYear = NULL,
+#'   finYear = NULL,
+#'   consistedOnly = FALSE,
+#'   plot = TRUE
 #' )
+#'
 #' @export
 #'
 #' @importFrom rlang .data
