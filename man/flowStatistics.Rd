@@ -67,7 +67,7 @@ final_data <- selectStations(
   plot = TRUE
 )
 
-# Annual mean stream flow serie for each station
+# annual mean stream flow serie for each station
 Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 \dontshow{\}) # examplesIf}
 }
