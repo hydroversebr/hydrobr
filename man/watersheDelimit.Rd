@@ -40,25 +40,29 @@ Delimitation of watersheds based on ANA fluviométric stations
 
 #stations in area of interest
 
-stations = inventory(stationType = "flu",
-                     as_sf = T,
-                     aoi = sf::st_read("./example/data/aoi_example.shp")
-                     )
+stations = inventory(
+  stationType = "flu",
+  as_sf = T,
+  aoi = sf::st_read("./example/data/aoi_example.shp")
+)
 
-#omit station with area equal NA, reproject to epsg of dem and export it
+# omit station with area equal NA, reproject to epsg of dem and export it
 
-sf::st_write(na.omit(stations) \%>\% sf::st_transform(crs = "epsg:32723")),
-dsn = "./example/results/stations_aoi.shp",
-delete_dsn = TRUE, delete_layer = TRUE)
+sf::st_write(
+  na.omit(stations) \%>\% sf::st_transform(crs = "epsg:32723"),
+  dsn = "./example/results/stations_aoi.shp",
+  delete_dsn = TRUE, delete_layer = TRUE
+)
 
 #run watersheDelimit
-watersheDelimit(stationsPath = "./example/results/stations_aoi.shp",
-                flowAcumPath = "./example/results/demproducts/03flowAccumulation.tif",
-                flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
-                bufferSearch = 1000,
-                outputDirPath = "./example/results/watershedsDelimit",
-                tempDirPath = "./temp"
-                )
+watersheDelimit(
+  stationsPath = "./example/results/stations_aoi.shp",
+  flowAcumPath = "./example/results/demproducts/03flowAccumulation.tif",
+  flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
+  bufferSearch = 1000,
+  outputDirPath = "./example/results/watershedsDelimit",
+  tempDirPath = "./temp"
+)
 
 \dontshow{\}) # examplesIf}
 }
