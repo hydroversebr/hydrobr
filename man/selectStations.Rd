@@ -62,11 +62,10 @@ for stations with at least \code{minYears} of complete observational data
 }
 \description{
 Takes as input a list containing data frames of organized records
-for each station (output from \code{\link[=organize]{organize()}}) and summarizes them
-them either by year or month. It is possible to provide the month which
-divides the water year, filter stations with a minimum years of complete
-observations, and filter out periods (year or month) exceeding maximum threshold
-of missing data.
+for each station (output from \code{\link[=organize]{organize()}}) and (i) filters the time
+series within a range of years, (ii) filters out months or years exceeding
+the maximum threshold of missing data, and (iii) filters out stations
+with less than a minimum years of complete observations.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -94,8 +93,16 @@ org_data <- organize(
 
 # Filter the data for desired period and quality contorl
 
-org_data <- selectStations(
-  stationsDataResult = s_data
+final_data <- selectStations(
+  stationsDataResult = org_data,
+  mode = "yearly",
+  maxMissing = 10,
+  minYears = 15,
+  month = 1,
+  iniYear = NULL,
+  finYear = NULL,
+  consistedOnly = FALSE,
+  plot = TRUE
 )
 \dontshow{\}) # examplesIf}
 }
