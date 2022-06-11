@@ -13,16 +13,20 @@ the data frames of filtered records for each station
 (output from \code{\link[=selectStations]{selectStations()}} function).}
 
 \item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
-The default is 90 percent.}
+The default is 95 percent.}
 
 \item{statistic}{character; indicates statistics. The supported statistics are:
 (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
 (3) stream flow associated with a percentage of time (Qperm); (4) maximum stream flow (Qmax);
-and (5) minimum stream flow (Qmin).}
+and (5) minimum stream flow (Qmin). The default is "Qmean".}
 }
 \value{
-A list containing statistic data frame \code{\link[tibble:tibble]{tibble::tibble()}} object
-for each station.
+A list containing 3 objects:
+\itemize{
+\item a list containing statistic a data frame \code{\link[tibble:tibble]{tibble::tibble()}} object for each station.
+\item a data frame \code{\link[tibble:tibble]{tibble::tibble()}} with statistic of all stations in wide format
+\item a data frame \code{\link[tibble:tibble]{tibble::tibble()}} with statistic of all stations in longer format
+}
 }
 \description{
 Takes as input a list containing data frames of organized and filtered records
