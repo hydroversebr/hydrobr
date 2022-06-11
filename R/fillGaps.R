@@ -14,11 +14,13 @@
 #' If [StatisticsResult] is monthly time series, minimunObsPairs is equal to number of common months.
 #'
 #' @return A list containing 4 objects:
-#'   * a list containing the data frames [tibble::tibble()] for each station after
+#'   * a list containing statistic a data frame [tibble::tibble()] object for each station.
 #'   gap filled.
+#'   * a data frame [tibble::tibble()] with statistic of all stations in wide format
+#'   * a data frame [tibble::tibble()] with statistic of all stations in longer format
 #'   * a failureMatrix indicating if the gap was filled (TRUE) or not (FALSE)
 #'   * the saved plot.
-#'
+
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
 #'
@@ -67,14 +69,42 @@
 fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
 
 
+  ## Verification if arguments are in the desired format
+  # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
+  if (!attributes(StatisticsResult)$class[2] %in% c('flowStatistics','rainStatistics')) {
+    stop(
+      call. = FALSE,
+      '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
+       The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
+    )
+  }
+
+  # Is mode a character vector?
+  if (!is.numeric(minimumCor) | length(minimumCor) != 1) {
+    stop(
+      call. = FALSE,
+      '`minimumCor` should be a numeric vector of length == 1 (bigger then 0 and lesse then 1).
+       See arguments details for more information.'
+    )
+  }
+
+  # Is mode a character vector?
+  if (!is.numeric(minimunObsPairs) | length(minimunObsPairs) != 1 | !minimunObsPairs >= 5) {
+    stop(
+      call. = FALSE,
+      '`minimunObsPairs` should be a numeric vector of length == 1 (bigger or equal to 5).
+       See arguments details for more information.'
+    )
+  }
+
   #identify type of serie (annual or monthly)
   #if monthly: minimunObsPairs = minimunObsPairs*12
 
-  if (names(StatisticsResult[[1]])[1]=="waterYear"){
+  if (names(StatisticsResult$series[[1]])[2]=="waterYear"){
 
     period = "waterYear"
 
-  } else if(names(StatisticsResult[[1]])[1]=="monthWaterYear"){
+  } else if(names(StatisticsResult$series[[1]])[2]=="monthWaterYear"){
 
     period = "monthWaterYear"
 
@@ -86,9 +116,7 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
   resultados = list()
 
   #convert list of station serie to tibble and rename columns
-  df = Reduce(function(x, y) dplyr::full_join(x, y, by = period), StatisticsResult) %>%
-    dplyr::arrange(dplyr::across(dplyr::starts_with(period))) %>%
-    stats::setNames(c(period, names(StatisticsResult)))
+  df = StatisticsResult$series_matrix
 
   #correlation between stations
   corN = tibble::as_tibble(cor(df[,-1], use = "pairwise.complete.obs"))
@@ -164,39 +192,52 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
 
     } else {preenchidos[[i]] = df[,c(period, estPrencher)]}
 
-    names(preenchidos[[i]]) = c(period, names(StatisticsResult)[i])
+    names(preenchidos[[i]]) = c(period, names(StatisticsResult$df_series)[3])
 
-    preenchidos[[i]] = dplyr::arrange(preenchidos[[i]], dplyr::across(starts_with(period)))
+    preenchidos[[i]] = dplyr::arrange(preenchidos[[i]], dplyr::across(starts_with(period))) %>%
+      dplyr::mutate(station_code = unique(StatisticsResult$series[[i]]$station_code)) %>%
+      dplyr::select(c(3,1,2))
   }
 
   names(preenchidos) = names(df[,-1])
 
+  #list of df with filling results of each station
   resultados[[1]] = preenchidos
 
-  preenchidos = Reduce(function(x, y) dplyr::full_join(x, y, by = period), preenchidos)
+  #convert list to df
+  resultados[[2]] = preenchidos %>% dplyr::bind_rows()
 
+  #convert list to df wider format
+  resultados[[3]] = preenchidos %>%
+    dplyr::bind_rows() %>%
+    tidyr::pivot_wider(names_from = station_code, values_from = 3)
 
-  preenchidos[,2:ncol(preenchidos)] = !is.na(preenchidos[,2:ncol(preenchidos)])
+  #failureMatrix
+  resultados[[4]] = resultados[[3]] %>%
+    dplyr::mutate_at(c(2:ncol(.)), is.numeric)
 
-  preenchidos = preenchidos %>%
-    dplyr::select(c(all_of(period), sort(names(preenchidos)[-1])))
+  names(resultados) = c('series', "df_series", "series_matrix", "failureMatrix")
 
-  resultados[[2]] = preenchidos
+  #plot
+  g = reshape2::melt(resultados[[4]], id.vars = period) %>%
+    dplyr::rename(!!period := dplyr::contains("Year"),
+                  station_code = "variable") %>%
+    dplyr::as_tibble() %>%
+    ggplot2::ggplot(ggplot2::aes(x = .data[[period]],
+                                 y = .data$station_code,
+                                 fill = .data$value)) +
+    ggplot2::geom_tile(color = "black") +
+    ggplot2::scale_fill_manual(name =  paste(names(StatisticsResult$df_series)[3] %>%
+                                               stringr::str_extract(pattern = "[^_]+"), "Data", sep = " "),
+                               values=c("TRUE"="#00b0f6", "FALSE"="#f8766d"),
+                               labels = c("complete", "missing"))+
+    ggplot2::theme_bw()
 
-  names(resultados) = c('serie', "failureMatrix")
-
-  x1 = reshape2::melt(preenchidos, id.vars = period)
-
-  g = ggplot2::ggplot(x1, ggplot2::aes(x1[,1], variable, fill = value)) +
-    ggplot2::geom_tile(color="black") +
-    ggplot2::scale_fill_manual(values = c("white", "green")) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none")
-
-  resultados[[3]] = g
-  names(resultados[[3]]) = "plot"
+  resultados[[5]] = g
+  names(resultados)[5] = "plot"
 
   print(g)
 
   return(resultados)
 }
+
