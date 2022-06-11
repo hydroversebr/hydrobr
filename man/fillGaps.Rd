@@ -20,8 +20,10 @@ If \link{StatisticsResult} is monthly time series, minimunObsPairs is equal to n
 \value{
 A list containing 4 objects:
 \itemize{
-\item a list containing the data frames \code{\link[tibble:tibble]{tibble::tibble()}} for each station after
+\item a list containing statistic a data frame \code{\link[tibble:tibble]{tibble::tibble()}} object for each station.
 gap filled.
+\item a data frame \code{\link[tibble:tibble]{tibble::tibble()}} with statistic of all stations in wide format
+\item a data frame \code{\link[tibble:tibble]{tibble::tibble()}} with statistic of all stations in longer format
 \item a failureMatrix indicating if the gap was filled (TRUE) or not (FALSE)
 \item the saved plot.
 }
