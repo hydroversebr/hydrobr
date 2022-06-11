@@ -14,11 +14,13 @@
 #' If [StatisticsResult] is monthly time series, minimunObsPairs is equal to number of common months.
 #'
 #' @return A list containing 4 objects:
-#'   * a list containing the data frames [tibble::tibble()] for each station after
+#'   * a list containing statistic a data frame [tibble::tibble()] object for each station.
 #'   gap filled.
+#'   * a data frame [tibble::tibble()] with statistic of all stations in wide format
+#'   * a data frame [tibble::tibble()] with statistic of all stations in longer format
 #'   * a failureMatrix indicating if the gap was filled (TRUE) or not (FALSE)
 #'   * the saved plot.
-#'
+
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
 #'
