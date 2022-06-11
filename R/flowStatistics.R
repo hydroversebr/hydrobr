@@ -12,12 +12,14 @@
 #' @param statistic character; indicates statistics. The supported statistics are:
 #' (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
 #' (3) stream flow associated with a percentage of time (Qperm); (4) maximum stream flow (Qmax);
-#' and (5) minimum stream flow (Qmin).
+#' and (5) minimum stream flow (Qmin). The default is "Qmean".
 #' @param permanence numeric; percentage of time if "Qperm" is choose as statistic parameter
-#'   The default is 90 percent.
+#'   The default is 95 percent.
 #'
-#' @return A list containing statistic data frame [tibble::tibble()] object
-#'    for each station.
+#' @return A list containing 3 objects:
+#'   * a list containing statistic a data frame [tibble::tibble()] object for each station.
+#'   * a data frame [tibble::tibble()] with statistic of all stations in wide format
+#'   * a data frame [tibble::tibble()] with statistic of all stations in longer format
 #'
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
@@ -60,56 +62,119 @@
 #' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 #'
 #' @export
+#' @importFrom rlang .data
 flowStatistics = function(selectStationsResult, statistics = "Qmean", permanence = 95)
 {
 
+  ## Verification if arguments are in the desired format
+  # is selectStationsResult an outcome from selectStations?
+  if (attributes(selectStationsResult)$class[2] %in% 'stationsData') {
+    stop(
+      call. = FALSE,
+      '`inventoryResults` does not inherit attribute "inventory".
+         The outcome from the inventory() function should be passed as argument'
+    )
+  }
+
+  if (!is.character(statistics) | length(statistics) != 1 | !statistics %in% c("Qmean", "Qperm", "Q7", "Qmin", "Qmax")) {
+    stop(
+      call. = FALSE,
+      '`statistics` should be a character vector of length == 1 (either "Qmean", "Qperm", "Q7", "Qmin" or "Qmax").
+       See arguments details for more information.'
+    )
+  }
+
+  #if "Qperm" is chosen, verify "permanence" parameter
+  if (statistics=="Qperm" & (!is.numeric(permanence) | length(permanence) != 1 | permanence>100 | permanence < 0)) {
+    stop(
+      call. = FALSE,
+      '`permanence` should be a numeric vector of length == 1 (ranging from 0 to 100).
+       See arguments details for more information.'
+    )
+  }
+
   #identify if input is annual or month
-  if (names(selectStationsResult$failureMatrix)[1]=="waterYear"){
-
-    period = "waterYear"
-
-  } else if(names(selectStationsResult$failureMatrix)[1]=="monthWaterYear"){
-
-    period = "monthWaterYear"
-
-  } else {stop ("Please choose \"selectStations\" output result \"Annual\" or \"Monthly\".")}
+  if (names(selectStationsResult$failureMatrix)[1] == "waterYear") {
+  period <- "waterYear"
+} else {
+  period <- "monthWaterYear"
+}
 
 
-  selectStationsResult = selectStationsResult$serie
+selectStationsResult <- selectStationsResult$series
 
-  #compute Qmean and other statistics
+# compute Qmean and other statistics
 
-  if(statistics == "Qmean"){
-    df = lapply(selectStationsResult, function(x) x %>%
-                  dplyr::group_by_at(period) %>%
-                  dplyr::summarise(Qmean = mean(stream_flow_m3_s, na.rm = TRUE)))
+if (statistics == "Qmean") {
 
-  } else if (statistics == "Q7"){
+  series <- selectStationsResult %>%
+    do.call(what = dplyr::bind_rows) %>%
+    dplyr::group_by_at(c(period, "station_code")) %>%
+    dplyr::summarise(
+      station_code = unique(station_code),
+      Qmean_m3_s = mean(stream_flow_m3_s, na.rm = TRUE),
+      .groups = 'drop') %>%
+    dplyr::select(c(2, 1, 3))
 
 
-    df = lapply(selectStationsResult, function(x) x %>%
-                  na.omit() %>%
-                  dplyr::group_by_at(period) %>%
-                  dplyr::summarise(Q7 = min(zoo::rollapply(stream_flow_m3_s, 7, FUN = mean, partial = TRUE, align = "left"))))
+} else if (statistics == "Q7") {
 
-  } else if (statistics == "Qperm"){
+  series <- selectStationsResult %>%
+    do.call(what = dplyr::bind_rows) %>%
+    dplyr::group_by_at(c(period, "station_code")) %>%
+    dplyr::summarise(
+      station_code = unique(station_code),
+      Q7_m3_s = min(zoo::rollapply(stream_flow_m3_s, 7, FUN = mean, partial = TRUE, align = "left")),
+      .groups = 'drop') %>%
+    dplyr::select(c(2, 1, 3))
 
-    df = lapply(selectStationsResult, function(x) x %>%
-                  dplyr::group_by_at(period) %>%
-                  dplyr::summarise(Qperm = quantile(stream_flow_m3_s, 1 - permanence/100, na.rm = TRUE)))
+} else if (statistics == "Qperm") {
 
-  } else if(statistics == "Qmin"){
-    df = lapply(selectStationsResult, function(x) x %>%
-                  dplyr::group_by_at(period) %>%
-                  dplyr::summarise(Qmin = min(stream_flow_m3_s, na.rm = TRUE)))
+  series <- selectStationsResult %>%
+    do.call(what = dplyr::bind_rows) %>%
+    dplyr::group_by_at(c(period, "station_code")) %>%
+    dplyr::summarise(
+      station_code = unique(station_code),
+      !!paste("Q", permanence, "_m3_s", sep = "") := stats::quantile(stream_flow_m3_s, 1 - permanence / 100, na.rm = TRUE),
+      .groups = 'drop') %>%
+    dplyr::select(c(2, 1, 3))
 
-  } else if(statistics == "Qmax"){
-    df = lapply(selectStationsResult, function(x) x %>%
-                  dplyr::group_by_at(period) %>%
-                  dplyr::summarise(Qmax = max(stream_flow_m3_s, na.rm = TRUE)))
+} else if (statistics == "Qmin") {
 
-  } else {stop("Please choose \"statistics\" parameter among \"Qmean\", \"Qmin\", \"Qmax\" or \"Qperm\".")}
+  series <- selectStationsResult %>%
+    do.call(what = dplyr::bind_rows) %>%
+    dplyr::group_by_at(c(period, "station_code")) %>%
+    dplyr::summarise(
+      station_code = unique(station_code),
+      Qmin_m3_s = min(stream_flow_m3_s, na.rm = TRUE),
+      .groups = 'drop') %>%
+    dplyr::select(c(2, 1, 3))
 
-  return(df)
+} else {
+
+  series <- selectStationsResult %>%
+    do.call(what = dplyr::bind_rows) %>%
+    dplyr::group_by_at(c(period, "station_code")) %>%
+    dplyr::summarise(
+      station_code = unique(station_code),
+      Qmax_m3_s = max(stream_flow_m3_s, na.rm = TRUE),
+      .groups = 'drop') %>%
+    dplyr::select(c(2, 1, 3))
+}
+
+
+  out <- list(series = series %>% dplyr::ungroup() %>%
+                base::split(.$station_code),
+              df_series = series %>%
+                dplyr::ungroup() %>%
+                base::split(.$station_code) %>%
+                dplyr::bind_rows(),
+              series_matrix = series %>%
+                dplyr::ungroup() %>%
+                tidyr::pivot_wider(names_from = .data$station_code, values_from = 3))
+
+  class(out) <- c(class(out), 'flowStatistics')
+
+  return(out)
 
 }
