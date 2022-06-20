@@ -46,21 +46,18 @@
 #'   states = "MINAS GERAIS",
 #'   stationType = "flu",
 #'   as_sf = TRUE,
-#'   aoi = NULL
-#' )
+#'   aoi = NULL)
 #'
 #' # Download the first 10 stations from the inventory
 #'
 #' s_data <- stationsData(
 #'   inventoryResult = inv[1:10,],
-#'   deleteNAstations = TRUE
-#' )
+#'   deleteNAstations = TRUE)
 #'
 #' # Organize the data for the stations
 #'
 #' org_data <- organize(
-#'   stationsDataResult = s_data
-#' )
+#'   stationsDataResult = s_data)
 #'
 #' # Filter the data for desired period and quality contorl
 #'
@@ -73,8 +70,7 @@
 #'   iniYear = NULL,
 #'   finYear = NULL,
 #'   consistedOnly = FALSE,
-#'   plot = TRUE
-#' )
+#'   plot = TRUE)
 #'
 #' @export
 #'
@@ -223,7 +219,7 @@ selectStations <- function(organizeResult,
         from = paste0(min(lubridate::year(df$date)),
                       stringr::str_pad(month, side = 'left', pad = 0, width = 2),
                       '01') %>% as.Date(.data, format = '%Y%m%d'),
-        to   = paste0(max(lubridate::year(df$date))+1,
+        to   = paste0(max(lubridate::year(df$date)),
                       stringr::str_pad(month, side = 'left', pad = 0, width = 2),
                       '01') %>% as.Date(.data, format = '%Y%m%d'),
         by = 1
@@ -231,14 +227,14 @@ selectStations <- function(organizeResult,
         # Add civil/water year columns
         dplyr::mutate(
           civilYear      = lubridate::year(.data$date),
-          monthCivilYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
+          monthCivilYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
                                  lubridate::year(.data$date),
-                                 sep = "-"),
+                                 sep = "-"), tryFormats = "%d-%m-%Y"),
           waterYear      = lfstat::water_year(.data$date,
                                               origin = month,
                                               assign = 'start') %>% as.character() %>% as.numeric(),
-          monthWaterYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
-                                 .data$waterYear, sep = "-")
+          monthWaterYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
+                                 .data$waterYear, sep = "-"), tryFormats = "%d-%m-%Y")
         ) %>%
         dplyr::left_join(df, by = 'date') %>%
         # Fill station_code column
@@ -333,7 +329,7 @@ selectStations <- function(organizeResult,
       # Filter by maxMissing
       dplyr::filter(.data$missing <= maxMissing) %>%
       # n_months > minYears?
-      dplyr::mutate(month = substr(.data$monthWaterYear, 1, 2)) %>%
+      dplyr::mutate(month = lubridate::month(monthWaterYear)) %>%
       dplyr::group_by_at(c('station_code', 'month')) %>%
       dplyr::select(
         dplyr::matches('station_code'),
@@ -392,8 +388,7 @@ selectStations <- function(organizeResult,
       dplyr::group_by_at(c('station_code', 'monthWaterYear')) %>%
       dplyr::mutate(consistency_level = dplyr::if_else(is.na(.data$consistency_level),
                                                        0,
-                                                       as.numeric(.data$consistency_level)),
-                    monthWaterYear = paste0('01-', .data$monthWaterYear) %>% as.Date(format = '%d-%m-%Y')) %>%
+                                                       as.numeric(.data$consistency_level))) %>%
       dplyr::summarise(consisted = 100*sum(.data$consistency_level == 2)/dplyr::n(),
                        missing   = 100*sum(is.na(.data$value))/dplyr::n(),
                        .groups = 'drop') %>%
