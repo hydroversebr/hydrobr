@@ -5,12 +5,12 @@
 \alias{MKTest}
 \title{Performs the MannKendall trend test for list of continuous stations data.}
 \usage{
-MKTest(listStationData, by_month = FALSE)
+MKTest(resultFillorStatistics, by_month = TRUE)
 }
 \arguments{
-\item{by_month}{logical. if by_mounth = TRUE, MannKendall test is performed for each month.}
+\item{resultFillorStatistics}{list with elements containing continuous stations data;}
 
-\item{dfStationlist}{list with elements containing continuous stations data;}
+\item{by_month}{logical. if by_mounth = TRUE, MannKendall test is performed for each month.}
 }
 \value{
 p-value for each continuous stations data
@@ -21,25 +21,22 @@ Performs the MannKendall trend test for list of continuous stations data.
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
-#' inv <- inventory(
+inv <- inventory(
   states = "MINAS GERAIS",
   stationType = "flu",
   as_sf = TRUE,
-  aoi = NULL
-)
+  aoi = NULL)
 
 # Download the first 10 stations from the inventory
 
 s_data <- stationsData(
   inventoryResult = inv[1:10,],
-  deleteNAstations = TRUE
-)
+  deleteNAstations = TRUE)
 
 # Organize the data for the stations
 
 org_data <- organize(
-  stationsDataResult = s_data
-)
+  stationsDataResult = s_data)
 
 # Filter the data for desired period and quality contorl
 
@@ -52,14 +49,13 @@ final_data <- selectStations(
   iniYear = NULL,
   finYear = NULL,
   consistedOnly = FALSE,
-  plot = TRUE
-)
+  plot = TRUE)
 
 # Annual mean stream flow serie for each station
 Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 
 #MannKendall test
-MKTest(dfStationlist = Qmean_years, by_month = FALSE)
+MKTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
 
 \dontshow{\}) # examplesIf}
 }
