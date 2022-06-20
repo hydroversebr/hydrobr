@@ -12,7 +12,7 @@ rainStatistics(selectStationsResult, statistics = "Rtotal")
 the data frames of filtered records for each station
 (output from \code{\link[=selectStations]{selectStations()}} function).}
 
-\item{statistic}{character; indicates statistics. The supported statistics are:
+\item{statistics}{character; indicates statistics. The supported statistics are:
 (1) total rainfall (Rtotal); (2)  maximum rainfall (Rmax);
 (3) rainy days (Rdays). The default is "Rtotal".}
 }
