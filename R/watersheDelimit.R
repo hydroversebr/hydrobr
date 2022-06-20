@@ -152,7 +152,7 @@ watersheDelimit <- function(stationsPath,
     )
 
     # delimited watershed area in km²
-    areaSP[i] <- sum(na.omit(terra::values(y))) * terra::res(flowAcumRaster)[1]^2 / 10000 / 100
+    areaSP[i] <- sum(stats::na.omit(terra::values(y))) * terra::res(flowAcumRaster)[1]^2 / 10000 / 100
 
 
     # convert watershed raster to shapefile and export it. *Added estimated area and ANA declared area
@@ -213,7 +213,7 @@ watersheDelimit <- function(stationsPath,
 
   r <- terra::trim(terra::rast(paste(outputDirPath, "/Watersheds_nested.tif", sep = "")))
 
-  unicos <- sort(base::unique(na.omit(terra::values(r))))
+  unicos <- sort(base::unique(stats::na.omit(terra::values(r))))
 
   reclassMatrix <- base::data.matrix(cbind(
     c(unicos),
@@ -254,3 +254,8 @@ watersheDelimit <- function(stationsPath,
 
   return(resumo)
 }
+
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("area_km2", "area_km2p", "geometry",
+                                                        "Watersheds_nested", "areakm2",
+                                                        "areakm2_p"))
