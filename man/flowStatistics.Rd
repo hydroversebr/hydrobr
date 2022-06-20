@@ -12,13 +12,13 @@ flowStatistics(selectStationsResult, statistics = "Qmean", permanence = 95)
 the data frames of filtered records for each station
 (output from \code{\link[=selectStations]{selectStations()}} function).}
 
-\item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
-The default is 95 percent.}
-
-\item{statistic}{character; indicates statistics. The supported statistics are:
+\item{statistics}{character; indicates statistics. The supported statistics are:
 (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
 (3) stream flow associated with a percentage of time (Qperm); (4) maximum stream flow (Qmax);
 and (5) minimum stream flow (Qmin). The default is "Qmean".}
+
+\item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
+The default is 95 percent.}
 }
 \value{
 A list containing 3 objects:
