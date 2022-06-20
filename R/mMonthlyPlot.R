@@ -195,9 +195,11 @@ mMonthlyPlot = function(organizeResult,
       ggplot2::geom_col() +
       ggplot2::theme_bw(base_size = 14)+
       ggplot2::labs(x = "Month",
-           y = if (varName == "stream_flow_m3_s") {"Average Streamflow (m³/s)"} else {"Average Rainfall (mm)"})
+           y = if (varName == "stream_flow_m3_s") {"Average Streamflow (m3_s)"} else {"Average Rainfall (mm)"})
 
 
 
   return(plot)
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("value", "monthCY"))
