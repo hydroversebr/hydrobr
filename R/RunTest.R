@@ -5,7 +5,7 @@
 #' @description Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.
 #'
 #'
-#' @param dfStationlist list with elements containing continuous stations data;
+#' @param resultFillorStatistics list with elements containing continuous stations data;
 #' @param by_month logical. if by_mounth = TRUE, run test is performed for each month.
 #'
 #' @return p-value for each continuous stations data
@@ -15,19 +15,19 @@
 #'
 #' @examplesIf interactive()
 #'
-#'#' inv <- inventory(
+#' # Fech a inventory of fluviometric stations for the state of Minas Gerais
+#'
+#' inv <- inventory(
 #'   states = "MINAS GERAIS",
 #'   stationType = "flu",
 #'   as_sf = TRUE,
-#'   aoi = NULL
-#' )
+#'   aoi = NULL)
 #'
 #' # Download the first 10 stations from the inventory
 #'
 #' s_data <- stationsData(
 #'   inventoryResult = inv[1:10,],
-#'   deleteNAstations = TRUE
-#' )
+#'   deleteNAstations = TRUE)
 #'
 #' # Organize the data for the stations
 #'
@@ -53,25 +53,55 @@
 #' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 #'
 #' #MannKendall test
-#' RunTest(dfStationlist = Qmean_years, by_month = FALSE)
+#' RunTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
 #'
 #'
 #' @export
-RunTest <- function(dfStationlist, by_month = FALSE) { # se by_month for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
+#'
+RunTest <- function(resultFillorStatistics, by_month = TRUE) { # se by_month for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
 
+  ## Verification if arguments are in the desired format
+  # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
 
-  if (by_month == FALSE) { # se os a estatística for anual
+  if (!attributes(resultFillorStatistics)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
+    stop(
+      call. = FALSE,
+      '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
+       The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
+    )
+  }
+
+  ## verify by_month parameter
+
+  resultFillorStatistics = resultFillorStatistics$series
+
+  #identify type of serie (annual or monthly)
+
+  if (names(resultFillorStatistics[[1]])[2] == "waterYear"){
+    period = "waterYear"
+  } else {period = "monthWaterYear"}
+
+  if (by_month == TRUE & period == "waterYear" | !is.logical(by_month) | !length(by_month) == 1) {
+    stop(
+      call. = FALSE,
+      '`by_month` should be a logical vector of length == 1 (TRUE or FALSE).
+       if `resultFillorStatistics` is an annual series list, by_month is necessarily `FALSE`.
+       See arguments details for more information'
+    )
+  }
+
+  if (by_month == FALSE) { # for annual and monthly series compute trendness
 
 
     pvalueRun <- as.numeric()
     station <- as.numeric()
 
-    for (i in 1:length(dfStationlist)) {
-      testRun <- dfStationlist[[i]] %>%
-        dplyr::pull(2) %>%
+    for (i in 1:length(resultFillorStatistics)) {
+      testRun <- resultFillorStatistics[[i]] %>%
+        dplyr::pull(3) %>%
         randtests::runs.test(plot = FALSE)
       pvalueRun[i] <- round(testRun$p.value, 3)
-      station[i] <- names(dfStationlist)[i]
+      station[i] <- names(resultFillorStatistics)[i]
     }
 
     testRun <- tibble::as_tibble(apply(cbind(station, pvalueRun), 2, as.numeric))
@@ -83,21 +113,20 @@ RunTest <- function(dfStationlist, by_month = FALSE) { # se by_month for igual a
     estacao <- as.numeric()
     testRun <- list()
 
-    for (i in 1:length(dfStationlist)) {
-      testRun[[i]] <- dfStationlist[[i]] %>%
-        stats::setNames(c("monthWaterYear", "value")) %>%
+    for (i in 1:length(resultFillorStatistics)) {
+      testRun[[i]] <- resultFillorStatistics[[i]] %>%
+        stats::setNames(c("station_code", "monthWaterYear", "value")) %>%
         dplyr::mutate(month = lubridate::month(monthWaterYear)) %>% # criar mês
         dplyr::group_by(month) %>% # agrupar por mÊs
-        dplyr::group_map(~ runs.test(.x$value, plot = FALSE)) %>% # realziar teste de Run no mÊs
+        dplyr::group_map(~ randtests::runs.test(.x$value, plot = FALSE)) %>% # realziar teste de Run no mÊs
         lapply(FUN = function(x) x$p.value) %>% # pegar p-value
         unlist() %>% # converter para vetor
         base::round(3) %>% # arredondar
-        dplyr::bind_cols(dfStationlist[[i]] %>% # concatenar vetor de pvalue com mês associado
+        dplyr::bind_cols(resultFillorStatistics[[i]] %>% # concatenar vetor de pvalue com mês associado
                     dplyr::mutate(month = lubridate::month(monthWaterYear)) %>%
-                    dplyr::group_by(month) %>%
                     dplyr::pull(month) %>%
-                    .[c(1:12)]) %>%
-        stats::setNames(c(paste("pval_Rtest_", names(dfStationlist)[i], sep = ""), "month")) %>% # renomear colunas
+                    base::unique()) %>%
+        stats::setNames(c(paste("pval_Rtest_", names(resultFillorStatistics)[i], sep = ""), "month")) %>% # renomear colunas
         dplyr::arrange(month) %>% # ordenar por mês
         dplyr::mutate(month = as.character(lubridate::month(month, label = TRUE))) %>% # converter número do mês em nome do mÊs
         dplyr::select(month, dplyr::everything()) %>%  # ordenar colunas %>%
@@ -110,3 +139,5 @@ RunTest <- function(dfStationlist, by_month = FALSE) { # se by_month for igual a
   }
   return(testRun)
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("month"))
