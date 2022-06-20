@@ -10,7 +10,7 @@
 #'   the data frames of filtered records for each station
 #'   (output from [hydrobr::selectStations()] function).
 #'
-#' @param statistic character; indicates statistics. The supported statistics are:
+#' @param statistics character; indicates statistics. The supported statistics are:
 #' (1) total rainfall (Rtotal); (2)  maximum rainfall (Rmax);
 #' (3) rainy days (Rdays). The default is "Rtotal".
 
@@ -97,6 +97,12 @@ selectStationsResult <- selectStationsResult$series
 
 if (statistics == "Rtotal") {
 
+  # selectStationsResult %>%
+  #   do.call(what = dplyr::bind_rows) %>%
+  #   dplyr::filter(station_code == 1746018 & waterYear == 1988) %>%
+  #   dplyr::pull(rainfall_mm) %>%
+  #   sum(na.rm = TRUE)
+
   series <- selectStationsResult %>%
     do.call(what = dplyr::bind_rows) %>%
     dplyr::group_by_at(c(period, "station_code")) %>%
@@ -105,6 +111,7 @@ if (statistics == "Rtotal") {
       rainTotal_mm = sum(rainfall_mm, na.rm = TRUE),
       .groups = 'drop') %>%
     dplyr::select(c(2, 1, 3))
+
 
 
 } else if (statistics == "Rmax") {
@@ -131,19 +138,47 @@ if (statistics == "Rtotal") {
 
 }
 
+ #reorder results
 
-  out <- list(series = series %>% dplyr::ungroup() %>%
+ if (period == "monthWaterYear"){
+
+   #reorder series based on date
+
+   series = series %>%
+     dplyr::arrange(station_code, monthWaterYear)
+
+   #series_matrix reordered
+
+   series_matrix = series %>%
+     dplyr::arrange(station_code) %>%
+     tidyr::pivot_wider(names_from = .data$station_code, values_from = 3) %>%
+     dplyr::arrange(monthWaterYear)
+
+ } else {
+
+   series = series %>%
+     dplyr::arrange(station_code, "waterYear")
+
+   series_matrix = series %>%
+     dplyr::ungroup() %>%
+     dplyr::arrange(station_code) %>%
+     tidyr::pivot_wider(names_from = .data$station_code, values_from = 3) %>%
+     dplyr::mutate(date = as.Date(paste("01", "01", waterYear, sep = "-"),
+                                  tryFormats = "%d-%m-%Y")) %>%
+     dplyr::arrange(date) %>%
+     dplyr::select(-date)
+
+ }
+
+  out <- list(series = series %>%
                 base::split(.$station_code),
-              df_series = series %>%
-                dplyr::ungroup() %>%
-                base::split(.$station_code) %>%
-                dplyr::bind_rows(),
-              series_matrix = series %>%
-                dplyr::ungroup() %>%
-                tidyr::pivot_wider(names_from = .data$station_code, values_from = 3))
+              df_series = series,
+              series_matrix = series_matrix)
 
   class(out) <- c(class(out), 'rainStatistics')
 
   return(out)
 
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("rainfall_mm"))
