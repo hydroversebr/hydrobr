@@ -5,10 +5,10 @@
 \alias{RunTest}
 \title{Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.}
 \usage{
-RunTest(dfStationlist, by_month = FALSE)
+RunTest(resultFillorStatistics, by_month = TRUE)
 }
 \arguments{
-\item{dfStationlist}{list with elements containing continuous stations data;}
+\item{resultFillorStatistics}{list with elements containing continuous stations data;}
 
 \item{by_month}{logical. if by_mounth = TRUE, run test is performed for each month.}
 }
@@ -21,19 +21,19 @@ Performs the Wald-Wolfowitz runs test of randomness for list of continuous stati
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
-#' inv <- inventory(
+# Fech a inventory of fluviometric stations for the state of Minas Gerais
+
+inv <- inventory(
   states = "MINAS GERAIS",
   stationType = "flu",
   as_sf = TRUE,
-  aoi = NULL
-)
+  aoi = NULL)
 
 # Download the first 10 stations from the inventory
 
 s_data <- stationsData(
   inventoryResult = inv[1:10,],
-  deleteNAstations = TRUE
-)
+  deleteNAstations = TRUE)
 
 # Organize the data for the stations
 
@@ -59,7 +59,7 @@ final_data <- selectStations(
 Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 
 #MannKendall test
-RunTest(dfStationlist = Qmean_years, by_month = FALSE)
+RunTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
 
 \dontshow{\}) # examplesIf}
 }

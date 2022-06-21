@@ -9,7 +9,7 @@
 #' @param selectStationsResult list, tibble data frame; provides a list containing
 #'   the data frames of filtered records for each station
 #'   (output from [hydrobr::selectStations()] function).
-#' @param statistic character; indicates statistics. The supported statistics are:
+#' @param statistics character; indicates statistics. The supported statistics are:
 #' (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
 #' (3) stream flow associated with a percentage of time (Qperm); (4) maximum stream flow (Qmax);
 #' and (5) minimum stream flow (Qmin). The default is "Qmean".
@@ -63,6 +63,9 @@
 #'
 #' @export
 #' @importFrom rlang .data
+#' @importFrom rlang :=
+
+
 flowStatistics = function(selectStationsResult, statistics = "Qmean", permanence = 95)
 {
 
@@ -163,18 +166,52 @@ if (statistics == "Qmean") {
 }
 
 
-  out <- list(series = series %>% dplyr::ungroup() %>%
-                base::split(.$station_code),
-              df_series = series %>%
-                dplyr::ungroup() %>%
-                base::split(.$station_code) %>%
-                dplyr::bind_rows(),
-              series_matrix = series %>%
-                dplyr::ungroup() %>%
-                tidyr::pivot_wider(names_from = .data$station_code, values_from = 3))
+#reorder results
 
-  class(out) <- c(class(out), 'flowStatistics')
+if (period == "monthWaterYear"){
 
-  return(out)
+  #reorder series based on date
+
+  series = series %>%
+    dplyr::arrange(station_code, monthWaterYear)
+
+  #series_matrix reordered
+
+  series_matrix = series %>%
+    dplyr::arrange(station_code) %>%
+    tidyr::pivot_wider(names_from = .data$station_code, values_from = 3) %>%
+    dplyr::arrange(monthWaterYear)
+
+} else {
+
+  series = series %>%
+    dplyr::arrange(station_code, "waterYear")
+
+  series_matrix = series %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(station_code) %>%
+    tidyr::pivot_wider(names_from = .data$station_code, values_from = 3) %>%
+    dplyr::mutate(date = as.Date(paste("01", "01", waterYear, sep = "-"),
+                                 tryFormats = "%d-%m-%Y")) %>%
+    dplyr::arrange(date) %>%
+    dplyr::select(-date)
 
 }
+
+out <- list(series = series %>%
+              base::split(.$station_code),
+            df_series = series,
+            series_matrix = series_matrix)
+
+class(out) <- c(class(out), 'rainStatistics')
+
+return(out)
+
+}
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(".",
+                                                        'station_code',
+                                                        'stream_flow_m3_s',
+                                                        'monthWaterYear',
+                                                        'waterYear'))
+

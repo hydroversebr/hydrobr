@@ -10,8 +10,8 @@
 #'    for each station (output from [hydrobr::flowStatistics()] or [hydrobr::rainStatistics()]).
 #' @param minimumCor value; minimum correlation between stations. default = 0.84
 #' @param minimunObsPairs value; minimum of observation pairwise between stations to be filled with.
-#' If [StatisticsResult] is annual time series, minimunObsPairs is equal to number of commom years.
-#' If [StatisticsResult] is monthly time series, minimunObsPairs is equal to number of common months.
+#' If 'StatisticsResult' is annual time series, minimunObsPairs is equal to number of commom years.
+#' If 'StatisticsResult' is monthly time series, minimunObsPairs is equal to number of common months.
 #'
 #' @return A list containing 4 objects:
 #'   * a list containing statistic a data frame [tibble::tibble()] object for each station.
@@ -63,9 +63,13 @@
 #'
 #' #fill Gaps of Annual time series
 #'
-#' Qmean_years_filled = fillGaps(StatisticsResult = Qmean_years, minimumCor = 0.84, minimunObsPairs = 10)
+#' Qmean_years_filled = fillGaps(StatisticsResult = Qmean_years,
+#'                               minimumCor = 0.84,
+#'                               minimunObsPairs = 10)
 #'
 #' @export
+#' @importFrom rlang :=
+
 fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
 
 
@@ -116,10 +120,13 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
   resultados = list()
 
   #convert list of station serie to tibble and rename columns
-  df = StatisticsResult$series_matrix
+  df = StatisticsResult$series_matrix %>%
+    dplyr::select(dplyr::all_of(period), sort(colnames(.))[-ncol(.)])
+
+
 
   #correlation between stations
-  corN = tibble::as_tibble(cor(df[,-1], use = "pairwise.complete.obs"))
+  corN = tibble::as_tibble(stats::cor(df[,-1], use = "pairwise.complete.obs"))
 
   preenchidos = list()
 
@@ -144,11 +151,11 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
     ordem
 
 
-    if (length(na.omit(ordem))>0){ #caso exista estação com r > 0.84 #na.omit existe pois pode haver situações que não existe dados pareados gerando NA na correlão entre estações
+    if (length(stats::na.omit(ordem))>0){ #caso exista estação com r > 0.84 #na.omit existe pois pode haver situações que não existe dados pareados gerando NA na correlão entre estações
 
-      for (j in 1:length(na.omit(ordem))){ #para todas estações com r > 0.84
+      for (j in 1:length(stats::na.omit(ordem))){ #para todas estações com r > 0.84
 
-        if (nrow(na.omit(df[,c(period, estPrencher, ordem[j])]))>=minimunObsPairs){ #se o número de observações pareadas forem maior ou igual a "minimunObsPairs"
+        if (nrow(stats::na.omit(df[,c(period, estPrencher, ordem[j])]))>=minimunObsPairs){ #se o número de observações pareadas forem maior ou igual a "minimunObsPairs"
 
           regrdf = df[,c(period, estPrencher, ordem[j])] #df com estação a ser preenchida e estação que vai preencher
 
@@ -194,29 +201,37 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
 
     names(preenchidos[[i]]) = c(period, names(StatisticsResult$df_series)[3])
 
-    preenchidos[[i]] = dplyr::arrange(preenchidos[[i]], dplyr::across(starts_with(period))) %>%
-      dplyr::mutate(station_code = unique(StatisticsResult$series[[i]]$station_code)) %>%
+    preenchidos[[i]] = dplyr::arrange(preenchidos[[i]], dplyr::across(dplyr::starts_with(period))) %>%
+      dplyr::mutate(station_code = estPrencher) %>%
       dplyr::select(c(3,1,2))
   }
 
   names(preenchidos) = names(df[,-1])
 
+  #reorder preenchidos based on date if its a montlhy series
+  if(names(preenchidos[[1]])[2] == "monthWaterYear"){
+
+    preenchidos = preenchidos %>%
+      lapply(function(x) x %>%
+      dplyr::arrange(monthWaterYear))
+
+  }
+
   #list of df with filling results of each station
   resultados[[1]] = preenchidos
 
   #convert list to df
-  resultados[[2]] = preenchidos %>% dplyr::bind_rows()
+  resultados[[2]] = preenchidos %>%
+    dplyr::bind_rows()
 
   #convert list to df wider format
-  resultados[[3]] = preenchidos %>%
-    dplyr::bind_rows() %>%
+  resultados[[3]] = resultados[[2]] %>%
     tidyr::pivot_wider(names_from = station_code, values_from = 3)
 
   #failureMatrix
   resultados[[4]] = resultados[[3]] %>%
-    dplyr::mutate_at(c(2:ncol(.)), is.numeric)
+    dplyr::mutate_at(c(2:ncol(.)), ~ dplyr::if_else(is.na(.), TRUE, FALSE))
 
-  names(resultados) = c('series', "df_series", "series_matrix", "failureMatrix")
 
   #plot
   g = reshape2::melt(resultados[[4]], id.vars = period) %>%
@@ -229,15 +244,20 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
     ggplot2::geom_tile(color = "black") +
     ggplot2::scale_fill_manual(name =  paste(names(StatisticsResult$df_series)[3] %>%
                                                stringr::str_extract(pattern = "[^_]+"), "Data", sep = " "),
-                               values=c("TRUE"="#00b0f6", "FALSE"="#f8766d"),
+                               values=c("FALSE"="#00b0f6", "TRUE"="#f8766d"),
                                labels = c("complete", "missing"))+
     ggplot2::theme_bw()
 
   resultados[[5]] = g
-  names(resultados)[5] = "plot"
+
+  names(resultados) = c("series", "df_series", "df_serie_wider", "failure_matrix", "plot")
 
   print(g)
 
+  class(resultados) <- c(class(resultados), 'fillGaps')
+
   return(resultados)
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("V1", "y", "pred", "preenchido"))
 

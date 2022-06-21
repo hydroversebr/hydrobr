@@ -2,6 +2,7 @@
 
 export("%>%")
 export(MKTest)
+export(PetitTest)
 export(RunTest)
 export(demProducts)
 export(fillGaps)
@@ -15,4 +16,5 @@ export(selectStations)
 export(stationsData)
 export(watersheDelimit)
 importFrom(magrittr,"%>%")
+importFrom(rlang,":=")
 importFrom(rlang,.data)

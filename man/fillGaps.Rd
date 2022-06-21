@@ -14,8 +14,8 @@ for each station (output from \code{\link[=flowStatistics]{flowStatistics()}} or
 \item{minimumCor}{value; minimum correlation between stations. default = 0.84}
 
 \item{minimunObsPairs}{value; minimum of observation pairwise between stations to be filled with.
-If \link{StatisticsResult} is annual time series, minimunObsPairs is equal to number of commom years.
-If \link{StatisticsResult} is monthly time series, minimunObsPairs is equal to number of common months.}
+If 'StatisticsResult' is annual time series, minimunObsPairs is equal to number of commom years.
+If 'StatisticsResult' is monthly time series, minimunObsPairs is equal to number of common months.}
 }
 \value{
 A list containing 4 objects:
@@ -76,6 +76,8 @@ Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 
 #fill Gaps of Annual time series
 
-Qmean_years_filled = fillGaps(StatisticsResult = Qmean_years, minimumCor = 0.84, minimunObsPairs = 10)
+Qmean_years_filled = fillGaps(StatisticsResult = Qmean_years,
+                              minimumCor = 0.84,
+                              minimunObsPairs = 10)
 \dontshow{\}) # examplesIf}
 }

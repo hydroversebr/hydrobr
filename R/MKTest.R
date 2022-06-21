@@ -5,7 +5,7 @@
 #' @description Performs the MannKendall trend test for list of continuous stations data.
 #'
 #'
-#' @param dfStationlist list with elements containing continuous stations data;
+#' @param resultFillorStatistics list with elements containing continuous stations data;
 #' @param by_month logical. if by_mounth = TRUE, MannKendall test is performed for each month.
 #'
 #' @return p-value for each continuous stations data
@@ -15,25 +15,22 @@
 #'
 #' @examplesIf interactive()
 #'
-#'#' inv <- inventory(
+#' inv <- inventory(
 #'   states = "MINAS GERAIS",
 #'   stationType = "flu",
 #'   as_sf = TRUE,
-#'   aoi = NULL
-#' )
+#'   aoi = NULL)
 #'
 #' # Download the first 10 stations from the inventory
 #'
 #' s_data <- stationsData(
 #'   inventoryResult = inv[1:10,],
-#'   deleteNAstations = TRUE
-#' )
+#'   deleteNAstations = TRUE)
 #'
 #' # Organize the data for the stations
 #'
 #' org_data <- organize(
-#'   stationsDataResult = s_data
-#' )
+#'   stationsDataResult = s_data)
 #'
 #' # Filter the data for desired period and quality contorl
 #'
@@ -46,19 +43,50 @@
 #'   iniYear = NULL,
 #'   finYear = NULL,
 #'   consistedOnly = FALSE,
-#'   plot = TRUE
-#' )
+#'   plot = TRUE)
 #'
 #' # Annual mean stream flow serie for each station
 #' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
 #'
 #' #MannKendall test
-#' MKTest(dfStationlist = Qmean_years, by_month = FALSE)
+#' MKTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
 #'
 #'
 #' @export
-MKTest <- function(listStationData, by_month = FALSE) { # se by_month for igual a TRUE, faz o MKTest por mÊs da série mensal. Caso contrário na série mensal ou anual
 
+
+
+MKTest <- function(resultFillorStatistics, by_month = TRUE) { # se by_month for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
+
+  ## Verification if arguments are in the desired format
+  # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
+
+  if (!attributes(resultFillorStatistics)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
+    stop(
+      call. = FALSE,
+      '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
+       The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
+    )
+  }
+
+  ## verify by_month parameter
+
+  resultFillorStatistics = resultFillorStatistics$series
+
+  #identify type of serie (annual or monthly)
+
+  if (names(resultFillorStatistics[[1]])[2] == "waterYear"){
+    period = "waterYear"
+  } else {period = "monthWaterYear"}
+
+  if (by_month == TRUE & period == "waterYear" | !is.logical(by_month) | !length(by_month) == 1) {
+    stop(
+      call. = FALSE,
+      '`by_month` should be a logical vector of length == 1 (TRUE or FALSE).
+       if `resultFillorStatistics` is an annual series list, by_month is necessarily `FALSE`.
+       See arguments details for more information'
+    )
+  }
 
   if (by_month == FALSE) { # se os a estatística for anual
 
@@ -66,13 +94,12 @@ MKTest <- function(listStationData, by_month = FALSE) { # se by_month for igual 
     pvalueMK <- as.numeric()
     station <- as.numeric()
 
-    for (i in 1:length(listStationData)) {
-      testMK <- listStationData[[i]] %>%
-        dplyr::pull(2) %>%
+    for (i in 1:length(resultFillorStatistics)) {
+      testMK <- resultFillorStatistics[[i]] %>%
+        dplyr::pull(3) %>%
         Kendall::MannKendall()
-
-      pvalueMK[i] <- round(testMK$sl[1],3)
-      station[i] <- names(listStationData)[i]
+      pvalueMK[i] <- round(testMK$sl[1], 3)
+      station[i] <- names(resultFillorStatistics)[i]
     }
 
     testMK <- tibble::as_tibble(apply(cbind(station, pvalueMK), 2, as.numeric))
@@ -80,23 +107,24 @@ MKTest <- function(listStationData, by_month = FALSE) { # se by_month for igual 
 
   } else { # fazer teste de Run por mês
 
+    pvalueMK <- as.numeric()
+    estacao <- as.numeric()
     testMK <- list()
 
-    for (i in 1:length(listStationData)) {
-      testMK[[i]] <- listStationData[[i]] %>%
-        stats::setNames(c("monthWaterYear", "value")) %>%
+    for (i in 1:length(resultFillorStatistics)) {
+      testMK[[i]] <- resultFillorStatistics[[i]] %>%
+        stats::setNames(c("station_code", "monthWaterYear", "value")) %>%
         dplyr::mutate(month = lubridate::month(monthWaterYear)) %>% # criar mês
         dplyr::group_by(month) %>% # agrupar por mÊs
-        dplyr::group_map(~ MannKendall(.x$value)) %>% # realziar teste de Run no mÊs
-        lapply(FUN = function(x) x$sl[1]) %>% # pegar p-valuetestMK$sl[1]
+        dplyr::group_map(~ Kendall::MannKendall(.x$value)) %>% # realziar teste de Run no mÊs
+        lapply(FUN = function(x) x$sl[1]) %>% # pegar p-value
         unlist() %>% # converter para vetor
-        round(3) %>% # arredondar
-        dplyr::bind_cols(listStationData[[i]] %>% # concatenar vetor de pvalue com mês associado
+        base::round(3) %>% # arredondar
+        dplyr::bind_cols(resultFillorStatistics[[i]] %>% # concatenar vetor de pvalue com mês associado
                            dplyr::mutate(month = lubridate::month(monthWaterYear)) %>%
-                           dplyr::group_by(month) %>%
                            dplyr::pull(month) %>%
-                           .[c(1:12)]) %>%
-        stats::setNames(c(paste("pval_MKtest_", names(listStationData)[i], sep = ""), "month")) %>% # renomear colunas
+                           base::unique()) %>%
+        stats::setNames(c(paste("pval_Rtest_", names(resultFillorStatistics)[i], sep = ""), "month")) %>% # renomear colunas
         dplyr::arrange(month) %>% # ordenar por mês
         dplyr::mutate(month = as.character(lubridate::month(month, label = TRUE))) %>% # converter número do mês em nome do mÊs
         dplyr::select(month, dplyr::everything()) %>%  # ordenar colunas %>%
@@ -109,3 +137,5 @@ MKTest <- function(listStationData, by_month = FALSE) { # se by_month for igual 
   }
   return(testMK)
 }
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("month"))
