@@ -17,13 +17,21 @@ historicalStatistics(
 the data frames of filtered records for each station
 (output from \code{\link[=selectStations]{selectStations()}} function).}
 
-\item{statistics}{character; indicates statistics. The supported statistics are:
+\item{statistics}{character; indicates statistics.
+\itemize{
+\item The supported statistics for streamflow are:
 (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
 (3) stream flow associated with a percentage of time (Qperm); (4) maximum stream flow (Qmax);
-and (5) minimum stream flow (Qmin). The default is "Qmean".}
+and (5) minimum stream flow (Qmin).
+\item The supported statistics are: (1) total rainfall (Rtotal); (2)  maximum rainfall (Rmax);
+(3) rainy days (Rdays).
+\item The default value is "Qmean".
+}}
 
 \item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
 The default is 95 percent.}
+
+\item{byMonth}{= logical. if byMounth = TRUE, historical statistics is performed for each month.}
 }
 \value{
 A list containing 3 objects:
@@ -35,7 +43,8 @@ A list containing 3 objects:
 }
 \description{
 Takes as input a list containing data frames of organized and filtered records
-for each station (output from \code{\link[=selectStations]{selectStations()}}) and compute historical flow statistics
+for each station (output from \code{\link[=selectStations]{selectStations()}}) and compute historical
+streamflow or rainfall statistics
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
