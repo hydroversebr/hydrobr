@@ -165,7 +165,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
         station_code = unique(station_code),
-        Q7_m3_s = min(zoo::rollapply(stream_flow_m3_s, 7, FUN = mean, partial = TRUE, align = "left")),
+        Q7_m3_s = min(zoo::rollapply(stats::na.omit(stream_flow_m3_s), 7, FUN = mean, partial = TRUE, align = "left")),
         .groups = 'drop') %>%
       dplyr::select(c(2, 1, 3))
 
@@ -293,5 +293,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c(".",
                                                         'station_code',
                                                         'stream_flow_m3_s',
                                                         'monthWaterYear',
-                                                        'waterYear'))
+                                                        'waterYear',
+                                                        'rainfall'))
 
