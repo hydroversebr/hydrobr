@@ -9,7 +9,7 @@ fillGaps(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10)
 }
 \arguments{
 \item{StatisticsResult}{list, tibble data frame; A list containing statistic data frame \code{\link[tibble:tibble]{tibble::tibble()}} object
-for each station (output from \code{\link[=flowStatistics]{flowStatistics()}} or \code{\link[=rainStatistics]{rainStatistics()}}).}
+for each station (output from \code{\link[=seriesStatistics]{seriesStatistics()}}).}
 
 \item{minimumCor}{value; minimum correlation between stations. default = 0.84}
 
@@ -30,7 +30,7 @@ gap filled.
 }
 \description{
 Takes as input a list containing annual or monthly time series statistic
-for each station (output from \code{\link[=flowStatistics]{flowStatistics()}} or \code{\link[=rainStatistics]{rainStatistics()}})
+for each station (output from \code{\link[=seriesStatistics]{seriesStatistics()}})
 and try to fill gaps based on linear regression among them.
 }
 \examples{

@@ -3,11 +3,11 @@
 #' @encoding UTF-8
 #'
 #' @description Takes as input a list containing annual or monthly time series statistic
-#'    for each station (output from [hydrobr::flowStatistics()] or [hydrobr::rainStatistics()])
+#'    for each station (output from [hydrobr::seriesStatistics()])
 #'    and try to fill gaps based on linear regression among them.
 #'
 #' @param StatisticsResult list, tibble data frame; A list containing statistic data frame [tibble::tibble()] object
-#'    for each station (output from [hydrobr::flowStatistics()] or [hydrobr::rainStatistics()]).
+#'    for each station (output from [hydrobr::seriesStatistics()]).
 #' @param minimumCor value; minimum correlation between stations. default = 0.84
 #' @param minimunObsPairs value; minimum of observation pairwise between stations to be filled with.
 #' If 'StatisticsResult' is annual time series, minimunObsPairs is equal to number of commom years.
