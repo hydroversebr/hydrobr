@@ -86,6 +86,17 @@ selectStations <- function(organizeResult,
                            plot = TRUE) {
 
 
+  wtr_yr <- function(dates, start_month=9) {
+    # Convert dates into POSIXlt
+    dates.posix = as.POSIXlt(dates)
+    # Year offset
+    offset = ifelse(dates.posix$mon >= start_month - 1, 1, 0)
+    # Water year
+    adj.year = dates.posix$year + 1899 + offset
+    # Return the water year
+    adj.year
+  }
+
   # For the failureMatrix, NA represents no data, FALSE represents that the %
   #  of missing data exceeded the threshold `maxMissing`, and TRUE represents
   #  that the % of missing data did not exceed the threshold.
@@ -230,9 +241,7 @@ selectStations <- function(organizeResult,
           monthCivilYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
                                  lubridate::year(.data$date),
                                  sep = "-"), tryFormats = "%d-%m-%Y"),
-          waterYear      = lfstat::water_year(.data$date,
-                                              origin = month,
-                                              assign = 'start') %>% as.character() %>% as.numeric(),
+          waterYear      = wtr_yr(.data$date, start_month = month),
           monthWaterYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
                                  .data$waterYear, sep = "-"), tryFormats = "%d-%m-%Y")
         ) %>%
