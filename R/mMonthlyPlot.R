@@ -55,6 +55,16 @@ mMonthlyPlot = function(organizeResult,
                         minYears = 15,
                         consistedOnly = TRUE){
 
+  wtr_yr <- function(dates, start_month=9) {
+    # Convert dates into POSIXlt
+    dates.posix = as.POSIXlt(dates)
+    # Year offset
+    offset = ifelse(dates.posix$mon >= start_month - 1, 1, 0)
+    # Water year
+    adj.year = dates.posix$year + 1899 + offset
+    # Return the water year
+    adj.year
+  }
 
   ## Verification if arguments are in the desired format
   # is stationsDataResult an outcome from stationsData function?
@@ -139,9 +149,7 @@ mMonthlyPlot = function(organizeResult,
           monthCivilYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
                                  lubridate::year(.data$date),
                                  sep = "-"),
-          waterYear      = lfstat::water_year(.data$date,
-                                              origin = 1,
-                                              assign = 'start') %>% as.character() %>% as.numeric(),
+          waterYear      =  wtr_yr(.data$date, start_month = 1) %>% as.character() %>% as.numeric(),
           monthWaterYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
                                  .data$waterYear, sep = "-")
         ) %>%
