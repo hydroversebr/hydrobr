@@ -20,8 +20,12 @@
 #' @param month numeric; indicates the month when the water year begins. The default is
 #'   1 (use civil year).
 #' @param iniYear numeric; filters the time series to begin on this year (inclusive).
+#'   If you choose to use water year instead of civil year, e.g., month = 6,
+#'   the first observation used is from the date "01-06-`iniYear`".
 #'   The default is NULL (use entire period).
 #' @param finYear numeric; filters the time series to end on this year (inclusive).
+#'   If you choose to use water year instead of civil year, e.g., month = 6,
+#'   the last observation used is from the date "31-05-`finYear`".
 #'   The default is NULL (use entire period).
 #' @param consistedOnly logical; should only consisted data be considered?
 #'   The default is FALSE.
@@ -46,23 +50,24 @@
 #'   states = "MINAS GERAIS",
 #'   stationType = "flu",
 #'   as_sf = TRUE,
-#'   aoi = NULL)
+#'   aoi = NULL
+#' )
 #'
 #' # Download the first 10 stations from the inventory
 #'
 #' s_data <- stationsData(
 #'   inventoryResult = inv[1:10,],
-#'   deleteNAstations = TRUE)
+#'   deleteNAstations = TRUE
+#' )
 #'
 #' # Organize the data for the stations
 #'
-#' org_data <- organize(
-#'   stationsDataResult = s_data)
+#' org_data <- organize(stationsDataResult = s_data)
 #'
 #' # Filter the data for desired period and quality contorl
 #'
 #' final_data <- selectStations(
-#'   stationsDataResult = org_data,
+#'   organizeResult = org_data,
 #'   mode = "yearly",
 #'   maxMissing = 10,
 #'   minYears = 15,
@@ -70,7 +75,8 @@
 #'   iniYear = NULL,
 #'   finYear = NULL,
 #'   consistedOnly = FALSE,
-#'   plot = TRUE)
+#'   plot = TRUE
+#' )
 #'
 #' @export
 #'
@@ -79,23 +85,12 @@ selectStations <- function(organizeResult,
                            mode = "yearly",
                            maxMissing = 10,
                            minYears = 15,
-                           month = 1,
+                           month = 3,
                            iniYear = NULL,
                            finYear = NULL,
                            consistedOnly = FALSE,
                            plot = TRUE) {
 
-
-  wtr_yr <- function(dates, start_month=9) {
-    # Convert dates into POSIXlt
-    dates.posix = as.POSIXlt(dates)
-    # Year offset
-    offset = ifelse(dates.posix$mon >= start_month - 1, 1, 0)
-    # Water year
-    adj.year = dates.posix$year + 1899 + offset
-    # Return the water year
-    adj.year
-  }
 
   # For the failureMatrix, NA represents no data, FALSE represents that the %
   #  of missing data exceeded the threshold `maxMissing`, and TRUE represents
@@ -198,13 +193,29 @@ selectStations <- function(organizeResult,
   }
   varName <- switch (stationType, plu = 'rainfall_mm', flu = 'stream_flow_m3_s')
 
+
+
   ##
   # Single workflow regardless of station type
   organizeResultDF <- organizeResult %>%
     # Join all stations into single df
-    do.call(what = dplyr::bind_rows) %>%
+    dplyr::bind_rows() %>%
     # Rename streamflow/precipitation variable
     dplyr::rename('value' = 4)
+
+  # Create civil and water year columns
+  organizeResultDF <- organizeResultDF %>%
+    dplyr::mutate(
+      # Retrieve year from date
+      civilYear      = lubridate::year(.data$date),
+      # Retrieve year-month from date
+      monthCivilYear = .data$date - (lubridate::day(.data$date) - 1),
+      # Calculate water year
+      waterYear      = lubridate::year(.data$date %>%
+                                         lubridate::add_with_rollback(months(-(month - 1)))),
+      # same as monthCivilYear but replace civilYear by waterYear
+      monthWaterYear = as.Date(paste0(.data$waterYear, substr(.data$monthCivilYear, 5, 10)))
+    )
 
   # Are only consisted data to be considered?
   if (consistedOnly == TRUE) {
@@ -214,43 +225,39 @@ selectStations <- function(organizeResult,
   }
 
   # Filter time series based on initial and final year arguments
-  if (!is.null(iniYear)) {
-    organizeResultDF <- organizeResultDF %>% dplyr::filter(lubridate::year(.data$date) >= iniYear)
-  }
-  if (!is.null(finYear)) {
-    organizeResultDF <- organizeResultDF %>% dplyr::filter(lubridate::year(.data$date) <= finYear)
-  }
-
-  # Create df based on beginning and end of water year
-  selectDataResult <- split(organizeResultDF, organizeResultDF$station_code) %>%
-    # For each station, create a sequence of dates for waterYear/monthWaterYear
-    purrr::map(.f = function(df){
-      # Create tibble with sequence of dates
-      dplyr::tibble(date = seq(
-        from = paste0(min(lubridate::year(df$date)),
-                      stringr::str_pad(month, side = 'left', pad = 0, width = 2),
-                      '01') %>% as.Date(.data, format = '%Y%m%d'),
-        to   = paste0(max(lubridate::year(df$date)),
-                      stringr::str_pad(month, side = 'left', pad = 0, width = 2),
-                      '01') %>% as.Date(.data, format = '%Y%m%d'),
-        by = 1
-      )) %>%
-        # Add civil/water year columns
-        dplyr::mutate(
-          civilYear      = lubridate::year(.data$date),
-          monthCivilYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
-                                 lubridate::year(.data$date),
-                                 sep = "-"), tryFormats = "%d-%m-%Y"),
-          waterYear      = wtr_yr(.data$date, start_month = month),
-          monthWaterYear = as.Date(paste("01", stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
-                                 .data$waterYear, sep = "-"), tryFormats = "%d-%m-%Y")
-        ) %>%
-        dplyr::left_join(df, by = 'date') %>%
-        # Fill station_code column
-        dplyr::mutate(station_code = unique(df$station_code))
-    }) %>%
-    # Join all stations into single df
-    do.call(what = dplyr::bind_rows)
+  selectDataResult <- organizeResultDF %>%
+    # Group by station to find initial and final date (important is ini/finYear = NULL)
+    dplyr::group_by_at('station_code') %>%
+    # Create reference initial and final date for each station
+    dplyr::mutate(
+      # initial date
+      initialDate = dplyr::if_else(
+        # In case iniYear is NULL
+        is.null(iniYear),
+        # T > Use first year of the series and provided month
+        paste0(min(lubridate::year(.data$date)), '-',
+               stringr::str_pad(month, side = 'left', pad = 0, width = 2), '-01'),
+        # F > Use iniYear and month
+        paste0(iniYear, '-',
+               stringr::str_pad(month, side = 'left', pad = 0, width = 2), '-01')),
+      # final date
+      finalDate = dplyr::if_else(
+        # In case finYear is NULL
+        is.null(iniYear),
+        # T > Use final year of the series and last day of month - 1
+        paste0(max(lubridate::year(.data$date)), '-',
+               stringr::str_pad(if ((month - 1) == 0) 12 else (month - 1), side = 'left', pad = 0, width = 2), '-',
+               lubridate::days_in_month(if ((month - 1) == 0) 12 else (month - 1))),
+        # F > Use finYear and month - 1
+        paste0(finYear, '-',
+               stringr::str_pad(if ((month - 1) == 0) 12 else (month - 1), side = 'left', pad = 0, width = 2), '-',
+               lubridate::days_in_month(if ((month - 1) == 0) 12 else (month - 1))))
+    ) %>%
+    # Filter dates within initial and final date for each station
+    dplyr::filter(.data$date >= as.Date(.data$initialDate),
+                  .data$date <= as.Date(.data$finalDate)) %>%
+    # Remove initialDate and finalDate columns
+    dplyr::select(-dplyr::matches('lDate'))
 
   ## Is mode yearly or monthly??
   # Remove warning from using discrete variable in alpha for plot
@@ -261,8 +268,12 @@ selectStations <- function(organizeResult,
     failureMatrix <- selectDataResult %>%
       # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'waterYear')) %>%
+      # Get lenght of year in days
+      dplyr::mutate(N = dplyr::if_else(length(.data$value) < 365,
+                                       365,
+                                       length(.data$value) %>% as.double())) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/.data$N) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('^waterYear$'),
@@ -282,8 +293,12 @@ selectStations <- function(organizeResult,
     missingMatrix <- selectDataResult %>%
       # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'waterYear')) %>%
+      # Get lenght of year in days
+      dplyr::mutate(N = dplyr::if_else(length(.data$value) < 365,
+                                       365,
+                                       length(.data$value) %>% as.double())) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/.data$N) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('^waterYear$'),
@@ -298,27 +313,37 @@ selectStations <- function(organizeResult,
 
     # Creating plot with consistency level and missing data
     g <- selectDataResult %>%
+      # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'waterYear')) %>%
-      dplyr::mutate(consistency_level = dplyr::if_else(is.na(.data$consistency_level),
-                                                       0,
-                                                       as.numeric(.data$consistency_level))) %>%
+      # Get lenght of year in days
+      dplyr::mutate(N = dplyr::if_else(length(.data$value) < 365,
+                                       365,
+                                       length(.data$value) %>% as.double())) %>%
+      # Check % of consisted and missing
       dplyr::summarise(consisted = 100*sum(.data$consistency_level == 2)/dplyr::n(),
-                       missing   = 100*sum(is.na(.data$value))/dplyr::n(),
+                       missing   = 100*sum(is.na(.data$value))/.data$N,
                        .groups = 'drop') %>%
+      dplyr::distinct() %>%
       # stations with at least minYears
       dplyr::filter(.data$station_code %in% names(failureMatrix)[-1]) %>%
       ggplot2::ggplot() +
       ggplot2::geom_tile(ggplot2::aes(x = .data$waterYear,
                                       y = .data$station_code,
-                                      fill = .data$consisted,
+                                      fill = .data$consisted == 100,
                                       alpha = .data$missing < maxMissing), color = 'black') +
-      ggplot2::scale_fill_distiller(name = 'consistency level', palette = 'Spectral', direction = 1,
-                                    breaks = c(0, 50, 100),
-                                    labels = c('(100%) Raw', '(50%/50%)', '(100%) Consisted')) +
-      ggplot2::scale_alpha_discrete(name = '(transparency)', range = c(0.4, 1),
-                                    labels = c(paste0('>  ', maxMissing, '% missing'),
-                                               paste0('<= ', maxMissing, '% missing'))) +
-      ggplot2::theme_bw()
+      ggplot2::scale_fill_manual(name = 'consistency level',
+                                 values = c("#00b0f6", '#f8766d'),
+                                 breaks = c(T, F),
+                                 labels = c('Consisted', 'Raw')) +
+      ggplot2::scale_alpha_manual(name = '(transparency*)',
+                                  breaks = c(F, T),
+                                  values = c(0.4, 1),
+                                  labels = c(paste0('>  ', maxMissing, '% missing'),
+                                             paste0('<= ', maxMissing, '% missing'))) +
+      ggplot2::theme_bw() +
+      ggplot2::labs(caption = if (consistedOnly == T)
+        '*transparency based on consisted data available' else
+          '*transparency based on all data available')
 
   } else {
 
@@ -327,7 +352,8 @@ selectStations <- function(organizeResult,
       # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'monthWaterYear')) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/
+                      lubridate::days_in_month(.data$monthWaterYear)) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('monthWaterYear'),
@@ -359,7 +385,8 @@ selectStations <- function(organizeResult,
       # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'monthWaterYear')) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/
+                      lubridate::days_in_month(.data$monthWaterYear)) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('monthWaterYear'),
@@ -379,7 +406,8 @@ selectStations <- function(organizeResult,
       # Group by station and wateryear
       dplyr::group_by_at(c('station_code', 'monthWaterYear')) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/
+                      lubridate::days_in_month(.data$monthWaterYear)) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('monthWaterYear'),
@@ -394,25 +422,33 @@ selectStations <- function(organizeResult,
     g <- selectDataResult %>%
       # stations with at least minYears
       dplyr::filter(.data$station_code %in% keepStations$station_code) %>%
+      # Group by station code and monthWaterYear
       dplyr::group_by_at(c('station_code', 'monthWaterYear')) %>%
-      dplyr::mutate(consistency_level = dplyr::if_else(is.na(.data$consistency_level),
-                                                       0,
-                                                       as.numeric(.data$consistency_level))) %>%
+      # Check % of consisted and missing
       dplyr::summarise(consisted = 100*sum(.data$consistency_level == 2)/dplyr::n(),
-                       missing   = 100*sum(is.na(.data$value))/dplyr::n(),
+                       missing   = 100*sum(is.na(.data$value))/
+                         lubridate::days_in_month(.data$monthWaterYear),
                        .groups = 'drop') %>%
+      dplyr::distinct() %>%
       ggplot2::ggplot() +
       ggplot2::geom_tile(ggplot2::aes(x = .data$monthWaterYear,
                                       y = .data$station_code,
-                                      fill = .data$consisted,
+                                      fill = .data$consisted == 100,
                                       alpha = .data$missing < maxMissing)) +
-      ggplot2::scale_fill_distiller(name = 'consistency level', palette = 'Spectral', direction = 1,
-                                    breaks = c(0, 50, 100), labels = c('(100%) Raw', '(50%/50%)', '(100%) Consisted')) +
-      ggplot2::scale_alpha_discrete(name = '(transparency)', range = c(0.4, 1),
-                                    labels = c(paste0('>  ', maxMissing, '% missing'),
-                                               paste0('<= ', maxMissing, '% missing'))) +
+      ggplot2::scale_fill_manual(name = 'consistency level',
+                                 values = c("#00b0f6", '#f8766d'),
+                                 breaks = c(T, F),
+                                 labels = c('Consisted', 'Raw')) +
+      ggplot2::scale_alpha_manual(name = '(transparency)',
+                                  breaks = c(F, T),
+                                  values = c(0.4, 1),
+                                  labels = c(paste0('>  ', maxMissing, '% missing'),
+                                             paste0('<= ', maxMissing, '% missing'))) +
       ggplot2::scale_x_date(date_labels = '%m-%Y') +
-      ggplot2::theme_bw()
+      ggplot2::theme_bw() +
+      ggplot2::labs(caption = if (consistedOnly == T)
+        '*transparency based on consisted data available' else
+          '*transparency based on all data available')
   }
   options(warn = 1)
 
