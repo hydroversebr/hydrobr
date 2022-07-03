@@ -1,0 +1,167 @@
+---
+title: "hydrobr package: Introduction"
+subtitle: "Accessing the Brazilian National Water Agency (ANA) database"
+date: "2022-07-02"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{hydrobr package: Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+The objective of this vignette is to present the first and main functions developed for `hydrobr` package. This vignette will show how to access the inventory, download, pre-process and filter fluviometric/pluviometric stations from the Brazilian National Water Agency (ANA) database for an arae of interest. The first step is to load the package in your session. Here we'll also load the `ggplot2`, `sf`, and `dplyr` packages which will be used for illustrations/examples.
+
+```{r setup}
+library(hydrobr)
+library(ggplot2)
+library(sf)
+library(dplyr)
+```
+
+## 1 Stations inventory
+
+Using the `hydrobr::inventory()` function, you access the list of gauge stations for an area of interest. You can either provide the list of states for argument `states` or a object (polygon) of class `sf` to argument `aoi`. You must also specify the type of stations that you are interested on to argument `stationType` ("plu" = pluviometric, "flu" = fluviometric). Finally, you can also choose if you want the output to be returned as a `sf` object or `tibble` through argument `as_sf`. Check function description for more details ("?inventory")
+
+In this example, we'll access the list of fluviometric stations both by providing a state ("ACRE") and by providing a sf object (Pantanal biome). The sf file will be accessed using the `geobr` package.
+
+```{r pantanal, results='hide', warning=F}
+## Downloading Cerrado biome boundaries 
+pantanal <- geobr::read_biomes()[6,]
+```
+
+```{r inventory, warning=F}
+## Visualize the sf object
+ggplot(pantanal) + geom_sf()
+
+## Access inventory
+## By listing state(s)
+inv_flu_acre <- inventory(
+  states = 'ACRE',
+  stationType = 'flu',
+  as_sf = F
+)
+## Check first lines
+head(inv_flu_acre)
+
+## By providing sf object
+inv_flu_pantanal <- inventory(
+  stationType = 'flu',
+  as_sf = T,
+  aoi = pantanal
+)
+## Check first lines
+head(inv_flu_pantanal)
+
+```
+
+The same workflow applies if you choose `stationType = 'plu'`. Note that by passing the argument `as_sf = T`, it returns a simple feature collection which may be used directly in spatial analysis/illustrations.
+
+```{r inventoryplot, warning=F}
+## inventory: Acre state
+ggplot(inv_flu_acre) + 
+  geom_point(aes(x = long, y = lat)) +
+  coord_sf(crs = 4326) +
+  theme(axis.title = element_blank())
+
+## inventory: Pantanal
+ggplot() +
+  geom_sf(data = pantanal) + 
+  geom_sf(data = inv_flu_pantanal)
+```
+
+## 2 Data download
+
+The next step is to download the time series for each station. We'll use the function `hydrobr::stationsData` which returns raw data from the Brazilian National Water Agency database for the stations inventory. The user can choose wether to maintain stations with missing data through the argument `deleteNAstations`. Check function description for more details ("?stationsData")
+
+This step might take a while depending on how many stations is in your inventory. For brevity, we'll only download the first 10 stations from the inventory list for ACRE.
+
+```{r downloaddata, warning=F}
+## Data download
+data_flu_acre <- stationsData(
+  # [1:10,] specifics that you are interest only in the first 10 rows (stations)
+  inventoryResult = inv_flu_acre[1:10,],
+  deleteNAstations = T
+)
+
+## How many stations have data available?
+str(data_flu_acre, max.level = 1)
+```
+
+The output structure is a "List of 6", meaning that only 6 out of the 10 first stations in the inventory list have data available. Note that this stations are in the exact same format as provided by ANA. Example for first station downloaded:
+
+```{r dataformat}
+## Check first station downloaded
+data_flu_acre[[1]]
+```
+
+## 3 Organizing data
+
+Because the downloaded data is not in a format easy to work with, we can use the function `hydrobr::organize()` to organize the data into tidy data frames. The output will contain only columns for station code, data consistency level, date, and either rainfall or streamflow data. Check function description for more details ("?organize").
+
+```{r organize}
+## Organize stations data
+tidy_data_acre <- organize(stationsDataResult = data_flu_acre)
+str(tidy_data_acre, max.level = 1)
+
+## Check first station
+## First rows
+tidy_data_acre[[1]]
+## summary 
+summary(tidy_data_acre[[1]])
+
+## Instead of working with a list of stations data, the user can also combine all data frames into a single data.frame
+bind_rows(tidy_data_acre)
+```
+
+## 4 Pre-process and filter data
+
+Next, we can use the `hydrobr::selectStations()` function to (i) filter the time series within a range of years, (ii) filters out months or years exceeding the maximum threshold of missing data, and (iii) filters out stations with less than a minimum years of complete observations. This function also provides a plot summarising the data availability by default. Check function description for more details on arguments ("?selectStations").
+
+```{r filterdata, fig.width=6}
+flu_acre <- selectStations(
+  # Pass on output from organize() function
+  organizeResult = tidy_data_acre,
+  # Decide by either yearly or monthly filter
+  mode = "yearly",
+  # Filter years with a maximum % of missing data
+  maxMissing = 10,
+  # Filter stations with a minimum of years available
+  minYears = 15,
+  # use civil year (month = 1) or define month for water year
+  month = 1,
+  # filter from initial to final years (or NULL to use entire time series)
+  iniYear = 1980,
+  finYear = 2020,
+  # Use only consisted or raw data as well?
+  consistedOnly = FALSE,
+  # Plot figure? TRUE by default
+  plot = TRUE
+)
+
+## It returns a list of 4 objects as output
+str(flu_acre, max.level = 1)
+
+## The station data are in the first object of the list = a list of data frames for the stations data
+## Acessing the first one
+flu_acre$series[[1]]
+
+# Bind them all together
+bind_rows(flu_acre$series)
+```
+
+### Session info
+```{r sessioninfo, echo=F}
+version
+sessionInfo()
+```
