@@ -163,7 +163,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
           ggplot2::ggplot() +
           ggplot2::geom_point(ggplot2::aes(.data$period, .data$value, colour = "value")) +
           ggplot2::geom_line(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-          ggplot2::geom_line(ggplot2:::aes(x = .data$period, y = meanValues, color = "tend")) +
+          ggplot2::geom_line(ggplot2::aes(x = .data$period, y = meanValues, color = "tend")) +
           ggplot2::scale_color_manual(name = "Legend",
                                       values = c("value" = "darkblue", "tend" = "red"),
                                       labels = c("Streamflow", "Tendency line"))+
@@ -274,7 +274,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
             ggplot2::ggplot() +
             ggplot2::geom_point(ggplot2::aes(.data$period, .data$value, colour = "value")) +
             ggplot2::geom_line(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-            ggplot2::geom_line(ggplot2:::aes(x = .data$period, y = meanValues, color = "tend")) +
+            ggplot2::geom_line(ggplot2::aes(x = .data$period, y = meanValues, color = "tend")) +
             ggplot2::scale_color_manual(name = "Legend",
                                         values = c("value" = "darkblue", "tend" = "red"),
                                         labels = c("Streamflow", "Tendency line"))+

@@ -10,7 +10,7 @@ selectStations(
   mode = "yearly",
   maxMissing = 10,
   minYears = 15,
-  month = 1,
+  month = 3,
   iniYear = NULL,
   finYear = NULL,
   consistedOnly = FALSE,
@@ -35,9 +35,13 @@ default is 15 years.}
 1 (use civil year).}
 
 \item{iniYear}{numeric; filters the time series to begin on this year (inclusive).
+If you choose to use water year instead of civil year, e.g., month = 6,
+the first observation used is from the date "01-06-\code{iniYear}".
 The default is NULL (use entire period).}
 
 \item{finYear}{numeric; filters the time series to end on this year (inclusive).
+If you choose to use water year instead of civil year, e.g., month = 6,
+the last observation used is from the date "31-05-\code{finYear}".
 The default is NULL (use entire period).}
 
 \item{consistedOnly}{logical; should only consisted data be considered?
@@ -75,23 +79,24 @@ inv <- inventory(
   states = "MINAS GERAIS",
   stationType = "flu",
   as_sf = TRUE,
-  aoi = NULL)
+  aoi = NULL
+)
 
 # Download the first 10 stations from the inventory
 
 s_data <- stationsData(
   inventoryResult = inv[1:10,],
-  deleteNAstations = TRUE)
+  deleteNAstations = TRUE
+)
 
 # Organize the data for the stations
 
-org_data <- organize(
-  stationsDataResult = s_data)
+org_data <- organize(stationsDataResult = s_data)
 
 # Filter the data for desired period and quality contorl
 
 final_data <- selectStations(
-  stationsDataResult = org_data,
+  organizeResult = org_data,
   mode = "yearly",
   maxMissing = 10,
   minYears = 15,
@@ -99,6 +104,7 @@ final_data <- selectStations(
   iniYear = NULL,
   finYear = NULL,
   consistedOnly = FALSE,
-  plot = TRUE)
+  plot = TRUE
+)
 \dontshow{\}) # examplesIf}
 }

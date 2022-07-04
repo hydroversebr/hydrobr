@@ -16,7 +16,7 @@ install_github("daniel-althoff/hydrobr")
 ```
 
 ## hydrobr package motivation
-Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são uma das bases para modelagem de processos hidrológicos no Brazil. Esforços tem sido feito para aquisição e processamento desses dados, contudo há necessidade de concentração dos esforços de maneira produzir um software que tenha capacidade prover a cadeia de processamentos comumente realizados na modelagem hidrológica assim como ser continuamente aprimorado. Diante disso, lançamos o pacote hydrobr com sonho de ser um dos locais cujos hidrólogos possam concentrar seus esforços no desenvolvimento da hidrologia. O desenvolvimento do pacote é aberto à estusiastas. Caso tenha uma ideia entre em contato conosco. Faça parte da equipe e ajudenos a realizar esse projeto.
+Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são uma das bases para modelagem de processos hidrológicos no Brazil. Esforços tem sido feito para aquisição e processamento desses dados, contudo há necessidade de concentração dos esforços de maneira produzir um software que tenha capacidade prover a cadeia de processamentos comumente realizados na modelagem hidrológica assim como ser continuamente aprimorado. Diante disso, lançamos o pacote hydrobr a finalidade de ser um dos locais cujos hidrólogos possam concentrar seus esforços no desenvolvimento da hidrologia. O desenvolvimento do pacote é aberto à estusiastas. Caso tenha uma ideia entre em contato conosco. Faça parte da equipe e ajudenos a realizar esse projeto.
 
 
 ## Themes
