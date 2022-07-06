@@ -2,7 +2,7 @@
 #'
 #' @encoding UTF-8
 #'
-#' @description Plot streamflow or rainfall monthly average to help users to identify hydrological year
+#' @description Plot streamflow or rainfall monthly average to help users identify hydrological year
 #'
 #' @param organizeResult list, tibble data frame; provides a list containing
 #'   the data frames of raw records for each station downloaded from ANA web API
@@ -55,16 +55,6 @@ mMonthlyPlot = function(organizeResult,
                         minYears = 15,
                         consistedOnly = TRUE){
 
-  wtr_yr <- function(dates, start_month=9) {
-    # Convert dates into POSIXlt
-    dates.posix = as.POSIXlt(dates)
-    # Year offset
-    offset = ifelse(dates.posix$mon >= start_month - 1, 1, 0)
-    # Water year
-    adj.year = dates.posix$year + 1899 + offset
-    # Return the water year
-    adj.year
-  }
 
   ## Verification if arguments are in the desired format
   # is stationsDataResult an outcome from stationsData function?
@@ -106,11 +96,12 @@ mMonthlyPlot = function(organizeResult,
 
 
   # Type of station?
-  if (names(organizeResult[[1]])[4] == "streamflow_m3_s") {
+  if (sum(names(organizeResult[[1]]) %in% "streamflow_m3_s")==1) {
     stationType <- "flu"
   } else {
     stationType <- "plu"
   }
+
   varName <- switch (stationType, plu = 'rainfall_mm', flu = 'stream_flow_m3_s')
 
   ##
@@ -121,6 +112,13 @@ mMonthlyPlot = function(organizeResult,
     # Rename streamflow/precipitation variable
     dplyr::rename('value' = 4)
 
+
+  # Create civil and water year columns
+  organizeResultDF <- organizeResultDF %>%
+    dplyr::mutate(
+      # Retrieve year from date
+      civilYear      = lubridate::year(.data$date))
+
   # Are only consisted data to be considered?
   if (consistedOnly == TRUE) {
     organizeResultDF <- organizeResultDF %>%
@@ -128,72 +126,33 @@ mMonthlyPlot = function(organizeResult,
       dplyr::mutate(value = dplyr::if_else(.data$consistency_level == 2, .data$value, NA_real_))
   }
 
-
-  # Create df based on beginning and end of water year
-  selectDataResult <- split(organizeResultDF, organizeResultDF$station_code) %>%
-    # For each station, create a sequence of dates for waterYear/monthWaterYear
-    purrr::map(.f = function(df){
-      # Create tibble with sequence of dates
-      dplyr::tibble(date = seq(
-        from = paste0(min(lubridate::year(df$date)),
-                      stringr::str_pad(1, side = 'left', pad = 0, width = 2),
-                      '01') %>% as.Date(.data, format = '%Y%m%d'),
-        to   = paste0(max(lubridate::year(df$date))+1,
-                      stringr::str_pad(1, side = 'left', pad = 0, width = 2),
-                      '01') %>% as.Date(.data, format = '%Y%m%d'),
-        by = 1
-      )) %>%
-        # Add civil/water year columns
-        dplyr::mutate(
-          civilYear      = lubridate::year(.data$date),
-          monthCivilYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
-                                 lubridate::year(.data$date),
-                                 sep = "-"),
-          waterYear      =  wtr_yr(.data$date, start_month = 1) %>% as.character() %>% as.numeric(),
-          monthWaterYear = paste(stringr::str_pad(lubridate::month(.data$date), side = 'left', pad = 0, width = 2),
-                                 .data$waterYear, sep = "-")
-        ) %>%
-        dplyr::left_join(df, by = 'date') %>%
-        # Fill station_code column
-        dplyr::mutate(station_code = unique(df$station_code))
-    }) %>%
-    # Join all stations into single df
-    do.call(what = dplyr::bind_rows)
+  #identify civil years with less than maxMissing
+  failuredf <- organizeResultDF %>%
+    # Group by station and wateryear
+    dplyr::group_by_at(c('station_code', 'civilYear')) %>%
+    # number of data in groups and
+    dplyr::summarise(N = dplyr::if_else(length(.data$value) < 365,
+                                                          365,
+                                                          length(.data$value) %>% as.double()),
+                     missing = 100*sum(is.na(.data$value))/.data$N,
+    .groups = "drop_last") %>%
+    dplyr::mutate(missing = missing<=maxMissing)
 
 
-  ## annual failure matrix
-  options(warn =-1)
-    # Creating failureMatrix
-    failureMatrix <- selectDataResult %>%
-      # Group by station and wateryear
-      dplyr::group_by_at(c('station_code', 'waterYear')) %>%
-      # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/dplyr::n()) %>%
-      # Select waterYear, station, and % missing
-      dplyr::select(
-        dplyr::matches('^waterYear$'),
-        dplyr::matches('station_code'),
-        dplyr::matches('missing')
-      ) %>%
-      # Filter by maxMissing
-      dplyr::mutate(missing = .data$missing <= maxMissing) %>%
-      dplyr::distinct() %>%
-      # Filter by minYears
-      dplyr::group_by_at('station_code') %>%
-      dplyr::filter(sum(.data$missing == T) >= minYears) %>%
-      # Spread each station into a column
-      tidyr::pivot_wider(names_from = .data$station_code, values_from = .data$missing)
+  plotData = organizeResultDF %>%
+    dplyr::ungroup() %>%
+    # Join with failure matrix
+    dplyr::left_join(failuredf, by = c("station_code", "civilYear")) %>%
+    #filter year with less that "minporc"
+    dplyr:::filter(missing == TRUE) %>%
+    dplyr::group_by(station_code) %>%
+    #count number of years of each station and verify if there is all months (1:12)
+    dplyr::mutate(lengthYears = length(unique(.data$civilYear)),
+                  lengthMonths = length(unique(lubridate::month(.data$date)))) %>%
+    #stations with minimal year and all months
+    dplyr::filter(lengthYears >= minYears & lengthMonths>=12)
 
-  ##select completed years, evaluate month average and plot graph
-    plot <- selectDataResult %>%
-      # Join with failure matrix
-      dplyr::left_join(
-        failureMatrix %>%
-          tidyr::pivot_longer(cols = 2:ncol(failureMatrix), names_to = 'station_code', values_to = 'keep')
-      ) %>%
-      # Filter data to keep
-      dplyr::filter(.data$keep == T) %>%
-      # add month
+  plot = plotData %>%
       dplyr::mutate(monthCY = as.factor(lubridate::month(date))) %>%
       dplyr::group_by_at(c("station_code", "monthCY")) %>%
       dplyr::summarise(value = if (varName == "stream_flow_m3_s") {mean(value, na.rm = TRUE)} else {sum(value, na.rm = TRUE)/length(unique(.data$civilYear))}, .groups = 'drop') %>%
@@ -201,7 +160,7 @@ mMonthlyPlot = function(organizeResult,
       ggplot2::aes(monthCY, value, group = 1)+
       ggplot2::facet_wrap(ggplot2::vars(station_code), scale = "free")+
       ggplot2::geom_col() +
-      ggplot2::theme_bw(base_size = 14)+
+      ggplot2::theme_bw(base_size = 12)+
       ggplot2::labs(x = "Month",
            y = if (varName == "stream_flow_m3_s") {"Average Streamflow (m3_s)"} else {"Average Rainfall (mm)"})
 
@@ -209,5 +168,6 @@ mMonthlyPlot = function(organizeResult,
 
   return(plot)
 }
+
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("value", "monthCY"))
