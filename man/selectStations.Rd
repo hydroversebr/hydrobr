@@ -10,7 +10,7 @@ selectStations(
   mode = "yearly",
   maxMissing = 10,
   minYears = 15,
-  month = 3,
+  month = 1,
   iniYear = NULL,
   finYear = NULL,
   consistedOnly = FALSE,
