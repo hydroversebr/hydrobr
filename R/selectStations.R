@@ -225,6 +225,7 @@ selectStations <- function(organizeResult,
   }
 
   # Filter time series based on initial and final year arguments
+
   selectDataResult <- organizeResultDF %>%
     # Group by station to find initial and final date (important is ini/finYear = NULL)
     dplyr::group_by_at('station_code') %>%
@@ -235,22 +236,29 @@ selectStations <- function(organizeResult,
         # In case iniYear is NULL
         is.null(iniYear),
         # T > Use first year of the series and provided month
-        paste0(min(lubridate::year(.data$date)), '-',
-               stringr::str_pad(month, side = 'left', pad = 0, width = 2), '-01'),
+        paste0(min(lubridate::year(.data$date)),
+               '-',
+               month,
+               '-01'),
         # F > Use iniYear and month
-        paste0(iniYear, '-',
-               stringr::str_pad(month, side = 'left', pad = 0, width = 2), '-01')),
+        paste0(iniYear,
+               '-',
+               month,
+               '-01')),
+
       # final date
       finalDate = dplyr::if_else(
         # In case finYear is NULL
-        is.null(iniYear),
+        is.null(finYear),
         # T > Use final year of the series and last day of month - 1
-        paste0(max(lubridate::year(.data$date)), '-',
-               stringr::str_pad(if ((month - 1) == 0) 12 else (month - 1), side = 'left', pad = 0, width = 2), '-',
+        paste0(max(lubridate::year(.data$date)),
+               '-',
+               if ((month - 1) == 0) 12 else (month - 1),
+               '-',
                lubridate::days_in_month(if ((month - 1) == 0) 12 else (month - 1))),
         # F > Use finYear and month - 1
         paste0(finYear, '-',
-               stringr::str_pad(if ((month - 1) == 0) 12 else (month - 1), side = 'left', pad = 0, width = 2), '-',
+               if ((month - 1) == 0) 12 else (month - 1), '-',
                lubridate::days_in_month(if ((month - 1) == 0) 12 else (month - 1))))
     ) %>%
     # Filter dates within initial and final date for each station
