@@ -30,7 +30,7 @@ The default is TRUE.}
 Saved plot.
 }
 \description{
-Plot streamflow or rainfall monthly average to help users to identify hydrological year
+Plot streamflow or rainfall monthly average to help users identify hydrological year
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
