@@ -15,7 +15,7 @@ Description: Package developed to download, clean, and quality check hydrologica
     This work is a volunteer initiative from a few Brazilian hydrologists. 
     (improve later).
 License: GPL (>= 3)
-Imports: tibble, dplyr, tidyr, magrittr, purrr, stringr, lubridate, rlang, xml2, 
+Imports: tibble, dplyr, tidyr, magrittr, stringr, lubridate, rlang, xml2, 
     ggplot2, sf, terra, geobr, Kendall, randtests, reshape2, trend, whitebox, zoo
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

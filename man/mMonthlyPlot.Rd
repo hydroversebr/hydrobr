@@ -15,7 +15,7 @@ mMonthlyPlot(
 \arguments{
 \item{organizeResult}{list, tibble data frame; provides a list containing
 the data frames of raw records for each station downloaded from ANA web API
-(output from \code{\link[=stationsData]{stationsData()}} function).}
+(output from \code{\link[=organize]{organize()}} function).}
 
 \item{maxMissing}{numeric; indicates the maximum threshold of missing data allowed at each year.
 The default is 10 percent.}
@@ -56,7 +56,7 @@ org_data <- organize(
   stationsDataResult = s_data
 )
 
-# Filter the data for desired period and quality contorl
+# Filter the data for desired period and quality control
 
 mMonthlyPlot(
   stationsDataResult = org_data,
