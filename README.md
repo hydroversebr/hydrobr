@@ -12,7 +12,7 @@ The commands are:
 ``` R
 install.packages("devtools")
 library(devtools)
-install_github("daniel-althoff/hydrobr")
+install_github("hydroversebr/hydrobr")
 ```
 
 ## hydrobr package motivation
