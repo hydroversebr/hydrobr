@@ -1,4 +1,4 @@
-#' Project raster
+#' (UNDER DEVELOPMENT) Project raster
 #'
 #' @encoding UTF-8
 #'

@@ -1,4 +1,4 @@
-#' Compute streamflow or rainfall statistics by month or year
+#' (UNDER DEVELOPMENT) Compute streamflow or rainfall statistics by month or year
 #'
 #' @encoding UTF-8
 #'

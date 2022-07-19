@@ -1,4 +1,4 @@
-#' Performs the MannKendall trend test for list of continuous stations data.
+#' (UNDER DEVELOPMENT) Performs the MannKendall trend test for list of continuous stations data.
 #'
 #' @encoding UTF-8
 #'
