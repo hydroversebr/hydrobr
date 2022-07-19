@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{watersheDelimit}
 \alias{watersheDelimit}
-\title{Delimitation of watersheds based on ANA fluviométric stations}
+\title{(UNDER DEVELOPMENT) Delimitation of watersheds based on ANA fluviométric stations}
 \usage{
 watersheDelimit(
   stationsPath,

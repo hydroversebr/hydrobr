@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{fillGaps}
 \alias{fillGaps}
-\title{Fill gaps at monthly or annual time series}
+\title{(UNDER DEVELOPMENT) Fill gaps at monthly or annual time series}
 \usage{
 fillGaps(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10)
 }

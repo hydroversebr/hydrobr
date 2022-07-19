@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{PetitTest}
 \alias{PetitTest}
-\title{Performs the MannKendall trend test for list of continuous stations data.}
+\title{(UNDER DEVELOPMENT) Performs the MannKendall trend test for list of continuous stations data.}
 \usage{
 PetitTest(
   resultFillorStatistics,
