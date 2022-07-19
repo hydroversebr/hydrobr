@@ -14,9 +14,15 @@ You can download and install the most up-to-date version directly from this repo
 
 The commands are:
 ``` R
-install.packages("devtools")
+if (!require(devtools)) install.packages("devtools")
 library(devtools)
 install_github("hydroversebr/hydrobr")
+```
+To assess the vignettes and examples of how to use the package:
+
+``` R
+install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
+vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 ```
 
 ## Enjoy it
