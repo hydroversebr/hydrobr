@@ -1,6 +1,6 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) 
 [![license](https://img.shields.io/badge/license-GPL3-lightgrey.svg)](https://choosealicense.com/)
-# hydrobr <img align='right' src='man/figures/logo.png' width="100">
+# hydrobr <img align='right' src='https://github.com/hydroversebr/hydrobr/blob/main/man/figures/logo.png' width="100">
 
 <p align="center">
   <span>Português</span> |
@@ -30,4 +30,9 @@ install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 ```
 
-## Aproveite!
+
+## Contato
+
+<div> 
+  <a href = "mailto:hydroversebr@gmail.com; tcalegario@gmail.com; daniel_althoff@hotmail.com;"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" target="_blank"></a>
+
