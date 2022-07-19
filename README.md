@@ -11,9 +11,9 @@
 
 
 ## Motivation
-<div style="text-align: justify">
+
 Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são uma das bases para modelagem hidrológica no Brazil. O pacote hydrobr foi desenvolvido para baixar, limpar e selecionar estações da ANA. Funções com análises estatísticas preliminares em desenvolvimento. O aprimoramento do pacote é aberto à estusiastas. Faça parte da equipe e ajudenos a desenvolver esse projeto. This work is a volunteer initiative from a few Brazilian hydrologists. 
-</div>
+
 
 ## Installing this package
 
