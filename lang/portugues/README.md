@@ -13,7 +13,7 @@ Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são 
 ## Installing this package
 
 Você pode baixar e instalar a versão mais atualizada do pacote a partir desse diretório. O procedimento é:
-1. Instalar o pacote "devtools" (Você só precisa fazer isso uma vez. Note que será instalado várias dependências)
+1. Instalar o pacote "devtools" (Você só precisa fazer isso uma vez. Note que serão instaladas várias dependências.)
 2. Carregar a livraria "devtools"
 3. Instalar o pacote hydrobr
 
