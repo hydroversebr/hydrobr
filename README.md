@@ -18,7 +18,7 @@ if (!require(devtools)) install.packages("devtools")
 library(devtools)
 install_github("hydroversebr/hydrobr")
 ```
-To assess the vignettes and examples of how to use the package:
+To read the vignettes and examples of how to use the package:
 
 ``` R
 install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
