@@ -1,4 +1,4 @@
-#' Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.
+#' (UNDER DEVELOPMENT) Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.
 #'
 #' @encoding UTF-8
 #'

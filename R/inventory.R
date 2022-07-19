@@ -166,6 +166,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
     estac <- as.data.frame(cbind(
       xml2::xml_text(xml2::xml_contents(xml2::xml_find_all(html_raw1, ".//nmestado"))),
       xml2::xml_double(xml2::xml_contents(xml2::xml_find_all(html_raw1, ".//codigo"))),
+      xml2::xml_text(xml2::xml_contents(xml2::xml_find_all(html_raw1, ".//nome"))),
       xml2::xml_double(xml2::xml_contents(xml2::xml_find_all(html_raw1, ".//latitude"))),
       xml2::xml_double(xml2::xml_contents(xml2::xml_find_all(html_raw1, ".//longitude"))),
       xml2::xml_double(xml2::xml_find_all(html_raw1, ".//areadrenagem"))
@@ -180,7 +181,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
       # Eliminate duplicate rows by station_code
       dplyr::distinct_at(2, .keep_all = TRUE) %>%
       # Rename columns
-      rlang::set_names(c("state", "station_code", "lat", "long", "area_km2")) %>%
+      rlang::set_names(c("state", "station_code", "name", "lat", "long", "area_km2")) %>%
       # Change area_km2 class to numeric
       dplyr::mutate(dplyr::across('area_km2', .fns = as.numeric))
 
@@ -204,7 +205,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
   }
 
   # Return final object
-  columns_to_select <- c('state', 'station_code', 'lat', 'long', 'stationType',  'area_km2', 'geometry')
+  columns_to_select <- c('state', 'station_code', 'name', 'lat', 'long', 'stationType',  'area_km2', 'geometry')
   serief <- serief %>% sf::st_as_sf(coords = c("long", "lat"), crs = 'WGS84')
   serief <- serief %>%
     dplyr::mutate(

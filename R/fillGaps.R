@@ -1,4 +1,4 @@
-#' Fill gaps at monthly or annual time series
+#' (UNDER DEVELOPMENT) Fill gaps at monthly or annual time series
 #'
 #' @encoding UTF-8
 #'
