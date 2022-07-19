@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{RunTest}
 \alias{RunTest}
-\title{Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.}
+\title{(UNDER DEVELOPMENT) Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.}
 \usage{
 RunTest(resultFillorStatistics, by_month = TRUE)
 }

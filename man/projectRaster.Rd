@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{projectRaster}
 \alias{projectRaster}
-\title{Project raster}
+\title{(UNDER DEVELOPMENT) Project raster}
 \usage{
 projectRaster(raster, projectionEPSG, resolution, rasterP_path)
 }

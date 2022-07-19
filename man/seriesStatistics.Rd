@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{seriesStatistics}
 \alias{seriesStatistics}
-\title{Compute streamflow or rainfall statistics by month or year}
+\title{(UNDER DEVELOPMENT) Compute streamflow or rainfall statistics by month or year}
 \usage{
 seriesStatistics(selectStationsResult, statistics = "Qmean", permanence = 95)
 }

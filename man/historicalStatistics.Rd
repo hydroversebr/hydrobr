@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{historicalStatistics}
 \alias{historicalStatistics}
-\title{Compute flow statistics by month or year}
+\title{(UNDER DEVELOPMENT) Compute flow statistics by month or year}
 \usage{
 historicalStatistics(
   selectStationsResult,
