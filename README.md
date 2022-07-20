@@ -10,10 +10,11 @@
 # hydrobr 
 
 
-## Descrição
+## Description
 
-Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são uma das bases para modelagem hidrológica no Brazil. O pacote hydrobr foi desenvolvido para baixar, limpar e selecionar estações da ANA. Funções com análises estatísticas preliminares em desenvolvimento. O aprimoramento do pacote é aberto à estusiastas. Faça parte da equipe e ajudenos a desenvolver esse projeto. This work is a volunteer initiative from a few Brazilian hydrologists. 
+The hydrobr package was developed to help users select, download, and clean data from pluvio- and fluviometric stations from the Brazilian National Water Agency (pt: Agência Nacional de Águas - ANA). The data are made available by ANA and is one of the main databases for hydrological studies in Brazil. Functions for statistical analyses are currently under development.
 
+This is a voluntary initiative from a few Brazilian hydrologists and part of the <a href="https://github.com/hydroversebr/">hydroversebr</a>. The package improvement is open to enthusiasts. Get in touch if you want to be part of the team and help us develop this project.
 
 ## Installing this package
 
