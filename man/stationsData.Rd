@@ -24,6 +24,10 @@ Takes as input an inventory of stations (output from
 National Water Agency (ANA). The user can choose wether to maintain
 stations with missing data.
 }
+\details{
+Improvement of the code developed by Artur Lourenço
+(https://github.com/ArturLourenco/HidroWebFix)
+}
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
