@@ -15,6 +15,9 @@
 #' @return A list containing a data frame [tibble::tibble()] object for each station.
 #'   The data frame format is identical to the format provided by ANA.
 #'
+#' @details Improvement of the code developed by Artur Lourenço
+#' (https://github.com/ArturLourenco/HidroWebFix)
+#'
 #' @references
 #' Dados Abertos da Agência Nacional de Águas e Saneamento Básico.
 #'
