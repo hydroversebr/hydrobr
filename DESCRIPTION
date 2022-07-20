@@ -6,7 +6,7 @@ Authors@R:
            comment = c(ORCID = "0000-0002-1921-5234")),
       person("Daniel", "Althoff", , "daniel_althoff@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5390-575X"))),
-      person("Artur", "Lourenço", , , role = c("aut"),
+      person("Artur", "Lourenço", , , role = c("ctb"),
            comment = c(ORCID = "0000-0003-1999-2524"))      
 Description: Package developed to download, clean, and quality check hydrological
     data freely available for Brazil and perform general hydrological analyses.
