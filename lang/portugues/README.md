@@ -13,7 +13,7 @@
 
 O pacote hydrobr foi desenvolvido para selecionar, baixar, e limpar dados provenientes de estações pluvio- e fluviométricas da Agência Nacional de Águas (ANA). Os dados disponibilizados pela ANA compõem uma das principais bases para estudos hidrológicos no Brasil. Funções com análises estatísticas posteriores estão em desenvolvimento.
 
-Este é uma iniciativa voluntária de alguns hidrólogos brasileiros. O aprimoramento do pacote é aberto à entusiastas. Faça parte da equipe e ajudenos a desenvolver esse projeto.
+Este é uma iniciativa voluntária de alguns hidrólogos brasileiros e faz parte do <a href="https://github.com/hydroversebr/">hydroversebr</a>. O aprimoramento do pacote é aberto à entusiastas. Faça parte da equipe e ajudenos a desenvolver esse projeto.
 
 
 ## Instalando o pacote
