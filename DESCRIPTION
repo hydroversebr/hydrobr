@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     c(person("Arthur", "Calegario", , "tcalegario@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1921-5234")),
-      person("Daniel", "Althoff", , "daniel_althoff@hotmail.com", role = c("aut"),
+      person("Daniel", "Althoff", , "daniel_althoff@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5390-575X"))),
       person("Artur", "Lourenço", , , role = c("aut"),
            comment = c(ORCID = "0000-0003-1999-2524"))      
