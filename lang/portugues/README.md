@@ -9,15 +9,18 @@
 
 # hydrobr 
 
-## motivation
-Os dados fluviométricos e pluviométriocos da Agência Nacional de Águas são uma das bases para modelagem hidrológica no Brazil. O pacote hydrobr foi desenvolvido para baixar, limpar e selecionar estações da ANA. Funções com análises estatísticas posteriores estão em desenvolvimento. O aprimoramento do pacote é aberto à estusiastas. Faça parte da equipe e ajudenos a desenvolver esse projeto. This work is a volunteer initiative from a few Brazilian hydrologists. 
+## Descrição
+
+O pacote hydrobr foi desenvolvido para selecionar, baixar, e limpar dados provenientes de estações pluvio- e fluviométricas da Agência Nacional de Águas (ANA). Os dados disponibilizados pela ANA compõem uma das principais bases para estudos hidrológicos no Brasil. Funções com análises estatísticas posteriores estão em desenvolvimento.
+
+Este é uma iniciativa voluntária de alguns hidrólogos brasileiros e faz parte do <a href="https://github.com/hydroversebr/">hydroversebr</a>. O aprimoramento do pacote é aberto à entusiastas. Contate-nos se você quer fazer parte do time e ajude-nos a desenvolver esse projeto.
 
 
-## Installing this package
+## Instalando o pacote
 
 Você pode baixar e instalar a versão mais atualizada do pacote a partir desse diretório. O procedimento é:
 1. Instalar o pacote "devtools" (Você só precisa fazer isso uma vez. Note que serão instaladas várias dependências.)
-2. Carregar a livraria "devtools"
+2. Carregar o pacote "devtools"
 3. Instalar o pacote hydrobr
 
 Os comandos são:
@@ -26,8 +29,8 @@ if (!require(devtools)) install.package("devtools")
 library(devtools)
 install_github("hydroversebr/hydrobr")
 ```
-Para ler os vignettes e examplos de como usar:
 
+Para ler os vignettes e examplos de como usar:
 ``` R
 install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
