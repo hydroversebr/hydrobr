@@ -1,6 +1,6 @@
 Package: hydrobr
 Title: Access to the Brazilian National Water Agency (Agência Nacional de Águas) hydrological data
-Version: 0.0.1
+Version: 0.0.0.9000
 Authors@R: 
     c(person("Arthur", "Calegario", , "tcalegario@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1921-5234")),
