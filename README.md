@@ -27,12 +27,11 @@ The commands are:
 ``` R
 if (!require(devtools)) install.package("devtools")
 library(devtools)
-install_github("hydroversebr/hydrobr")
+install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 ```
 To read the vignettes and examples of how to use the package:
 
 ``` R
-install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 ```
 
