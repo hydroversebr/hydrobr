@@ -12,7 +12,7 @@
 
 ## Description
 
-The hydrobr package was developed to help users select, download, and clean data from pluvio- and fluviometric stations from the Brazilian National Water Agency (pt: Agência Nacional de Águas - ANA). The data is made available by ANA and is one of the main databases for hydrological studies in Brazil. Functions for statistical analyses are currently under development.
+The hydrobr package was developed to help users select, download and clean data from pluvio- and fluviometric stations from the Brazilian National Water Agency (pt: Agência Nacional de Águas - ANA). The data is made available by ANA and is one of the main databases for hydrological studies in Brazil. These is a beta version (version 0.0.0.9000), which was tested by the developers in few brazilizan basins. Please ensure that processings are correct in your studie case by a cross check and let us know. Functions for statistical analyses are currently under development.
 
 This is a voluntary initiative from a few Brazilian hydrologists and part of the <a href="https://github.com/hydroversebr/">hydroversebr</a>. The package improvement is open to enthusiasts. Contact us if you want to be part of the team and help us develop this project.
 
