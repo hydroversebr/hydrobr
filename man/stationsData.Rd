@@ -20,7 +20,8 @@ The data frame format is identical to the format provided by ANA.
 }
 \description{
 Takes as input an inventory of stations (output from
-\code{\link[=inventory]{inventory()}}) and downloads raw stations data from the Brazilian
+\code{\link[=inventory]{inventory()}}) or data.frame/tibble object with station_code and stationType
+columns and downloads raw stations data from the Brazilian
 National Water Agency (ANA). The user can choose wether to maintain
 stations with missing data.
 }
@@ -45,6 +46,18 @@ s_data <- stationsData(
   inventoryResult = inv[1:10,],
   deleteNAstations = TRUE
 )
+
+#######
+
+#create data.frame with station_code and stationType columns
+
+stations_code = data.frame(station_code = c("42600000","42690001")
+                           stationType = "fluviometric")
+
+
+
+s_data = stationsData(stations_code)
+
 \dontshow{\}) # examplesIf}
 }
 \references{

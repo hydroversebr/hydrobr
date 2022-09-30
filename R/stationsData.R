@@ -3,7 +3,8 @@
 #' @encoding UTF-8
 #'
 #' @description Takes as input an inventory of stations (output from
-#'   [hydrobr::inventory()]) and downloads raw stations data from the Brazilian
+#'   [hydrobr::inventory()]) or data.frame/tibble object with station_code and stationType
+#'   columns and downloads raw stations data from the Brazilian
 #'   National Water Agency (ANA). The user can choose wether to maintain
 #'   stations with missing data.
 #'
@@ -44,18 +45,22 @@
 #'   deleteNAstations = TRUE
 #' )
 #'
+#' #######
+#'
+#' #create data.frame with station_code and stationType columns
+#'
+#' stations_code = data.frame(station_code = c("42600000","42690001")
+#'                            stationType = "fluviometric")
+#'
+#'
+#'
+#' s_data = stationsData(stations_code)
+#'
+#'
 #' @export
 stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
 
   ## Verification if arguments are in the desired format
-  # is inventoryResult an outcome from inventory function?
-  if (!attributes(inventoryResult)$hydrobr_class %in% 'inventory') {
-    stop(
-      call. = FALSE,
-      '`inventoryResults` does not inherit attribute "inventory".
-         The outcome from the inventory() function should be passed as argument'
-    )
-  }
 
   # is deleteNAstations logical?
   if (!is.logical(deleteNAstations) | length(deleteNAstations) != 1) {
@@ -69,7 +74,18 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
     stop(
       call. = FALSE,
       '`inventoryResults` does not have a "station_code" column.
-         Use inventory() function to retrieve stations inventory'
+         Use inventory() function to retrieve stations inventory
+      or create a column "station_code" with desired stations'
+    )
+  }
+
+  if (!any(names(inventoryResult) == "stationType")) {
+    stop(
+      call. = FALSE,
+      '`inventoryResults` does not have a "station_code" column.
+         Use inventory() function to retrieve stations inventory
+      or create a column "stationType" in your data
+      ("fluviometric" or "pluviometric" allowed)'
     )
   }
 
@@ -83,7 +99,8 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
   } else if (inventoryResult$stationType[1] == "pluviometric") {
     stationType <- 2
   } else {
-    stop("Inventory missing stationType column/parameter")
+    stop('Inventory missing stationType column/parameter
+         ("fluviometric" or "pluviometric" allowed)')
   }
 
   # Begin loop to retrieve data
