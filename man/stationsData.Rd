@@ -51,7 +51,7 @@ s_data <- stationsData(
 
 #create data.frame with station_code and stationType columns
 
-stations_code = data.frame(station_code = c("42600000","42690001")
+stations_code = data.frame(station_code = c("42600000","42690001"),
                            stationType = "fluviometric")
 
 

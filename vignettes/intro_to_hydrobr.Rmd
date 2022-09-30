@@ -31,7 +31,18 @@ library(dplyr)
 
 ## 1 Stations inventory
 
-Using the `hydrobr::inventory()` function, you access the list of gauge stations for an area of interest. You can either provide the list of states for argument `states` or a object (polygon) of class `sf` to argument `aoi`. You must also specify the type of stations that you are interested on to argument `stationType` ("plu" = pluviometric, "flu" = fluviometric). Finally, you can also choose if you want the output to be returned as a `sf` object or `tibble` through argument `as_sf`. Check function description for more details ("?inventory")
+First of all you need to know the stations that you want to download. You can do it searching manually on ANA inventory and provide this data to R in a data.frame (or tibble) format. In this example, we create a inventory data.frame for two desired fluviometric stations.
+
+```{r manual_inventory, warning=F}
+## Generating manual inventory
+inv_manual = data.frame(station_code = c("42600000","42690001"),
+                           stationType = "fluviometric")
+
+inv_manual
+
+```
+
+Another way to do so, is using the `hydrobr::inventory()` function, you access the list of gauge stations for an area of interest. You can either provide the list of states for argument `states` or a object (polygon) of class `sf` to argument `aoi`. You must also specify the type of stations that you are interested on to argument `stationType` ("plu" = pluviometric, "flu" = fluviometric). Finally, you can also choose if you want the output to be returned as a `sf` object or `tibble` through argument `as_sf`. Check function description for more details ("?inventory")
 
 In this example, we'll access the list of fluviometric stations both by providing a state ("ACRE") and by providing a sf object (Pantanal biome). The sf file will be accessed using the `geobr` package.
 
