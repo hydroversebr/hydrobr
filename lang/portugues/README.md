@@ -40,3 +40,5 @@ vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 <div> 
   <a href = "mailto:hydroversebr@gmail.com; tcalegario@gmail.com; daniel_althoff@hotmail.com;"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" target="_blank"></a>
 
+![](https://komarev.com/ghpvc/?username=hydrobr)
+
