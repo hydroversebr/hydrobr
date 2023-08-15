@@ -24,7 +24,7 @@ Você pode baixar e instalar a versão mais atualizada do pacote a partir desse 
 
 Os comandos são:
 ``` R
-if (!require(devtools)) install.package("devtools")
+if (!require(devtools)) install.packages("devtools")
 library(devtools)
 install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 ```
