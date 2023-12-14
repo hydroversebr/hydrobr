@@ -131,7 +131,8 @@ organizedResult <- lapply(organizedResult, FUN = function(x) padr::pad(x,
                                                                          end_val = as.Date(paste(lubridate::year(last(x$date)), 
                                                                                                  12, 31, sep = "-"))) %>% mutate(station_code = unique(x$station_code)) %>% 
                               mutate(consistency_level = ifelse(is.na(consistency_level), 
-                                                                1, consistency_level)))
+                                                                1, consistency_level))) %>% 
+    suppressMessages()
   attr(organizedResult, "hydrobr_class") <- "organize"
   return(organizedResult)
 }
