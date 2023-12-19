@@ -24,7 +24,7 @@ Você pode baixar e instalar a versão mais atualizada do pacote a partir desse 
 
 Os comandos são:
 ``` R
-if (!require(devtools)) install.package("devtools")
+if (!require(devtools)) install.packages("devtools")
 library(devtools)
 install_github("hydroversebr/hydrobr", build_vignettes = TRUE)
 ```
@@ -39,4 +39,6 @@ vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 
 <div> 
   <a href = "mailto:hydroversebr@gmail.com; tcalegario@gmail.com; daniel_althoff@hotmail.com;"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" target="_blank"></a>
+
+![](https://komarev.com/ghpvc/?username=hydrobr)
 
