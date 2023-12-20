@@ -15,10 +15,10 @@
 #'  (2) DEM burned by streams;
 #'  (3) DEM Sinks;
 #'  (4) DEM slope in degrees;
-#'  (5) DEM slop in porcent;
+#'  (5) DEM slope in porcent;
 #'  (6) DEM burned by streans filled;
-#'  (7) Flow Accumulation based on filled DEM;
-#'  (8) Flow Direction based on filled DEM.
+#'  (7) Flow Accumulation based on (6);
+#'  (8) Flow Direction based on (6).
 #'
 #'
 #' @references

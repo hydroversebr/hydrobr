@@ -225,7 +225,7 @@ inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
   }
 
   # Create attribute to facilitate input/output check
-  attr(serief, 'hydrobr_class') <- 'inventory'
+  # attr(serief, 'hydrobr_class') <- 'inventory'
   return(serief)
 }
 

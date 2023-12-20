@@ -99,15 +99,15 @@ selectStations <- function(organizeResult,
   #  the % of missing data.
 
 
-  ## Verification if arguments are in the desired format
-  # is stationsDataResult an outcome from stationsData function?
-  if (!attributes(organizeResult)$hydrobr_class %in% 'organize') {
-    stop(
-      call. = FALSE,
-      '`organizeResult` does not inherit attribute "organize".
-       The outcome from the organize() function should be passed as argument'
-    )
-  }
+  # ## Verification if arguments are in the desired format
+  # # is stationsDataResult an outcome from stationsData function?
+  # if (!attributes(organizeResult)$hydrobr_class %in% 'organize') {
+  #   stop(
+  #     call. = FALSE,
+  #     '`organizeResult` does not inherit attribute "organize".
+  #      The outcome from the organize() function should be passed as argument'
+  #   )
+  # }
 
   # Is mode a character vector?
   if (!is.character(mode) | length(mode) != 1) {
@@ -505,6 +505,6 @@ selectStations <- function(organizeResult,
                   "failureMatrix",
                   "missingMatrix",
                   "plot")
-  class(out) <- c(class(out), 'selectData')
+  # class(out) <- c(class(out), 'selectData')
   return(out)
 }

@@ -46,15 +46,15 @@
 #' @importFrom rlang .data
 organize <- function(stationsDataResult) {
 
-  ## Verification if arguments are in the desired format
-  # is stationsDataResult an outcome from stationsData function?
-  if (!attributes(stationsDataResult)$hydrobr_class %in% 'stationsData') {
-    stop(
-      call. = FALSE,
-      '`stationsDataResult` does not inherit attribute "stationsData".
-      The outcome from the stationsData() function should be passed as argument'
-    )
-  }
+  # ## Verification if arguments are in the desired format
+  # # is stationsDataResult an outcome from stationsData function?
+  # if (!attributes(stationsDataResult)$hydrobr_class %in% 'stationsData') {
+  #   stop(
+  #     call. = FALSE,
+  #     '`stationsDataResult` does not inherit attribute "stationsData".
+  #     The outcome from the stationsData() function should be passed as argument'
+  #   )
+  # }
 
   ##
   # Single workflow regardless of station type
@@ -124,14 +124,14 @@ organize <- function(stationsDataResult) {
   organizedResult <- split(organizedResult, organizedResult$station_code)
 
   #Pad data to complete dates. Set consistency level = 1 to missing data. Will be computed as NA in selectStation
-  
+
 organizedResult <- lapply(organizedResult, FUN = function(x) padr::pad(x,
-                                                                         start_val = as.Date(paste(lubridate::year(first(x$date)), 
+                                                                         start_val = as.Date(paste(lubridate::year(first(x$date)),
                                                                                                    01, 01, sep = "-")),
-                                                                         end_val = as.Date(paste(lubridate::year(last(x$date)), 
-                                                                                                 12, 31, sep = "-"))) %>% mutate(station_code = unique(x$station_code)) %>% 
-                              mutate(consistency_level = ifelse(is.na(consistency_level), 
-                                                                1, consistency_level))) %>% 
+                                                                         end_val = as.Date(paste(lubridate::year(last(x$date)),
+                                                                                                 12, 31, sep = "-"))) %>% mutate(station_code = unique(x$station_code)) %>%
+                              mutate(consistency_level = ifelse(is.na(consistency_level),
+                                                                1, consistency_level))) %>%
     suppressMessages()
   attr(organizedResult, "hydrobr_class") <- "organize"
   return(organizedResult)

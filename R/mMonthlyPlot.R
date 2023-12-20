@@ -56,15 +56,15 @@ mMonthlyPlot = function(organizeResult,
                         consistedOnly = TRUE){
 
 
-  ## Verification if arguments are in the desired format
-  # is stationsDataResult an outcome from stationsData function?
-  if (!attributes(organizeResult)$hydrobr_class %in% 'organize') {
-    stop(
-      call. = FALSE,
-      '`organizeResult` does not inherit attribute "organize".
-       The outcome from the organize() function should be passed as argument'
-    )
-  }
+  # ## Verification if arguments are in the desired format
+  # # is stationsDataResult an outcome from stationsData function?
+  # if (!attributes(organizeResult)$hydrobr_class %in% 'organize') {
+  #   stop(
+  #     call. = FALSE,
+  #     '`organizeResult` does not inherit attribute "organize".
+  #      The outcome from the organize() function should be passed as argument'
+  #   )
+  # }
 
   # Is maxMissing numeric
   if (!is.numeric(maxMissing) | length(maxMissing) != 1) {
