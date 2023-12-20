@@ -18,7 +18,7 @@
 
 
 
-sazonalityFunction = function(selectionsResultSeries, statistic = "median"){
+sazonality = function(selectionsResultSeries, statistic = "median"){
 
   MedianasMensais = function(x){
 
@@ -51,7 +51,7 @@ sazonalityFunction = function(selectionsResultSeries, statistic = "median"){
   }
 
 
-  AnoHS = lapply(selectionsResult,FUN = MedianasMensais) %>%
+  AnoHS = lapply(selectionsResultSeries,FUN = MedianasMensais) %>%
     dplyr::bind_rows() %>%
     dplyr::group_by(station_code) %>%
     dplyr::filter(mediaMovel6==min(mediaMovel6)) %>%
@@ -59,7 +59,7 @@ sazonalityFunction = function(selectionsResultSeries, statistic = "median"){
     stats::setNames(c("station_code", "FirstDryMonth", "DryMonths"))
 
 
-  AnoHU = lapply(selectionsResult,FUN = MedianasMensais) %>%
+  AnoHU = lapply(selectionsResultSeries,FUN = MedianasMensais) %>%
     dplyr::bind_rows() %>%
     dplyr::group_by(station_code) %>%
     dplyr::filter(mediaMovel6==max(mediaMovel6)) %>%

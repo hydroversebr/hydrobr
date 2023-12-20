@@ -70,7 +70,7 @@ identifyQ7dates = function(selectStationsResultSeries, order = "lastDate"){
                                             partial = TRUE,
                                             align = "left")) %>%
 
-      dplyr::slice(-(n()-5):-n()) %>%
+      dplyr::slice(-(dplyr::n()-5):-dplyr::n()) %>%
       dplyr::filter(Q7_m3_s==min(Q7_m3_s, na.rm = T)) %>%
       {if(order == "lastDate") dplyr::arrange(., dplyr::desc(date)) else dplyr::arrange(., date)} %>%
       dplyr::slice(1) %>%
