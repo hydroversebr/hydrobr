@@ -166,7 +166,5 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
     serie <- serie[serie != "No Data"]
   }
 
-  # Create attribute to facilitate input/output check
-  attr(serie, 'hydrobr_class') <- 'stationsData'
   return(serie)
 }
