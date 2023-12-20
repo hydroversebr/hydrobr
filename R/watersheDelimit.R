@@ -12,10 +12,11 @@
 #' @param tempDirPath character vector. Temporary file directory path
 #'
 #'
+#' @details shapefiles and rasters must be at same projection coordinate system (metric)
+#'
 #' @return Watersheds delineated
 #'
-#'
-#' @references
+#'#' @references
 #' whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 #'
 #'

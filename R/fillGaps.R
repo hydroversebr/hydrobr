@@ -253,8 +253,8 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
   names(resultados) = c("series", "df_series", "df_serie_wider", "failure_matrix", "plot")
 
   print(g)
-
-  class(resultados) <- c(class(resultados), 'fillGaps')
+#
+#   class(resultados) <- c(class(resultados), 'fillGaps')
 
   return(resultados)
 }

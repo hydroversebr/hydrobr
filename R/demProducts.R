@@ -10,6 +10,8 @@
 #' @param outputDir character vector. Output rasters file path.
 #'
 #'
+#' @details DEM must be in metric coordinates (projected)
+#'
 #' @return Create eigth DEM subproducts:
 #'  (1) DEM aspect;
 #'  (2) DEM burned by streams;

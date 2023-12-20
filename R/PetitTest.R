@@ -65,13 +65,13 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
   ## Verification if arguments are in the desired format
   # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
 
-  if (!attributes(resultFillorStatistics)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
-    stop(
-      call. = FALSE,
-      '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
-       The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
-    )
-  }
+  # if (!attributes(resultFillorStatistics)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
+  #   stop(
+  #     call. = FALSE,
+  #     '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
+  #      The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
+  #   )
+  # }
 
   ## verify by_month parameter
 

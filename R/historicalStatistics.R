@@ -94,9 +94,9 @@ historicalStatistics = function (selectStationsResult,
     byMonth = FALSE
   } else {byMonth = TRUE}
 
-  if (attributes(selectStationsResult)$class[2] %in% "stationsData") {
-    stop(call. = FALSE, "`inventoryResults` does not inherit attribute \"inventory\".\n         The outcome from the inventory() function should be passed as argument")
-  }
+  # if (attributes(selectStationsResult)$class[2] %in% "stationsData") {
+  #   stop(call. = FALSE, "`inventoryResults` does not inherit attribute \"inventory\".\n         The outcome from the inventory() function should be passed as argument")
+  # }
   if (!is.character(statistics) | length(statistics) != 1 |
       !statistics %in% c("Qmean", "Qperm", "Q7T", "Qmin", "Qmax",
                          "Rtotal", "Rmax", "Rdays")) {
@@ -258,7 +258,7 @@ historicalStatistics = function (selectStationsResult,
     }
     out = series %>% dplyr::arrange(station_code)
   }
-  class(out) <- c(class(out), "histStatistics")
+  # class(out) <- c(class(out), "histStatistics")
   return(out)
 }
 
