@@ -19,11 +19,8 @@
 #'#' @references
 #' whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 #'
-#'
 #' @examplesIf interactive()
-#'
-#' #
-#'
+#'#'
 #' #stations in area of interest
 #'
 #' stations = inventory(
@@ -47,7 +44,7 @@
 #'   flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
 #'   bufferSearch = 1000,
 #'   outputDirPath = "./example/results/watershedsDelimit",
-#'   tempDirPath = "./temp"
+#'   tempDirPath = "./tempppp"
 #')
 #'
 #'
@@ -59,7 +56,7 @@ watersheDelimit = function(stationsPath,
                             flowDir8Path,
                             bufferSearch = 1000,
                             outputDirPath,
-                            tempDirPath)
+                            tempDirPath = "./tempppp")
 {
   stationsPath <- sf::st_read(stationsPath, quiet = TRUE)
 
@@ -203,3 +200,12 @@ watersheDelimit = function(stationsPath,
   print("Job Done! Congratz!")
   print(resumo)
 }
+
+
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("areakm2",
+                                                        'areakm2_p',
+                                                        "area_km2",
+                                                        "area_km2p",
+                                                        'Watersheds_nested',
+                                                        'geometry'))

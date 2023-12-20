@@ -20,13 +20,16 @@ Create eigth DEM subproducts:
 (2) DEM burned by streams;
 (3) DEM Sinks;
 (4) DEM slope in degrees;
-(5) DEM slop in porcent;
+(5) DEM slope in porcent;
 (6) DEM burned by streans filled;
-(7) Flow Accumulation based on filled DEM;
-(8) Flow Direction based on filled DEM.
+(7) Flow Accumulation based on (6);
+(8) Flow Direction based on (6).
 }
 \description{
 Obtain digital elevation model sub-products
+}
+\details{
+DEM must be in metric coordinates (projected)
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
