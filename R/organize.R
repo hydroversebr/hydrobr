@@ -133,6 +133,6 @@ organizedResult <- lapply(organizedResult, FUN = function(x) padr::pad(x,
                               mutate(consistency_level = ifelse(is.na(consistency_level),
                                                                 1, consistency_level))) %>%
     suppressMessages()
-  attr(organizedResult, "hydrobr_class") <- "organize"
+  # attr(organizedResult, "hydrobr_class") <- "organize"
   return(organizedResult)
 }

@@ -74,15 +74,15 @@
 seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanence = 95)
 {
 
-  ## Verification if arguments are in the desired format
-  # is selectStationsResult an outcome from selectStations?
-  if (attributes(selectStationsResult)$class[2] %in% 'stationsData') {
-    stop(
-      call. = FALSE,
-      '`inventoryResults` does not inherit attribute "inventory".
-         The outcome from the inventory() function should be passed as argument'
-    )
-  }
+  # ## Verification if arguments are in the desired format
+  # # is selectStationsResult an outcome from selectStations?
+  # if (attributes(selectStationsResult)$class[2] %in% 'stationsData') {
+  #   stop(
+  #     call. = FALSE,
+  #     '`inventoryResults` does not inherit attribute "inventory".
+  #        The outcome from the inventory() function should be passed as argument'
+  #   )
+  # }
 
   #if `selectStationsResult` and `statistics` belong same kind of data
 
@@ -283,7 +283,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
               df_series = series,
               series_matrix = series_matrix)
 
-  class(out) <- c(class(out), 'flowStatistics')
+  # class(out) <- c(class(out), 'flowStatistics')
 
   return(out)
 
