@@ -11,7 +11,6 @@
 #'   * a list of data frames [tibble::tibble()] for each station containing Q7 dates, value and month of ocorrence for each wateryear
 #'   * a dataframe containing Q7 month frequency for each station
 #'
-#' @references
 #'
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
@@ -73,20 +72,20 @@ identifyQ7dates = function(selectStationsResultSeries, order = "lastDate"){
 
       dplyr::slice(-(n()-5):-n()) %>%
       dplyr::filter(Q7_m3_s==min(Q7_m3_s, na.rm = T)) %>%
-      {if(order == "lastDate") dplyr::arrange(., desc(date)) else dplyr::arrange(., date)} %>%
+      {if(order == "lastDate") dplyr::arrange(., dplyr::desc(date)) else dplyr::arrange(., date)} %>%
       dplyr::slice(1) %>%
       dplyr::mutate(firstDateQ7 = as.Date(substr(dataQ7, 0,10)),
                     lastDateQ7 = as.Date(substr(dataQ7, 13,23)),
-                    doisMeses = if_else(lubridate::month(firstDateQ7)==lubridate::month(lastDateQ7), "SIM", "NÃO"),
-                    daysMonth1 = if_else(doisMeses == "NÃO",
+                    doisMeses = dplyr::if_else(lubridate::month(firstDateQ7)==lubridate::month(lastDateQ7), "sim", "nao"),
+                    daysMonth1 = dplyr::if_else(doisMeses == "nao",
                                          lubridate::days_in_month(lubridate::month(firstDateQ7)) - lubridate::mday(firstDateQ7)+1,
                                          NA),
-                    daysMonth2 = if_else(doisMeses == "NÃO",
+                    daysMonth2 = dplyr::if_else(doisMeses == "nao",
                                          lubridate::mday(lastDateQ7),
                                          NA),
-                    monthQ7 = if_else(daysMonth2>=daysMonth1, lubridate::month(lastDateQ7), lubridate::month(firstDateQ7)),
-                    monthQ7 = if_else(is.na(monthQ7), lubridate::month(lastDateQ7), monthQ7)) %>%
-      dplyr::select(everything(), -dataQ7, -doisMeses, -daysMonth1, -daysMonth2) %>%
+                    monthQ7 = dplyr::if_else(daysMonth2>=daysMonth1, lubridate::month(lastDateQ7), lubridate::month(firstDateQ7)),
+                    monthQ7 = dplyr::if_else(is.na(monthQ7), lubridate::month(lastDateQ7), monthQ7)) %>%
+      dplyr::select(dplyr::everything(), -dataQ7, -doisMeses, -daysMonth1, -daysMonth2) %>%
       dplyr::ungroup() %>%
       dplyr::select(station_code, civilYear, waterYear, Q7_m3_s, firstDateQ7, lastDateQ7, monthQ7)}
 
@@ -100,7 +99,7 @@ identifyQ7dates = function(selectStationsResultSeries, order = "lastDate"){
                           dplyr::select(c(1,2)) %>%
                           dplyr::arrange(x) %>%
                           dplyr::mutate(station_code = unique(y$station_code),
-                                        freq = if_else(is.na(freq), 0, freq),
+                                        freq = dplyr::if_else(is.na(freq), 0, freq),
                                         month = as.factor(x)) %>%
                           dplyr::select(station_code, month, freq)) %>%
     dplyr::bind_rows() %>%
@@ -114,3 +113,17 @@ identifyQ7dates = function(selectStationsResultSeries, order = "lastDate"){
 
 
 }
+
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("n",
+                                                        'dataQ7',
+                                                        'firstDateQ7',
+                                                        'lastDateQ7',
+                                                        'waterYear',
+                                                        'doisMeses',
+                                                        'daysMonth1',
+                                                        'daysMonth2',
+                                                        'monthQ7',
+                                                        'civilYear',
+                                                        'x',
+                                                        'freq'))

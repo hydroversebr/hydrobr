@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{watersheDelimit}
 \alias{watersheDelimit}
-\title{(UNDER DEVELOPMENT) Delimitation of watersheds based on ANA fluviométric stations}
+\title{Delimitation of watersheds based on ANA fluviométric stations}
 \usage{
 watersheDelimit(
   stationsPath,
@@ -11,7 +11,7 @@ watersheDelimit(
   flowDir8Path,
   bufferSearch = 1000,
   outputDirPath,
-  tempDirPath = "./temp"
+  tempDirPath = "./tempppp"
 )
 }
 \arguments{
@@ -29,15 +29,19 @@ watersheDelimit(
 }
 \value{
 Watersheds delineated
+
+#' @references
+whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 }
 \description{
 Delimitation of watersheds based on ANA fluviométric stations
 }
+\details{
+shapefiles and rasters must be at same projection coordinate system (metric)
+}
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-
-#
-
+#'
 #stations in area of interest
 
 stations = inventory(
@@ -61,11 +65,8 @@ watersheDelimit(
   flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
   bufferSearch = 1000,
   outputDirPath = "./example/results/watershedsDelimit",
-  tempDirPath = "./temp"
+  tempDirPath = "./tempppp"
 )
 
 \dontshow{\}) # examplesIf}
-}
-\references{
-whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 }
