@@ -14,7 +14,7 @@ Description: Package developed to download, clean, and quality check hydrologica
     (improve later).
 License: GPL (>= 3)
 Imports: tibble, dplyr, tidyr, magrittr, stringr, lubridate, rlang, xml2, 
-    ggplot2, sf, terra, geobr, Kendall, randtests, reshape2, trend, whitebox, zoo, padr, plyr
+    ggplot2, sf, terra, geobr, Kendall, randtests, reshape2, trend, whitebox, zoo, padr, plyr, openxlsx
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
