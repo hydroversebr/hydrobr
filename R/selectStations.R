@@ -194,6 +194,24 @@ selectStations <- function(organizeResult,
   varName <- switch (stationType, plu = 'rainfall_mm', flu = 'stream_flow_m3_s')
 
 
+  ##first date to be considered based on month
+
+  #identify first date
+
+  firstDates = lapply(organizeResult, FUN = function(y) y %>%
+                        dplyr::pull(date) %>%
+                        dplyr::first() %>%
+                        base::gsub(x = ., pattern = "-01-",paste("-", month, "-", sep = "")) %>%
+                        base::as.Date())
+
+  #Filter first date
+
+  organizeResult = lapply(1:length(organizeResult), FUN = function(i)
+
+    organizeResult[[i]] %>%
+      dplyr::filter(date>=firstDates[i])
+
+  )
 
   ##
   # Single workflow regardless of station type
