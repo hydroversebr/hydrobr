@@ -160,14 +160,15 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Q7") {
 
-    series <- selectStationsResult %>%
-      do.call(what = dplyr::bind_rows) %>%
+    series <- selectStationsResult %>% dplyr::bind_rows() %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
-      dplyr::summarise(
-        station_code = unique(station_code),
-        Q7_m3_s = min(zoo::rollapply(stats::na.omit(stream_flow_m3_s), 7, FUN = mean, partial = TRUE, align = "left")),
-        .groups = 'drop') %>%
-      dplyr::select(c(2, 1, 3))
+      dplyr::mutate(Q7_m3_s = zoo::rollapply(.data$stream_flow_m3_s,
+                                             7, FUN = mean, partial = TRUE, align = "left")) %>%
+      dplyr::slice(-(dplyr::n() - 5):-dplyr::n()) %>%
+      dplyr::filter(Q7_m3_s==min(Q7_m3_s, na.rm = T)) %>%
+      slice(1) %>%
+      dplyr::select(c(1, period,
+                      Q7_m3_s))
 
   } else if (statistics == "Qperm") {
 
