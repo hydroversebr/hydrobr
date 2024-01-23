@@ -3,20 +3,20 @@
 \encoding{UTF-8}
 \name{MKTest}
 \alias{MKTest}
-\title{(UNDER DEVELOPMENT) Performs the MannKendall trend test for list of continuous stations data.}
+\title{Mann-Kendall trend test}
 \usage{
-MKTest(resultFillorStatistics, by_month = TRUE)
+MKTest(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE)
 }
 \arguments{
-\item{resultFillorStatistics}{list with elements containing continuous stations data;}
+\item{dfSeriesFromFillorSerieStatisticsFunc}{tibble containing annual or monthly series of all stations;}
 
-\item{by_month}{logical. if by_mounth = TRUE, MannKendall test is performed for each month.}
+\item{byMonth}{logical. if byMounth = TRUE, MannKendall test is performed for each month.}
 }
 \value{
 p-value for each continuous stations data
 }
 \description{
-Performs the MannKendall trend test for list of continuous stations data.
+Performs the Mann-Kendall trend test for annual or monthly rainfall (or streamflow) times series
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -52,13 +52,13 @@ final_data <- selectStations(
   plot = TRUE)
 
 # Annual mean stream flow serie for each station
-Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 
 #MannKendall test
-MKTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
+MKTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
 
 \dontshow{\}) # examplesIf}
 }
 \references{
-randtest package (https://cran.r-project.org/web/packages/randtests/index.html)
+Kendall package (https://cran.r-project.org/web/packages/Kendall/Kendall.pdf)
 }

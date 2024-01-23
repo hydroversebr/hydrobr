@@ -1,19 +1,19 @@
-#' (UNDER DEVELOPMENT) Performs the MannKendall trend test for list of continuous stations data.
+#' Pettitt trend test
 #'
 #' @encoding UTF-8
 #'
-#' @description Performs the MannKendall trend test for list of continuous stations data.
+#' @description Performs the Pettitt trend test for annual or monthly rainfall (or streamflow) times series
 #'
 #'
-#' @param resultFillorStatistics list with elements containing continuous stations data.
-#' @param by_month logical. if by_mounth = TRUE, MannKendall test is performed for each month. default = FALSE.
+#' @param dfSeriesFromFillorSerieStatisticsFunc tibble containing annual or monthly series of all stations;
+#' @param byMonth logical. if byMounth = TRUE, Pettitt test is performed for each month.
 #' @param plotGraph logical. defalt = FALSE
 #' @param dirSub string. directory path to save plots. default = "./petitTestGraph".
 #'
 #' @return p-value for each continuous stations data
 #'
 #' @references
-#' randtest package (https://cran.r-project.org/web/packages/randtests/index.html)
+#' trend package (https://cran.r-project.org/web/packages/trend/trend.pdf)
 #'
 #' @examplesIf interactive()
 #'
@@ -52,20 +52,21 @@
 #' )
 #'
 #' # Annual mean stream flow serie for each station
-#' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+#' Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 #'
 #' #MannKendall test
-#' MKTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
+#' MKTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
 #'
 #'
 #' @export
 #' @importFrom rlang :=
-PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALSE, dirSub = "./petitTestGraph") { # se by_month for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
+#'
+PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, plotGraph = FALSE, dirSub = "./petitTestGraph") { # se byMonth for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
 
   ## Verification if arguments are in the desired format
   # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
 
-  # if (!attributes(resultFillorStatistics)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
+  # if (!attributes(dfSeriesFromFillorSerieStatisticsFunc)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
   #   stop(
   #     call. = FALSE,
   #     '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
@@ -73,38 +74,41 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
   #   )
   # }
 
-  ## verify by_month parameter
 
-  resultFillorStatistics = resultFillorStatistics$series
+  dfSeriesFromFillorSerieStatisticsFunc = dfSeriesFromFillorSerieStatisticsFunc %>%
+    split(dfSeriesFromFillorSerieStatisticsFunc$station_code)
+
+
+  ## verify byMonth parameter
 
   #identify type of serie (annual or monthly)
 
-  if (names(resultFillorStatistics[[1]])[2] == "waterYear"){
+  if (names(dfSeriesFromFillorSerieStatisticsFunc[[1]])[2] == "waterYear"){
     period = "waterYear"
   } else {period = "monthWaterYear"}
 
-  if (by_month == TRUE & period == "waterYear" | !is.logical(by_month) | !length(by_month) == 1) {
+  if (byMonth == TRUE & period == "waterYear" | !is.logical(byMonth) | !length(byMonth) == 1) {
     stop(
       call. = FALSE,
-      '`by_month` should be a logical vector of length == 1 (TRUE or FALSE).
-       if `resultFillorStatistics` is an annual series list, by_month is necessarily `FALSE`.
+      '`byMonth` should be a logical vector of length == 1 (TRUE or FALSE).
+       if `dfSeriesFromFillorSerieStatisticsFunc` is an annual series list, byMonth is necessarily `FALSE`.
        See arguments details for more information'
     )
   }
 
-  resultFillorStatistics2 <- lapply(resultFillorStatistics, function(x) { # nome da coluna modificado para que a função funcione para vazao e precipitacao
-    names(x) <- c(names(resultFillorStatistics[[1]])[1], "period", "value")
+  dfSeriesFromFillorSerieStatisticsFunc2 <- lapply(dfSeriesFromFillorSerieStatisticsFunc, function(x) { # nome da coluna modificado para que a função funcione para vazao e precipitacao
+    names(x) <- c("station_code", "period", "value")
     x
   })
 
-  # if(names(resultFillorStatistics[[1]])[2] == "monthWaterYear"){
+  # if(names(dfSeriesFromFillorSerieStatisticsFunc[[1]])[2] == "monthWaterYear"){
   #
-  #   resultFillorStatistics2 = resultFillorStatistics2 %>%
+  #   dfSeriesFromFillorSerieStatisticsFunc2 = dfSeriesFromFillorSerieStatisticsFunc2 %>%
   #     lapply(function(x) x %>% dplyr::mutate(period = as.Date(paste("01", period, sep = "-"),
   #                                                             tryFormats = "%d-%m-%Y")))
   # }
 
-  if (by_month == FALSE) { # for time series
+  if (byMonth == FALSE) { # for time series
 
     if (dir.exists(dirSub) == FALSE) {
       dir.create(dirSub, recursive = TRUE)
@@ -112,18 +116,25 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
     pvaluePT <- as.numeric()
     station <- as.numeric()
+    dateChange = as.numeric()
 
     i = 1
-    for (i in 1:length(resultFillorStatistics2)) {
+    for (i in 1:length(dfSeriesFromFillorSerieStatisticsFunc2)) {
 
       # pvalue
 
-      testPT <- resultFillorStatistics2[[i]] %>%
+      testPT <- dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
         dplyr::pull(3) %>%
+        stats::na.omit() %>%
         trend::pettitt.test()
 
       pvaluePT[i] <- round(testPT$p.value, 3)
-      station[i] <- names(resultFillorStatistics2)[i]
+      dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$estimate[1]] %>%
+        as.character()
+      station[i] <- names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
+
+
+
 
       # graph
 
@@ -131,9 +142,9 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
         ##trendness line parameters for plot
 
-        valuesBefore <- resultFillorStatistics2[[i]]$value[1:testPT$estimate[1]] # values before break point
+        valuesBefore <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[1:testPT$estimate[1]] # values before break point
 
-        valuesAfter <- resultFillorStatistics2[[i]]$value[(testPT$estimate[1] + 1):nrow(resultFillorStatistics2[[i]])] #value after break point
+        valuesAfter <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[(testPT$estimate[1] + 1):nrow(dfSeriesFromFillorSerieStatisticsFunc2[[i]])] #value after break point
 
         meanValues <- c( # vector with mean values before and after breakpoint
           rep(mean(valuesBefore), length(valuesBefore)),
@@ -144,7 +155,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
         #identify type of data
 
-        variavel = names(resultFillorStatistics[[i]])[3]
+        variavel = names(dfSeriesFromFillorSerieStatisticsFunc[[i]])[3]
 
         if (substr(variavel, 1, 1) == "Q") {
 
@@ -159,7 +170,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
         #plot
 
-        resultFillorStatistics2[[i]] %>%
+        dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
           ggplot2::ggplot() +
           ggplot2::geom_point(ggplot2::aes(.data$period, .data$value, colour = "value")) +
           ggplot2::geom_line(ggplot2::aes(.data$period, .data$value, colour = "value")) +
@@ -171,7 +182,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
             x = period,
             y = ylab,
             title = paste("Petit test (p.value = ", round(testPT$p.value, 3), ")", sep = ""),
-            subtitle = names(resultFillorStatistics2)[i]
+            subtitle = names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
           ) +
           ggplot2::theme_bw(base_size = 16) +
           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
@@ -186,17 +197,17 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
 
         ggplot2::ggsave(paste(dirSub,
-                     "/",
-                     names(resultFillorStatistics[[1]][2]),
-                     "_",
-                     names(resultFillorStatistics2)[i],
-                     ".png",
-                     sep = ""
+                              "/",
+                              names(dfSeriesFromFillorSerieStatisticsFunc[[1]][2]),
+                              "_",
+                              names(dfSeriesFromFillorSerieStatisticsFunc2)[i],
+                              ".png",
+                              sep = ""
         ), dpi = 200, width = 14, height = 7)
       }
     }
 
-    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePT), 2, as.numeric))
+    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePT, dateChange), 2, as.numeric))
     testPT
 
 
@@ -205,21 +216,22 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
     pvaluePT <- as.numeric()
     station <- as.numeric()
+    dateChange = as.numeric()
+
     testPT <- base::month.abb[1:12] %>%
       dplyr::as_tibble() %>%
       stats::setNames("month")
 
     j = 1
-    i = 1
-    for (j in 1:length(resultFillorStatistics$series)) {
-
+    for (j in 1:length(dfSeriesFromFillorSerieStatisticsFunc2)) {
+      i = 1
       for (i in 1:12) {
 
-        station_name = unique(resultFillorStatistics2[[j]]$station_code)
+        station_name = unique(dfSeriesFromFillorSerieStatisticsFunc2[[j]]$station_code)
 
         #df with monthly i data of station j
 
-        monthdf <- resultFillorStatistics2[[j]] %>%
+        monthdf <- dfSeriesFromFillorSerieStatisticsFunc2[[j]] %>%
           dplyr::mutate(month = lubridate::month(period)) %>%
           dplyr::filter(month == i)
 
@@ -227,12 +239,16 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
         testPT_m <- monthdf %>%
           dplyr::pull(3) %>%
+          stats::na.omit() %>%
           trend::pettitt.test()
 
 
         pvaluePT[i] <- round(testPT_m$p.value, 3)
 
         station[i] <- station_name
+
+        dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT_m$estimate[1]] %>%
+          as.character()
 
         # gráfico
 
@@ -255,7 +271,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
           # graph parameters
 
-         variavel = names(resultFillorStatistics[[1]][[1]])[3]
+          variavel = names(dfSeriesFromFillorSerieStatisticsFunc[[1]][[1]])[3]
 
           if (substr(variavel, 1, 1) == "Q") {
 
@@ -268,7 +284,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
 
           #plot
 
-          resultFillorStatistics2[[j]] %>%
+          dfSeriesFromFillorSerieStatisticsFunc2[[j]] %>%
             dplyr::mutate(month = lubridate::month(period)) %>%
             dplyr::filter(month == i) %>%
             ggplot2::ggplot() +
@@ -282,7 +298,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
               x = period,
               y = ylab,
               title = paste("Petit test (p.value = ", round(testPT_m$p.value, 3), ")", sep = ""),
-              subtitle = names(resultFillorStatistics2)[j]
+              subtitle = names(dfSeriesFromFillorSerieStatisticsFunc2)[j]
             ) +
             ggplot2::theme_bw(base_size = 16) +
             ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
@@ -304,7 +320,7 @@ PetitTest <- function(resultFillorStatistics, by_month = FALSE, plotGraph = FALS
                                 "_",
                                 i,
                                 ".png",
-                       sep = ""
+                                sep = ""
           ), dpi = 200, width = 14, height = 7)
 
         }

@@ -3,19 +3,19 @@
 \encoding{UTF-8}
 \name{PetitTest}
 \alias{PetitTest}
-\title{(UNDER DEVELOPMENT) Performs the MannKendall trend test for list of continuous stations data.}
+\title{Pettitt trend test}
 \usage{
 PetitTest(
-  resultFillorStatistics,
-  by_month = FALSE,
+  dfSeriesFromFillorSerieStatisticsFunc,
+  byMonth = FALSE,
   plotGraph = FALSE,
   dirSub = "./petitTestGraph"
 )
 }
 \arguments{
-\item{resultFillorStatistics}{list with elements containing continuous stations data.}
+\item{dfSeriesFromFillorSerieStatisticsFunc}{tibble containing annual or monthly series of all stations;}
 
-\item{by_month}{logical. if by_mounth = TRUE, MannKendall test is performed for each month. default = FALSE.}
+\item{byMonth}{logical. if byMounth = TRUE, Pettitt test is performed for each month.}
 
 \item{plotGraph}{logical. defalt = FALSE}
 
@@ -25,7 +25,7 @@ PetitTest(
 p-value for each continuous stations data
 }
 \description{
-Performs the MannKendall trend test for list of continuous stations data.
+Performs the Pettitt trend test for annual or monthly rainfall (or streamflow) times series
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -65,13 +65,13 @@ final_data <- selectStations(
 )
 
 # Annual mean stream flow serie for each station
-Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 
 #MannKendall test
-MKTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
+MKTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
 
 \dontshow{\}) # examplesIf}
 }
 \references{
-randtest package (https://cran.r-project.org/web/packages/randtests/index.html)
+trend package (https://cran.r-project.org/web/packages/trend/trend.pdf)
 }
