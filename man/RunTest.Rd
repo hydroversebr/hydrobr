@@ -3,20 +3,20 @@
 \encoding{UTF-8}
 \name{RunTest}
 \alias{RunTest}
-\title{(UNDER DEVELOPMENT) Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.}
+\title{Wald-Wolfowitz runs trend test}
 \usage{
-RunTest(resultFillorStatistics, by_month = TRUE)
+RunTest(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE)
 }
 \arguments{
-\item{resultFillorStatistics}{list with elements containing continuous stations data;}
+\item{dfSeriesFromFillorSerieStatisticsFunc}{tibble containing annual or monthly series of all stations;}
 
-\item{by_month}{logical. if by_mounth = TRUE, run test is performed for each month.}
+\item{byMonth}{logical. if byMounth = TRUE, MannKendall test is performed for each month.}
 }
 \value{
 p-value for each continuous stations data
 }
 \description{
-Performs the Wald-Wolfowitz runs test of randomness for list of continuous stations data.
+Performs the Wald-Wolfowitz runs trend test for annual or monthly rainfall (or streamflow) times series
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -56,10 +56,10 @@ final_data <- selectStations(
 )
 
 # Annual mean stream flow serie for each station
-Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 
 #MannKendall test
-RunTest(resultFillorStatistics = Qmean_years, by_month = FALSE)
+RunTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
 
 \dontshow{\}) # examplesIf}
 }

@@ -1,4 +1,4 @@
-#' (UNDER DEVELOPMENT) Compute streamflow or rainfall statistics by month or year
+#' Compute streamflow or rainfall statistics by month or year
 #'
 #' @encoding UTF-8
 #'
@@ -6,9 +6,9 @@
 #'   for each station (output from [hydrobr::selectStations()]) and compute streamflow or rainfall
 #'   statistics by month or year.
 #'
-#' @param selectStationsResult list, tibble data frame; provides a list containing
+#' @param selectStationsResultSeries list, tibble data frame; provides a list containing
 #'   the data frames of filtered records for each station
-#'   (output from [hydrobr::selectStations()] function).
+#'   (series output from [hydrobr::selectStations()] function).
 #' @param statistics character; indicates statistics.
 #'  * The supported statistics for streamflow are:
 #' (1) mean stream flow (Qmean); (2)  minimum of seven-day moving average of daily stream flow (Q7);
@@ -20,6 +20,8 @@
 #'
 #' @param permanence numeric; percentage of time if "Qperm" is choose as statistic parameter
 #'   The default is 95 percent.
+#'
+#' @param byMonth logical;  if byMounth = TRUE, seriesStatistics is performed for by month. default = FALSE.
 #'
 #' @return A list containing 3 objects:
 #'   * a list containing statistic a data frame [tibble::tibble()] object for each station.
@@ -64,19 +66,19 @@
 #' )
 #'
 #' # annual mean stream flow serie for each station
-#' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+#' Qmean_years = seriesStatistics(final_data$series, statistics = "Qmean")
 #'
 #' @export
 #' @importFrom rlang .data
 #' @importFrom rlang :=
 
 
-seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanence = 95)
+seriesStatistics = function(selectStationsResultSeries, statistics = "Qmean", permanence = 95, byMonth = FALSE)
 {
 
   # ## Verification if arguments are in the desired format
-  # # is selectStationsResult an outcome from selectStations?
-  # if (attributes(selectStationsResult)$class[2] %in% 'stationsData') {
+  # # is selectStationsResultSeries an outcome from selectStations?
+  # if (attributes(selectStationsResultSeries)$class[2] %in% 'stationsData') {
   #   stop(
   #     call. = FALSE,
   #     '`inventoryResults` does not inherit attribute "inventory".
@@ -84,9 +86,9 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
   #   )
   # }
 
-  #if `selectStationsResult` and `statistics` belong same kind of data
+  #if `selectStationsResultSeries` and `statistics` belong same kind of data
 
-  if (names(selectStationsResult[[1]][[1]])[4]=="stream_flow_m3_s") {
+  if (names(selectStationsResultSeries[[1]])[4]=="stream_flow_m3_s") {
 
     if (!statistics %in% c("Qmean", "Qperm", "Q7", "Qmin", "Qmax")){
 
@@ -98,9 +100,9 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
     }
   }
 
-  #if `selectStationsResult` and `statistics` belong same kind of data
+  #if `selectStationsResultSeries` and `statistics` belong same kind of data
 
-  if (names(selectStationsResult[[1]][[1]])[4]=="rainfall_mm") {
+  if (names(selectStationsResultSeries[[1]])[4]=="rainfall_mm") {
 
     if (!statistics %in% c("Rtotal", "Rmax", "Rdays")){
 
@@ -116,8 +118,8 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
     stop(
       call. = FALSE,
       '`statistics` should be a character vector of length == 1.
-      if `selectStationsResult` is a streamflow data must use streamflow `statistics` (either "Qmean", "Qperm", "Q7", "Qmin" or "Qmax").
-      if `selectStationsResult` is a rainfall data must use rainfall `statistics` (either "Rtotal", "Rmax" or "Rdays").
+      if `selectStationsResultSeries` is a streamflow data must use streamflow `statistics` (either "Qmean", "Qperm", "Q7", "Qmin" or "Qmax").
+      if `selectStationsResultSeries` is a rainfall data must use rainfall `statistics` (either "Rtotal", "Rmax" or "Rdays").
        See arguments details for more information.'
     )
   }
@@ -135,20 +137,18 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
 
   #identify if input is annual or month
-  if (names(selectStationsResult$failureMatrix)[1] == "waterYear") {
+  if (byMonth == FALSE) {
     period <- "waterYear"
   } else {
     period <- "monthWaterYear"
   }
 
 
-  selectStationsResult <- selectStationsResult$series
-
   # compute Qmean and other statistics
 
   if (statistics == "Qmean") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -160,19 +160,19 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Q7") {
 
-    series <- selectStationsResult %>% dplyr::bind_rows() %>%
+    series <- selectStationsResultSeries %>% dplyr::bind_rows() %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::mutate(Q7_m3_s = zoo::rollapply(.data$stream_flow_m3_s,
                                              7, FUN = mean, partial = TRUE, align = "left")) %>%
       dplyr::slice(-(dplyr::n() - 5):-dplyr::n()) %>%
       dplyr::filter(Q7_m3_s==min(Q7_m3_s, na.rm = T)) %>%
-      slice(1) %>%
-      dplyr::select(c(1, period,
+      dplyr::slice(1) %>%
+      dplyr::select(c(1, dplyr::all_of(period),
                       Q7_m3_s))
 
   } else if (statistics == "Qperm") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -183,7 +183,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Qmin") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -194,7 +194,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Qmax") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -205,13 +205,13 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Rtotal") {
 
-    # selectStationsResult %>%
+    # selectStationsResultSeries %>%
     #   do.call(what = dplyr::bind_rows) %>%
     #   dplyr::filter(station_code == 1746018 & waterYear == 1988) %>%
     #   dplyr::pull(rainfall_mm) %>%
     #   sum(na.rm = TRUE)
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -224,7 +224,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Rmax") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -235,7 +235,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
 
   } else if (statistics == "Rdays") {
 
-    series <- selectStationsResult %>%
+    series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
       dplyr::summarise(
@@ -271,7 +271,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
     series_matrix = series %>%
       dplyr::ungroup() %>%
       dplyr::arrange(station_code) %>%
-      tidyr::pivot_wider(names_from = .data$station_code, values_from = 3) %>%
+      tidyr::pivot_wider(names_from = station_code, values_from = 3) %>%
       dplyr::mutate(date = as.Date(paste("01", "01", waterYear, sep = "-"),
                                    tryFormats = "%d-%m-%Y")) %>%
       dplyr::arrange(date) %>%
@@ -289,6 +289,7 @@ seriesStatistics = function(selectStationsResult, statistics = "Qmean", permanen
   return(out)
 
 }
+
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c(".",
                                                         'station_code',

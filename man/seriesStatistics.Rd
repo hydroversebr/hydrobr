@@ -3,14 +3,19 @@
 \encoding{UTF-8}
 \name{seriesStatistics}
 \alias{seriesStatistics}
-\title{(UNDER DEVELOPMENT) Compute streamflow or rainfall statistics by month or year}
+\title{Compute streamflow or rainfall statistics by month or year}
 \usage{
-seriesStatistics(selectStationsResult, statistics = "Qmean", permanence = 95)
+seriesStatistics(
+  selectStationsResultSeries,
+  statistics = "Qmean",
+  permanence = 95,
+  byMonth = FALSE
+)
 }
 \arguments{
-\item{selectStationsResult}{list, tibble data frame; provides a list containing
+\item{selectStationsResultSeries}{list, tibble data frame; provides a list containing
 the data frames of filtered records for each station
-(output from \code{\link[=selectStations]{selectStations()}} function).}
+(series output from \code{\link[=selectStations]{selectStations()}} function).}
 
 \item{statistics}{character; indicates statistics.
 \itemize{
@@ -25,6 +30,8 @@ and (5) minimum stream flow (Qmin).
 
 \item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
 The default is 95 percent.}
+
+\item{byMonth}{logical;  if byMounth = TRUE, seriesStatistics is performed for by month. default = FALSE.}
 }
 \value{
 A list containing 3 objects:
@@ -78,6 +85,6 @@ final_data <- selectStations(
 )
 
 # annual mean stream flow serie for each station
-Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+Qmean_years = seriesStatistics(final_data$series, statistics = "Qmean")
 \dontshow{\}) # examplesIf}
 }
