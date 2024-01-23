@@ -75,13 +75,13 @@ fillGaps = function(StatisticsResult, minimumCor = 0.84, minimunObsPairs = 10){
 
   ## Verification if arguments are in the desired format
   # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
-  if (!attributes(StatisticsResult)$class[2] %in% c('flowStatistics','rainStatistics')) {
-    stop(
-      call. = FALSE,
-      '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
-       The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
-    )
-  }
+  # if (!attributes(StatisticsResult)$class[2] %in% c('flowStatistics','rainStatistics')) {
+  #   stop(
+  #     call. = FALSE,
+  #     '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
+  #      The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
+  #   )
+  # }
 
   # Is mode a character vector?
   if (!is.numeric(minimumCor) | length(minimumCor) != 1) {
