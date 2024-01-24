@@ -332,6 +332,7 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
   }
 
   names(testPT) = c("station_code", "pvaluePT", "dateChange")
+  testPT$station_code = as.character(testPT$station_code)
   return(testPT)
 }
 
