@@ -146,6 +146,8 @@ RunTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE) { # 
     testRun
 
   }
+
+  names(testRun) = c("station_code", "pvalueRun")
   return(testRun)
 }
 
