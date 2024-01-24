@@ -147,6 +147,7 @@ MKTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE) { # s
   }
 
   names(testMK) = c("station_code", "pvalueMK")
+  testMK$station_code = as.character(testMK$station_code)
   return(testMK)
 }
 
