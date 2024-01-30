@@ -19,6 +19,9 @@ raster files of each year containing daily layers for each (1 for each day of gi
 \description{
 Download Chirps Rainfall daily data by year based on area of interest
 }
+\details{
+Simple application of get_chirps function of chirps package
+}
 \examples{
 
 
