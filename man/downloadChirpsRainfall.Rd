@@ -36,8 +36,6 @@ downloadChirpsRainfall(dir_out = "./temp/chirpsRainfall",
 }
 
 
-
-
 }
 \references{
 https://cran.r-project.org/web/packages/chirps/chirps.pdf
