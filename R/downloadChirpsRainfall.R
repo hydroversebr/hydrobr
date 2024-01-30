@@ -10,6 +10,10 @@
 #'
 #' @returns raster files of each year containing daily layers for each (1 for each day of given year).
 #'
+#' @details
+#' Simple application of get_chirps function of chirps package
+#'
+#'
 #' @references
 #'
 #' https://cran.r-project.org/web/packages/chirps/chirps.pdf
