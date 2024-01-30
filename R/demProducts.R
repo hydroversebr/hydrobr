@@ -1,4 +1,4 @@
-#' (UNDER DEVELOPMENT) Digital elevation model sub-products
+#' Digital elevation model sub-products
 #'
 #' @encoding UTF-8
 #'
