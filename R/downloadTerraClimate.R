@@ -49,7 +49,7 @@
 #'
 #' Abatzoglou, J.T., S.Z. Dobrowski, S.A. Parks, K.C. Hegewisch, 2018, Terraclimate, a high-resolution global dataset of monthly climate and climatic water balance from 1958-2015, Scientific Data,
 #'
-#'
+#' @export
 #' @examples
 #'
 #'\dontrun{

@@ -14,6 +14,7 @@
 #'
 #' https://cran.r-project.org/web/packages/chirps/chirps.pdf
 #'
+#'
 #' @examples
 #'
 #'
@@ -31,7 +32,7 @@
 #'}
 #'
 #'
-#'
+#'@export
 #'
 downloadChirpsRainfall = function(dir_out, years, aoi){
 
