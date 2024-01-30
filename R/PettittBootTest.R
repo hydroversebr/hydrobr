@@ -1,19 +1,25 @@
-#' Pettitt trend test
+#' Bootstrap Pettitt trend test
 #'
 #' @encoding UTF-8
 #'
-#' @description Performs the Pettitt trend test for annual or monthly rainfall (or streamflow) times series
+#' @description Performs the Bootstrap Pettitt trend test for annual or monthly rainfall (or streamflow) times series
 #'
 #'
 #' @param dfSeriesFromFillorSerieStatisticsFunc tibble containing annual or monthly series of all stations;
 #' @param byMonth logical. if byMounth = TRUE, Pettitt test is performed for each month.
 #' @param plotGraph logical. defalt = FALSE
-#' @param dirSub string. directory path to save plots. default = "./petitTestGraph".
+#' @param dirSub string. directory path to save plots. default = "./pettittTestGraph".
 #'
 #' @return p-value for each continuous stations data
 #'
 #' @references
-#' trend package (https://cran.r-project.org/web/packages/trend/trend.pdf)
+#'
+#' Based on "https://github.com/fabiobayer/bootpettitt"
+#'
+#' Bootstrap Pettitt test for detecting change points in hydroclimatological data: case study of Itaipu Hydroelectric Plant, Brazil
+#' (https://www.tandfonline.com/doi/full/10.1080/02626667.2019.1632461)
+#'
+#'
 #'
 #' @examplesIf interactive()
 #'
@@ -54,14 +60,59 @@
 #' # Annual mean stream flow serie for each station
 #' Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 #'
-#' #MannKendall test
-#' MKTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
+#' #Bootstrap pettitt test
+#' PettittTestBoot(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
 #'
 #'
 #' @export
 #' @importFrom rlang :=
 #'
-PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, plotGraph = FALSE, dirSub = "./petitTestGraph") { # se byMonth for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
+
+PettittTestBoot <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, plotGraph = FALSE, dirSub = "./petitTestGraph") { # se byMonth for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
+
+
+  boot.pettitttest <- function(y, B = 1000)
+  {
+    #library(trend)
+    n <- length(y)
+    # -------------------------------------------------- Pettitt test
+    teste1 <- trend::pettitt.test(y)
+    pvalor1 <- teste1$p.value
+    estat1 <- teste1$statistic
+    loca <- teste1$estimate
+
+    # -------------------------------------------------- bootstrap Pettitt
+    estat_boot <- rep(0,B)
+
+    for (j in 1:B){
+      indice <- sample(1:n, replace = T)
+      y_boot <- y[indice]
+      teste_boot <- trend::pettitt.test(y_boot)
+      estat_boot[j] <- teste_boot$statistic
+    }
+
+    pvalor2 <-
+      (1 + sum(abs(estat_boot) >= abs(estat1))) / (B + 1)
+
+
+    mresults <- matrix(rep(NA,2),nrow = 2)
+    colnames(mresults) <- c("p-value")
+    rownames(mresults) <- c("Pettitt test", "Bootstrap Pettitt test")
+    mresults[,1] <- c(pvalor1, pvalor2)
+
+    mresults1 = data.frame(test = c("Pettitt test", "Bootstrap Pettitt test"),
+                           pvalue = c(pvalor1, pvalor2),
+                           probableChangePoint = c(loca, loca))
+
+    # print(loca)
+    return(mresults1)
+
+  }
+
+
+
+
+
 
   ## Verification if arguments are in the desired format
   # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
@@ -114,7 +165,7 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
       dir.create(dirSub, recursive = TRUE)
     }
 
-    pvaluePT <- as.numeric()
+    pvaluePTBoot <- as.numeric()
     station <- as.numeric()
     dateChange = as.numeric()
 
@@ -126,10 +177,10 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
       testPT <- dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
         dplyr::pull(3) %>%
         stats::na.omit() %>%
-        trend::pettitt.test()
+        boot.pettitttest()
 
-      pvaluePT[i] <- round(testPT$p.value, 3)
-      dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$estimate[1]] %>%
+      pvaluePTBoot[i] <- round(testPT$pvalue[2], 3)
+      dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
         as.character()
       station[i] <- names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
 
@@ -142,9 +193,9 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
 
         ##trendness line parameters for plot
 
-        valuesBefore <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[1:testPT$estimate[1]] # values before break point
+        valuesBefore <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[1:testPT$probableChangePoint[1]] # values before break point
 
-        valuesAfter <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[(testPT$estimate[1] + 1):nrow(dfSeriesFromFillorSerieStatisticsFunc2[[i]])] #value after break point
+        valuesAfter <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[(testPT$probableChangePoint[1] + 1):nrow(dfSeriesFromFillorSerieStatisticsFunc2[[i]])] #value after break point
 
         meanValues <- c( # vector with mean values before and after breakpoint
           rep(mean(valuesBefore), length(valuesBefore)),
@@ -181,7 +232,7 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
           ggplot2::labs(
             x = period,
             y = ylab,
-            title = paste("Petit test (p.value = ", round(testPT$p.value, 3), ")", sep = ""),
+            title = paste("Petit test (p.value = ", round(testPT$pvalue, 3), ")", sep = ""),
             subtitle = names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
           ) +
           ggplot2::theme_bw(base_size = 16) +
@@ -207,14 +258,14 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
       }
     }
 
-    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePT, dateChange), 2, as.numeric))
+    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePTBoot, dateChange), 2, as.numeric))
     testPT
 
 
   } else { # runtest for each month
 
 
-    pvaluePT <- as.numeric()
+    pvaluePTBoot <- as.numeric()
     station <- as.numeric()
     dateChange = as.numeric()
 
@@ -240,15 +291,16 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
         testPT_m <- monthdf %>%
           dplyr::pull(3) %>%
           stats::na.omit() %>%
-          trend::pettitt.test()
+          boot.pettitttest()
 
 
-        pvaluePT[i] <- round(testPT_m$p.value, 3)
+        pvaluePTBoot[i] <- round(testPT_m$pvalue[2], 3)
 
         station[i] <- station_name
 
-        dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT_m$estimate[1]] %>%
+        dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
           as.character()
+
 
         # gráfico
 
@@ -260,9 +312,9 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
             dir.create(dir_path, recursive = TRUE)
           }
 
-          valuesBefore <- monthdf$value[1:testPT_m$estimate[1]] # values before break point
+          valuesBefore <- monthdf$value[1:testPT_m$probableChangePoint[1]] # values before break point
 
-          valuesAfter <- monthdf$value[(testPT_m$estimate[1] + 1):nrow(monthdf)] #value after break point
+          valuesAfter <- monthdf$value[(testPT_m$probableChangePoint[1] + 1):nrow(monthdf)] #value after break point
 
           meanValues <- c( # vector with mean values before and after breakpoint
             rep(mean(valuesBefore), length(valuesBefore)),
@@ -327,13 +379,12 @@ PetitTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, pl
       }
 
       testPT <- testPT %>%
-        dplyr::mutate(!!paste("pval_PeTtest_", station_name, sep = "") := pvaluePT)
+        dplyr::mutate(!!paste("pval_PeTtest_", station_name, sep = "") := pvaluePTBoot)
     }
   }
 
-  names(testPT) = c("station_code", "pvaluePT", "dateChange")
-  testPT$station_code = as.character(testPT$station_code)
   return(testPT)
 }
+
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("month"))

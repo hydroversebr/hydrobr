@@ -2,7 +2,8 @@
 
 export("%>%")
 export(MKTest)
-export(PetitTest)
+export(PettittTest)
+export(PettittTestBoot)
 export(Q7Tempiric)
 export(RunTest)
 export(demProducts)

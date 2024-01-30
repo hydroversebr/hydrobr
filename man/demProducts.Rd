@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 \name{demProducts}
 \alias{demProducts}
-\title{(UNDER DEVELOPMENT) Digital elevation model sub-products}
+\title{Digital elevation model sub-products}
 \usage{
 demProducts(demP, streamP, outputDir)
 }
