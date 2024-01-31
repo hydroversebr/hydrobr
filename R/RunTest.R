@@ -115,6 +115,7 @@ RunTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE) { # 
 
     testRun <- tibble::as_tibble(apply(cbind(station, pvalueRun), 2, as.numeric))
     testRun # valores menores que 0.05 rejeita hipótese nula (não há tendência)
+    names(testRun) = c("station_code", "pvalueRun")
 
   } else { # fazer teste de Run por mês
 

@@ -260,6 +260,7 @@ PettittTestBoot <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FAL
 
     testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePTBoot, dateChange), 2, as.numeric))
     testPT
+    names(testPT) = c("station_code", "pvaluePTBoot", "dateChange")
 
 
   } else { # runtest for each month

@@ -114,6 +114,7 @@ MKTest <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE) { # s
 
     testMK <- tibble::as_tibble(apply(cbind(station, pvalueMK), 2, as.numeric))
     testMK # valores menores que 0.05 rejeita hipótese nula (não há tendência)
+    names(testMK) = c("station_code", "pvaluePT", "dateChange")
 
   } else { # fazer teste de Run por mês
 
