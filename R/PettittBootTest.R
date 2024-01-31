@@ -258,7 +258,8 @@ PettittTestBoot <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FAL
       }
     }
 
-    testPT <- dplyr::as_tibble(apply(cbind(as.character(station), pvaluePTBoot, dateChange), 2, as.numeric))
+    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePTBoot, dateChange), 2, as.numeric)) %>%
+      dplyr::mutate(station = as.character(station))
     testPT
     names(testPT) = c("station_code", "pvaluePTBoot", "dateChange")
 
