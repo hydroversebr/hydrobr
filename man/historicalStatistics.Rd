@@ -6,16 +6,17 @@
 \title{Compute flow statistics by month or year}
 \usage{
 historicalStatistics(
-  selectStationsResult,
-  statistics = "Qmean",
+  selectStationsResultSeries,
+  statistics = "Qperm",
+  basedOn = "waterYear",
   permanence = 95,
   pReturn = 10
 )
 }
 \arguments{
-\item{selectStationsResult}{list, tibble data frame; provides a list containing
+\item{selectStationsResultSeries}{list, tibble data frame; provides a list containing
 the data frames of filtered records for each station
-(output from \code{\link[=selectStations]{selectStations()}} function).}
+(series output from \code{\link[=selectStations]{selectStations()}} function).}
 
 \item{statistics}{character; indicates statistics.
 \itemize{
@@ -31,6 +32,8 @@ the data frames of filtered records for each station
 (3) rainy days (Rdays).
 \item The default value is "Qmean".
 }}
+
+\item{basedOn}{character; indicate if statistics must evaluated considering year ("wateryear") or month ("monthwateryear"). Default is "wateryear".}
 
 \item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter.
 The default is 95 percent.}
@@ -81,7 +84,7 @@ org_data <- organize(
 # Filter the data for desired period and quality contorl
 
 final_data <- selectStations(
-  stationsDataResult = org_data,
+  stationsDataResult = org_data$series,
   mode = "yearly",
   maxMissing = 10,
   minYears = 15,

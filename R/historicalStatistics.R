@@ -26,6 +26,8 @@
 #'
 #'  * The default value is "Qmean".
 #'
+#' @param basedOn character; indicate if statistics must evaluated considering year ("wateryear") or month ("monthwateryear"). Default is "wateryear".
+#'
 #' @param pReturn numeric; return period if "Q7T" is choose as statistic parameter.
 #'   The default is 10 year.
 #'
