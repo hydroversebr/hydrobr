@@ -6,9 +6,9 @@
 #'   for each station (output from [hydrobr::selectStations()]) and compute historical
 #'   streamflow or rainfall statistics
 #'
-#' @param selectStationsResult list, tibble data frame; provides a list containing
+#' @param selectStationsResultSeries list, tibble data frame; provides a list containing
 #'   the data frames of filtered records for each station
-#'   (output from [hydrobr::selectStations()] function).
+#'   (series output from [hydrobr::selectStations()] function).
 #'
 #' @param statistics character; indicates statistics.
 #'
@@ -65,7 +65,7 @@
 #' # Filter the data for desired period and quality contorl
 #'
 #' final_data <- selectStations(
-#'   stationsDataResult = org_data,
+#'   stationsDataResult = org_data$series,
 #'   mode = "yearly",
 #'   maxMissing = 10,
 #'   minYears = 15,
@@ -84,31 +84,30 @@
 #' @importFrom rlang :=
 
 
-historicalStatistics = function (selectStationsResult,
-                                 statistics = "Qmean",
-                                 permanence = 95,
-                                 pReturn = 10)
+historicalStatistics = function (selectStationsResultSeries,
+                                  statistics = "Qperm",
+                                  basedOn = "waterYear",
+                                  permanence = 95,
+                                  pReturn = 10)
 {
 
-  if (names(selectStationsResult$missingMatrix)[1] =="waterYear"){
+  if (basedOn =="waterYear"){
     byMonth = FALSE
   } else {byMonth = TRUE}
 
-  # if (attributes(selectStationsResult)$class[2] %in% "stationsData") {
-  #   stop(call. = FALSE, "`inventoryResults` does not inherit attribute \"inventory\".\n         The outcome from the inventory() function should be passed as argument")
-  # }
+
   if (!is.character(statistics) | length(statistics) != 1 |
       !statistics %in% c("Qmean", "Qperm", "Q7T", "Qmin", "Qmax",
                          "Rtotal", "Rmax", "Rdays")) {
     stop(call. = FALSE, "`statistics` should be a character vector of length == 1 (either \"Qmean\", \"Qperm\", \"Q7\", \"Qmin\" or \"Qmax\").\n       See arguments details for more information.")
   }
-  if (names(selectStationsResult[[1]][[1]])[4] == "stream_flow_m3_s") {
+  if (names(selectStationsResultSeries[[1]])[4] == "stream_flow_m3_s") {
     if (!statistics %in% c("Qmean", "Qperm", "Q7T", "Qmin",
                            "Qmax")) {
       stop(call. = FALSE, "for streamflow data from `selectStations` must choose streamflow `statistics` (either \"Qmean\", \"Qperm\", \"Q7\", \"Qmin\" or \"Qmax\").\n       See arguments details for more information.")
     }
   }
-  if (names(selectStationsResult[[1]][[1]])[4] == "rainfall_mm") {
+  if (names(selectStationsResultSeries[[1]])[4] == "rainfall_mm") {
     if (!statistics %in% c("Rtotal", "Rmax", "Rdays")) {
       stop(call. = FALSE, "for rainfall data from `selectStations` must choose rainfall `statistics` (either \"Rtotal\", \"Rmax\" or \"Rdays\").\n       See arguments details for more information.")
     }
@@ -122,7 +121,7 @@ historicalStatistics = function (selectStationsResult,
     stop(call. = FALSE, "`permanence` should be a numeric vector of length == 1 (ranging from 0 to +Inf).\n       See arguments details for more information.")
   }
 
-  selectStationsResultS <- selectStationsResult$series
+  selectStationsResultS <- selectStationsResultSeries
 
   if (byMonth == FALSE) {
     if (statistics == "Qmean") {
@@ -133,7 +132,7 @@ historicalStatistics = function (selectStationsResult,
     }
     else if (statistics == "Q7T") {
 
-      serieQ7 = hydrobr::seriesStatistics(selectStationsResult = selectStationsResult,
+      serieQ7 = hydrobr::seriesStatistics(selectStationsResultSeries = selectStationsResultS,
                                           statistics = "Q7")
 
       series = serieQ7$series %>% do.call(what = dplyr::bind_rows) %>%
@@ -195,7 +194,7 @@ historicalStatistics = function (selectStationsResult,
     else if (statistics == "Q7T") {
 
 
-      serieQ7 = hydrobr::seriesStatistics(selectStationsResult = selectStationsResult,
+      serieQ7 = hydrobr::seriesStatistics(selectStationsResultSeries = selectStationsResultS,
                                           statistics = "Q7")
 
       series = serieQ7$series %>% do.call(what = dplyr::bind_rows) %>%
