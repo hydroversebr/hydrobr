@@ -35,12 +35,12 @@
 #' tibble object containing desired statistics for boths period and the ratio (porcentage) between
 #' historicalStatistics and sazonal historic statistics
 #'
-#' #' @export
+#' @export
 #'
 #' @examples
 #'
 #'
-#'  \dontrun{
+#' \dontrun{
 #'
 #'  #' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
 #'
