@@ -40,8 +40,6 @@ The default is 10 year.}
 \value{
 tibble object containing desired statistics for boths period and the ratio (porcentage) between
 historicalStatistics and sazonal historic statistics
-
-#' @export
 }
 \description{
 Historical series is splitted in two (six months each) and \link{historicalStatistics} is computed for both period.
@@ -49,7 +47,7 @@ Historical series is splitted in two (six months each) and \link{historicalStati
 \examples{
 
 
- \dontrun{
+\dontrun{
 
  #' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
 
