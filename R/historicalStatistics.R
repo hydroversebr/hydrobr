@@ -67,7 +67,7 @@
 #' # Filter the data for desired period and quality contorl
 #'
 #' final_data <- selectStations(
-#'   stationsDataResult = org_data$series,
+#'   stationsDataResult = org_data,
 #'   mode = "yearly",
 #'   maxMissing = 10,
 #'   minYears = 15,
@@ -79,7 +79,7 @@
 #' )
 #'
 #' # annual mean stream flow serie for each station
-#' Qmean_years = flowStatistics(final_data, statistics = "Qmean")
+#' Qmean_years = historicalStatistics(final_data$series, statistics = "Qmean")
 #'
 #' @export
 #' @importFrom rlang .data

@@ -148,7 +148,7 @@ wDelimitationAreaBased = function(stationsPath,
   print("Generating final files")
 
   #read basins pour_points, combine in one shapefile and export
-  suppressWarnings(list.files(outputDirPath, "/pourPoints", pattern = ".shp",
+  suppressWarnings(list.files(paste0(outputDirPath, "/pourPoints"), pattern = ".shp",
                               full.names = TRUE) %>% lapply(sf::st_read, quiet = TRUE) %>%
                      dplyr::bind_rows() %>% dplyr::mutate(station_code = stationsPath$sttn_cd,
                                                           area_km2 = stationsPath$are_km2, area_km2p = areaSP) %>%
