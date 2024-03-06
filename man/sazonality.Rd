@@ -22,6 +22,8 @@ Computa estatística mensal (média ou mediana) nos meses do ano e, posteriormen
 }
 \examples{
 
+\dontrun{
+
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(
@@ -59,5 +61,6 @@ final_data <- selectStations(
 sazon = sazonality(final_data$series, statistic = "median")
 
 
+}
 
 }

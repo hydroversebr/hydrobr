@@ -1,26 +1,29 @@
-#' Delimitation of watersheds based on ANA fluviométric stations
+#' Watershed delimitation based on area of ANA stations
 #'
 #' @encoding UTF-8
 #'
-#' @description Delimitation of watersheds based on ANA fluviométric stations
+#' @description This function delimitate stations watershed based on area value displayed at ANA fluviométric stations data.
+#'
 #'
 #' @param stationsPath character vector. Shapefile path of ANA fluviometric stations
 #' @param flowAcumPath character vector. Flow Accumulation raster path
 #' @param flowDir8Path character vector. Flow direction raster path
 #' @param bufferSearch value. Search radius in meters to snap pour points
 #' @param outputDirPath character vector. Output directory path
-#' @param tempDirPath character vector. Temporary file directory path
 #'
 #'
 #' @details shapefiles and rasters must be at same projection coordinate system (metric)
 #'
-#' @return Watersheds delineated
+#' @return - nested and unested watersheds in raster and shape format
+#' - snaped pour points
+#'
 #'
 #'#' @references
 #' whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 #'
-#' @examplesIf interactive()
-#'#'
+#' @examples
+#'
+#' \dontrun{
 #' #stations in area of interest
 #'
 #' stations = inventory(
@@ -43,22 +46,21 @@
 #'   flowAcumPath = "./example/results/demproducts/03flowAccumulation.tif",
 #'   flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
 #'   bufferSearch = 1000,
-#'   outputDirPath = "./example/results/watershedsDelimit",
-#'   tempDirPath = "./tempppp"
+#'   outputDirPath = "./example/results/watershedsDelimit"
 #')
 #'
-#'
+#'}
 #' @export
 
 
-watersheDelimit = function(stationsPath,
+wDelimitationAreaBased = function(stationsPath,
                             flowAcumPath,
                             flowDir8Path,
                             bufferSearch = 1000,
-                            outputDirPath,
-                            tempDirPath = "./tempppp")
+                            outputDirPath)
 {
-  stationsPath <- sf::st_read(stationsPath, quiet = TRUE)
+  stationsPath <- sf::st_read(stationsPath, quiet = TRUE) %>%
+    dplyr::arrange(sttn_cd)
 
   #set variable names
   # names(stationsPath) <- c("state", "station_code", "name", "lat",
@@ -70,21 +72,22 @@ watersheDelimit = function(stationsPath,
 
   areaSP <- as.numeric()
 
-  #create temp Dir
-  if (dir.exists(tempDirPath) == FALSE) {
-    dir.create(tempDirPath, recursive = TRUE)
-  }
 
-  #create dir for raster basin results
+  #create dir for raster basins results
   dir.create(paste(outputDirPath, "/WaterShedRaster", sep = ""),
              showWarnings = FALSE, recursive = TRUE)
 
-  #create dir for raster basin shapefiles
+  #create dir for shapefiles basins results
   dir.create(paste(outputDirPath, "/WaterShedShape", sep = ""),
              showWarnings = FALSE, recursive = TRUE)
 
+  #create dir for pourpoints results
+  dir.create(paste(outputDirPath, "/pourPoints", sep = ""),
+             showWarnings = FALSE, recursive = TRUE)
+
+
   #loop to delineate individual basins
-  i = 1
+  i = 2
   for (i in 1:nrow(stationsPath)) {
 
     #number of pixel associated with area_km2 at ANA database for station i
@@ -103,13 +106,14 @@ watersheDelimit = function(stationsPath,
     Acum[Acum != nearestValue] <- NA
 
     #convert pour point to shapefile and delineate watershed boundaries
-    suppressWarnings(terra::as.points(Acum) %>% sf::st_as_sf() %>%
-                       sf::st_write(paste(tempDirPath, "/pour_", stationsPath$sttn_cd[i],
+    suppressWarnings(terra::as.points(Acum) %>% sf::st_as_sf() %>% dplyr::mutate(sttn_cd = stationsPath$sttn_cd[i]) %>%
+                       dplyr::select(sttn_cd, geometry) %>%
+                       sf::st_write(paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],
                                           ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
                                     quiet = TRUE))
 
-    whitebox::wbt_watershed(flowDir8Path, paste(tempDirPath,
-                                                "/pour_", stationsPath$sttn_cd[i], ".shp",
+    whitebox::wbt_watershed(flowDir8Path, paste(outputDirPath, "/pourPoints/pour_",
+                                                stationsPath$sttn_cd[i], ".shp",
                                                 sep = ""), paste(outputDirPath, "/waterShedRaster/",
                                                                  "waterShed", stationsPath$sttn_cd[i], ".tif",
                                                                  sep = ""))
@@ -118,6 +122,7 @@ watersheDelimit = function(stationsPath,
     y <- terra::trim(terra::rast(paste(outputDirPath, "/waterShedRaster/",
                                        "waterShed", stationsPath$sttn_cd[i], ".tif",
                                        sep = "")))
+
     terra::writeRaster(y, paste(outputDirPath, "/waterShedRaster/",
                                 "waterShed", stationsPath$sttn_cd[i], ".tif",
                                 sep = ""), overwrite = TRUE, datatype = "INT2S")
@@ -143,7 +148,7 @@ watersheDelimit = function(stationsPath,
   print("Generating final files")
 
   #read basins pour_points, combine in one shapefile and export
-  suppressWarnings(list.files(tempDirPath, pattern = ".shp",
+  suppressWarnings(list.files(outputDirPath, "/pourPoints/pour_", pattern = ".shp",
                               full.names = TRUE) %>% lapply(sf::st_read, quiet = TRUE) %>%
                      dplyr::bind_rows() %>% dplyr::mutate(station_code = stationsPath$sttn_cd,
                                                           area_km2 = stationsPath$are_km2, area_km2p = areaSP) %>%
@@ -196,9 +201,10 @@ watersheDelimit = function(stationsPath,
                              areaPredicted_km2 = round(areaSP, 0))
   resumo$error_porcent <- round((resumo[, 3] - resumo[, 2])/resumo[,
                                                                    2] * 100, 2)
-  unlink(tempDirPath, recursive = TRUE)
+  # unlink(tempDirPath, recursive = TRUE)
   print("Job Done! Congratz!")
   print(resumo)
+
 }
 
 
@@ -208,4 +214,5 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("areakm2",
                                                         "area_km2",
                                                         "area_km2p",
                                                         'Watersheds_nested',
-                                                        'geometry'))
+                                                        'geometry',
+                                                        'sttn_cd'))

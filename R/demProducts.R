@@ -2,7 +2,7 @@
 #'
 #' @encoding UTF-8
 #'
-#' @description Obtain digital elevation model sub-products
+#' @description Obtain digital elevation model sub-products. All inputs must be projected.
 #'
 #'
 #' @param demP character vector. Input DEM raster file path.

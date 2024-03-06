@@ -26,7 +26,7 @@ Create eigth DEM subproducts:
 (8) Flow Direction based on (6).
 }
 \description{
-Obtain digital elevation model sub-products
+Obtain digital elevation model sub-products. All inputs must be projected.
 }
 \details{
 DEM must be in metric coordinates (projected)
