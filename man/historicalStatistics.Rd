@@ -7,7 +7,7 @@
 \usage{
 historicalStatistics(
   selectStationsResultSeries,
-  statistics = "Qperm",
+  statistics = "Qmean",
   basedOn = "waterYear",
   permanence = 95,
   pReturn = 10
