@@ -35,7 +35,6 @@
 #' tibble object containing desired statistics for boths period and the ratio (porcentage) between
 #' historicalStatistics and sazonal historic statistics
 #'
-#' @export
 #'
 #' @examples
 #'
@@ -84,7 +83,9 @@
 #'
 #'
 #'}
-#'
+
+#' @export
+
 historicalStatisticsSazonal = function(selectStationsResultSeries,
                                        statistics = "Qmean",
                                        permanence = 95,

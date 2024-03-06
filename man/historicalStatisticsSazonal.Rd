@@ -91,5 +91,4 @@ QmeanS = historicalStatisticsSazonal(final_data$series, statistics = "Qmean")
 
 
 }
-
 }
