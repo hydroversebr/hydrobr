@@ -34,3 +34,50 @@ list with 12 tibble objects. Each tibble contatin autocorrelation for all statio
 Same processing done at \link{lag1AutoCorrelation} but considering all 12 months possible to start hydrological year
 Function idealized to assistant hydrological year definition.
 }
+\examples{
+
+
+\dontrun{
+
+# Fech a inventory of fluviometric stations for the state of Minas Gerais.
+
+inv <- inventory(
+  states = "MINAS GERAIS",
+  stationType = "flu",
+  as_sf = TRUE,
+  aoi = NULL
+)
+
+# Download the first 10 stations from the inventory
+
+s_data <- stationsData(
+  inventoryResult = inv[1:10,],
+  deleteNAstations = TRUE
+)
+
+# Organize the data for the stations
+
+org_data <- organize(
+  stationsDataResult = s_data
+)
+
+# Filter the data for desired period and quality contorl
+
+selectStationsAllMonths(
+  organizeResult = org_data,
+  mode = "yearly",
+  maxMissing = 10,
+  minYears = 15,
+  iniYear = NULL,
+  finYear = NULL,
+  consistedOnly = FALSE,
+  folderPathWithNameDescription = "./loop/selecStation_15years_5porc",
+  plot = TRUE
+)
+
+#autocorrelation for Qmean series for all hydrological year month begin
+
+autoCorQmld = autocorrelationAll(selectStationsAllmonthsRDSfolder = "./loop", statistics = "Qmean")
+
+}
+}

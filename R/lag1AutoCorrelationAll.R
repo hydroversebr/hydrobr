@@ -27,7 +27,7 @@
 #' @examples
 #'
 #'
-#' ' \dontrun{
+#' \dontrun{
 #'
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
 #'
@@ -69,7 +69,7 @@
 #'
 #' autoCorQmld = autocorrelationAll(selectStationsAllmonthsRDSfolder = "./loop", statistics = "Qmean")
 #'
-#'
+#'}
 autocorrelationAll = function(selectStationsAllmonthsRDSfolder,
                               statistics = "Qmean",
                               permanence = 95){
