@@ -70,7 +70,7 @@
 #' autoCorQmld = autocorrelationAll(selectStationsAllmonthsRDSfolder = "./loop", statistics = "Qmean")
 #'
 #'}
-autocorrelationAll = function(selectStationsAllmonthsRDSfolder,
+lag1AutocorrelationAll = function(selectStationsAllmonthsRDSfolder,
                               statistics = "Qmean",
                               permanence = 95){
 
@@ -87,7 +87,7 @@ autocorrelationAll = function(selectStationsAllmonthsRDSfolder,
     dados1 = dados$series %>%
       hydrobr::seriesStatistics(statistics = statistics, permanence = permanence)
 
-    listaCor[[i]] = lag1Correlation(dados1$series) %>%
+    listaCor[[i]] = hydrobr::lag1AutoCorrelation(dados1$series) %>%
       dplyr::mutate(month = i) %>%
       dplyr::as_tibble()
 
@@ -100,4 +100,3 @@ autocorrelationAll = function(selectStationsAllmonthsRDSfolder,
 }
 
 
-if(getRversion() >= "2.15.1")  utils::globalVariables("lag1Correlation")
