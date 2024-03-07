@@ -46,7 +46,7 @@ Same processing done at \link{historicalStatisticsSazonal} but considering all 1
 #'
 \dontrun{
 
- #' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
+# Fech a inventory of fluviometric stations for the state of Minas Gerais.
 
 inv <- inventory(
   states = "MINAS GERAIS",

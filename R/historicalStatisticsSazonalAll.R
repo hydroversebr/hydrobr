@@ -37,7 +37,7 @@
 #'#'
 #' \dontrun{
 #'
-#'  #' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
+#' # Fech a inventory of fluviometric stations for the state of Minas Gerais.
 #'
 #' inv <- inventory(
 #'   states = "MINAS GERAIS",
