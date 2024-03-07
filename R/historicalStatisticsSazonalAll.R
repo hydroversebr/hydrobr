@@ -147,8 +147,8 @@ historicalStatisticsSazonalAll = function(selectStationsAllmonthsRDSfolder,
       lista[[i]] = a %>%
         dplyr::mutate("{statistics}_m3_s_first6_months" := b[2] %>% dplyr::pull(),
                       "{statistics}_m3_s_last6_months" := c[2] %>% dplyr::pull(),
-                      "{statistics}_m3_s_first6m_ratio_{statistics}_hist_porcent" := round(b[2]/a[2]*100,1) %>% dplyr::pull(),
-                      "{statistics}_m3_s_first6m_ratio_{statistics}_hist_porcent" := round(c[2]/a[2]*100,1) %>% dplyr::pull(),
+                      "{statistics}_first6m_ratio_{statistics}_hist_porcent" := round(b[2]/a[2]*100,1) %>% dplyr::pull(),
+                      "{statistics}_first6m_ratio_{statistics}_hist_porcent" := round(c[2]/a[2]*100,1) %>% dplyr::pull(),
                       InicialMonth = startMonth)
 
     }
