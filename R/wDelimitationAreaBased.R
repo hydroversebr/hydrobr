@@ -106,7 +106,7 @@ wDelimitationAreaBased = function(stationsPath,
     Acum[Acum != nearestValue] <- NA
 
     #convert pour point to shapefile and delineate watershed boundaries
-    suppressWarnings(terra::as.points(Acum) %>% sf::st_as_sf() %>% dplyr::mutate(sttn_cd = stationsPath$sttn_cd[i]) %>%
+    suppressWarnings(terra::as.points(Acum) %>% sf::st_as_sf() %>% dplyr::slice(1) %>% dplyr::mutate(sttn_cd = stationsPath$sttn_cd[i]) %>%
                        dplyr::select(sttn_cd, geometry) %>%
                        sf::st_write(paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],
                                           ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
