@@ -5,7 +5,7 @@
 \alias{stationsData}
 \title{Retrieves raw data for the stations inventory from ANA web API}
 \usage{
-stationsData(inventoryResult, deleteNAstations = TRUE)
+stationsData(inventoryResult, deleteNAstations = TRUE, waterLevel = FALSE)
 }
 \arguments{
 \item{inventoryResult}{tibble data frame; provides the station inventory (output
@@ -13,6 +13,9 @@ from \code{\link[=inventory]{inventory()}} function) for which to download data 
 
 \item{deleteNAstations}{logical; should stations with no data be removed?
 The default is TRUE.}
+
+\item{waterLevel}{logical. if param "station_type" in \code{\link[=inventory]{inventory()}}, get waterLevel data of fluviometric stations?
+Use FALSE for streamflow data. TRUE for water level data. Default is FALSE.}
 }
 \value{
 A list containing a data frame \code{\link[tibble:tibble]{tibble::tibble()}} object for each station.

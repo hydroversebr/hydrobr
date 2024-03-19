@@ -67,7 +67,8 @@ organize <- function(stationsDataResult) {
       dplyr::contains('nivelconsistencia'),
       dplyr::matches('data$'),
       dplyr::matches("vazao..$"),
-      dplyr::matches("chuva..$")
+      dplyr::matches("chuva..$"),
+      dplyr::matches("cota..$")
     ) %>%
     # Rename from pt to en
     dplyr::rename(
@@ -105,9 +106,14 @@ organize <- function(stationsDataResult) {
   if (stringr::str_remove(stationsDataResult$name[1], pattern = "[0-9]+") == "chuva") {
     stationsDataResult <- stationsDataResult %>%
       dplyr::rename(rainfall_mm = 5)
-  } else {
+  }
+
+  if (stringr::str_remove(stationsDataResult$name[1], pattern = "[0-9]+") == "vazao") {
     stationsDataResult <- stationsDataResult %>%
       dplyr::rename(streamflow_m3_s = 5)
+  }  else {
+    stationsDataResult <- stationsDataResult %>%
+      dplyr::rename(level_cm = 5)
   }
 
   # Output format

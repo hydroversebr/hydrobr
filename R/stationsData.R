@@ -12,6 +12,8 @@
 #'   from [hydrobr::inventory()] function) for which to download data for.
 #' @param deleteNAstations logical; should stations with no data be removed?
 #'   The default is TRUE.
+#' @param waterLevel logical. if param "station_type" in [hydrobr::inventory()], get waterLevel data of fluviometric stations?
+#'   Use FALSE for streamflow data. TRUE for water level data. Default is FALSE.
 #'
 #' @return A list containing a data frame [tibble::tibble()] object for each station.
 #'   The data frame format is identical to the format provided by ANA.
@@ -58,7 +60,11 @@
 #'
 #'
 #' @export
-stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
+
+# inventoryResult = inv
+# waterLevel = TRUE
+
+stationsData <- function(inventoryResult, deleteNAstations = TRUE, waterLevel = FALSE) {
 
   ## Verification if arguments are in the desired format
 
@@ -102,6 +108,14 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
     stop('Inventory missing stationType column/parameter
          ("fluviometric" or "pluviometric" allowed)')
   }
+
+  #waterLevel or streamFlow for fluviometric stations
+  if(waterLevel == TRUE & stationType ==3){
+
+    stationType = 1
+
+  }
+
 
   # Begin loop to retrieve data
   for (i in 1:nrow(inventoryResult)) {
@@ -147,6 +161,7 @@ stationsData <- function(inventoryResult, deleteNAstations = TRUE) {
         dplyr::mutate(
           dplyr::across(dplyr::matches("vazao..$"), as.numeric),
           dplyr::across(dplyr::matches("chuva..$"), as.numeric),
+          dplyr::across(dplyr::matches("cota..$"), as.numeric),
           dplyr::across(dplyr::matches("data"), as.Date)
         ) %>%
         dplyr::rename(data = dplyr::any_of("datahora")) %>%
