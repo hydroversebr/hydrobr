@@ -202,6 +202,8 @@ wDelimitationAreaBased = function(stationsPath,
   resumo$error_porcent <- round((resumo[, 3] - resumo[, 2])/resumo[,
                                                                    2] * 100, 2)
   # unlink(tempDirPath, recursive = TRUE)
+
+  gc()
   print("Job Done! Congratz!")
   print(resumo)
 
