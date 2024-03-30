@@ -45,7 +45,7 @@
 #'
 #' @importFrom rlang .data
 organize <- function(stationsDataResult) {
-
+  
   # ## Verification if arguments are in the desired format
   # # is stationsDataResult an outcome from stationsData function?
   # if (!attributes(stationsDataResult)$hydrobr_class %in% 'stationsData') {
@@ -55,7 +55,7 @@ organize <- function(stationsDataResult) {
   #     The outcome from the stationsData() function should be passed as argument'
   #   )
   # }
-
+  
   ##
   # Single workflow regardless of station type
   stationsDataResult <- stationsDataResult[stationsDataResult != 'No Data'] %>%
@@ -101,21 +101,21 @@ organize <- function(stationsDataResult) {
     ) %>%
     # Organize by station code and date
     dplyr::arrange(dplyr::across(c('station_code', 'date')))
-
+  
   # Rename column for rainfall or streamflow
   if (stringr::str_remove(stationsDataResult$name[1], pattern = "[0-9]+") == "chuva") {
     stationsDataResult <- stationsDataResult %>%
       dplyr::rename(rainfall_mm = 5)
-  }
-
-  if (stringr::str_remove(stationsDataResult$name[1], pattern = "[0-9]+") == "vazao") {
+  } else {if (stringr::str_remove(stationsDataResult$name[1], pattern = "[0-9]+") == "vazao") {
     stationsDataResult <- stationsDataResult %>%
       dplyr::rename(streamflow_m3_s = 5)
   }  else {
     stationsDataResult <- stationsDataResult %>%
       dplyr::rename(level_cm = 5)
   }
-
+    
+  }
+  
   # Output format
   organizedResult <- stationsDataResult %>%
     # Remove name column
@@ -125,19 +125,19 @@ organize <- function(stationsDataResult) {
     dplyr::filter(dplyr::n() > 0) %>%
     # Transform into lists with tibble for each station
     dplyr::ungroup()
-
+  
   # Split into lists
   organizedResult <- split(organizedResult, organizedResult$station_code)
-
+  
   #Pad data to complete dates. Set consistency level = 2 to missing data. Will be computed as NA in selectStation
-
-organizedResult <- lapply(organizedResult, FUN = function(x) padr::pad(x,
+  
+  organizedResult <- lapply(organizedResult, FUN = function(x) padr::pad(x,
                                                                          start_val = as.Date(paste(lubridate::year(dplyr::first(x$date)),
                                                                                                    01, 01, sep = "-")),
                                                                          end_val = as.Date(paste(lubridate::year(dplyr::last(x$date)),
                                                                                                  12, 31, sep = "-"))) %>% dplyr::mutate(station_code = unique(x$station_code)) %>%
                               dplyr::mutate(consistency_level = ifelse(is.na(consistency_level),
-                                                                2, consistency_level))) %>%
+                                                                       2, consistency_level))) %>%
     suppressMessages()
   # attr(organizedResult, "hydrobr_class") <- "organize"
   return(organizedResult)
