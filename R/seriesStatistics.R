@@ -21,6 +21,10 @@
 #' @param permanence numeric; percentage of time if "Qperm" is choose as statistic parameter
 #'   The default is 95 percent.
 #'
+#' @param rainyDays numeric; number of day to be consider if "Rmax" is choose as statistic parameters.
+#' For example, if rainyDays = 2, seriesStatistics will compute max value considering 2 day of raining for each wateryear (or monthWaterYear).
+#' Default is 1 day.
+#'
 #' @param byMonth logical;  if byMounth = TRUE, seriesStatistics is performed for by month. default = FALSE.
 #'
 #' @return A list containing 3 objects:
@@ -73,7 +77,11 @@
 #' @importFrom rlang :=
 
 
-seriesStatistics = function(selectStationsResultSeries, statistics = "Qmean", permanence = 95, byMonth = FALSE)
+seriesStatistics = function(selectStationsResultSeries,
+                             statistics = "Qmean",
+                             permanence = 95,
+                             rainyDays = 1,
+                             byMonth = FALSE)
 {
 
   # ## Verification if arguments are in the desired format
@@ -220,20 +228,21 @@ seriesStatistics = function(selectStationsResultSeries, statistics = "Qmean", pe
         .groups = 'drop') %>%
       dplyr::select(c(2, 1, 3))
 
+  } else if (statistics == "Rmax"){
 
-
-  } else if (statistics == "Rmax") {
-
-    series <- selectStationsResultSeries %>%
-      do.call(what = dplyr::bind_rows) %>%
+    series <- selectStationsResultSeries %>% dplyr::bind_rows() %>%
       dplyr::group_by_at(c(period, "station_code")) %>%
-      dplyr::summarise(
-        station_code = unique(station_code),
-        rainMax_mm = max(rainfall_mm, na.rm = TRUE),
-        .groups = 'drop') %>%
-      dplyr::select(c(2, 1, 3))
+      dplyr::mutate(Rmax= zoo::rollapply(.data$rainfall_mm,
+                                         width = rainyDays, FUN = sum, partial = TRUE, align = "left")) %>%
+      dplyr::slice(-(dplyr::n() - 5):-dplyr::n()) %>%
+      dplyr::filter(Rmax==max(Rmax, na.rm = T)) %>%
+      dplyr::slice(1) %>%
+      dplyr::select(c(1, dplyr::all_of(period),
+                      Rmax)) %>%
+      stats::setNames(c("station_code", "waterYear", paste0("rainMax", rainyDays, "days_mm")))
+  }
 
-  } else if (statistics == "Rdays") {
+  else if (statistics == "Rdays") {
 
     series <- selectStationsResultSeries %>%
       do.call(what = dplyr::bind_rows) %>%
@@ -283,6 +292,7 @@ seriesStatistics = function(selectStationsResultSeries, statistics = "Qmean", pe
                 base::split(.$station_code),
               df_series = series,
               series_matrix = series_matrix)
+  out$series[3]
 
   # class(out) <- c(class(out), 'flowStatistics')
 
@@ -296,5 +306,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c(".",
                                                         'stream_flow_m3_s',
                                                         'monthWaterYear',
                                                         'waterYear',
-                                                        'rainfall'))
+                                                        'rainfall',
+                                                        'Rmax'))
 

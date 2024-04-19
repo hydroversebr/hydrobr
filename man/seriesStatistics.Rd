@@ -9,6 +9,7 @@ seriesStatistics(
   selectStationsResultSeries,
   statistics = "Qmean",
   permanence = 95,
+  rainyDays = 1,
   byMonth = FALSE
 )
 }
@@ -30,6 +31,10 @@ and (5) minimum stream flow (Qmin).
 
 \item{permanence}{numeric; percentage of time if "Qperm" is choose as statistic parameter
 The default is 95 percent.}
+
+\item{rainyDays}{numeric; number of day to be consider if "Rmax" is choose as statistic parameters.
+For example, if rainyDays = 2, seriesStatistics will compute max value considering 2 day of raining for each wateryear (or monthWaterYear).
+Default is 1 day.}
 
 \item{byMonth}{logical;  if byMounth = TRUE, seriesStatistics is performed for by month. default = FALSE.}
 }
