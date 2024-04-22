@@ -94,7 +94,8 @@ wDelimitationAreaBased = function(stationsPath,
     buf <- sf::st_buffer(stationsPath[i, ], bufferSearch)
 
     #crop acummulation raster by buffer
-    Acum <- terra::crop(flowAcumRaster, buf)
+    Acum <- terra::crop(flowAcumRaster, buf) %>%
+      terra::mask(buf)
 
     #search value at acumulation raster  which is nearest of nPixel
     nearestValue <- terra::na.omit(terra::unique(Acum))[which.min(abs(terra::na.omit(terra::unique(Acum)) - nPixel) %>% dplyr::pull()), ]
