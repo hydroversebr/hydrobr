@@ -1,15 +1,16 @@
-#' Watershed delimitation based on area of ANA stations
+#' Watershed delimitation
 #'
 #' @encoding UTF-8
 #'
-#' @description This function delineates watershed boundaries based on the area value displayed in ANA fluviometric station data.
+#' @description This function delineates watershed boundaries. Pour points are snapped based on river proximity.
+#' The algorithm chooses the river point with the biggest flow accumulation value.
+#' This function is particularly useful when the basin area value is not known in advance.
 #'
-#'
-#' @param stationsPath character vector. Shapefile path of ANA fluviometric stations
-#' @param flowAcumPath character vector. Flow Accumulation raster path
-#' @param flowDir8Path character vector. Flow direction raster path
-#' @param bufferSearch value. Search radius in meters to snap pour points
-#' @param outputDirPath character vector. Output directory path
+#' @param stationsPath character vector. Shapefile path of fluviometric stations file.
+#' @param flowAcumPath character vector. Flow Accumulation raster path.
+#' @param flowDir8Path character vector. Flow direction raster path.
+#' @param bufferSearch value. Search radius in meters to snap pour points.
+#' @param outputDirPath character vector. Output directory path.
 #'
 #'
 #' @details shapefiles and rasters must be at same projection coordinate system (metric)
@@ -53,20 +54,26 @@
 #' @export
 
 
-wDelimitationAreaBased = function(stationsPath,
-                                  flowAcumPath,
-                                  flowDir8Path,
-                                  bufferSearch = 1000,
-                                  outputDirPath)
+wDelimitation = function(stationsPath,
+                         flowAcumPath,
+                         flowDir8Path,
+                         bufferSearch = 1000,
+                         outputDirPath)
 {
+
+
+
 
 
   stationsPath <- sf::st_read(stationsPath, quiet = TRUE) %>%
     dplyr::arrange(sttn_cd)
 
-  flowAcumRaster <- terra::rast(flowAcumPath)
+  #set variable names
+  # names(stationsPath) <- c("state", "station_code", "name", "lat",
+  #                          "long", "station_type", "area_km2", "geometry")
 
-  flowDir8Raster <- terra::rast(flowDir8Path)
+  areaSP <- as.numeric()
+
 
   #create dir for raster basins results
   dir.create(paste(outputDirPath, "/WaterShedRaster", sep = ""),
@@ -82,36 +89,34 @@ wDelimitationAreaBased = function(stationsPath,
 
 
   #loop to delineate individual basins
-  i = 2
+
   for (i in 1:nrow(stationsPath)) {
 
-    #number of pixel associated with area_km2 at ANA database for station i
+    #select station "i" and export to folder
 
-    nPixel <- round(as.numeric(stationsPath$are_km2[i]) *
-                      100 * 10000/terra::res(flowAcumRaster)[1]^2, 0)
 
-    #buffer around station point
-    buf <- sf::st_buffer(stationsPath[i, ], bufferSearch)
+    stationsPath %>%
+      dplyr::slice(i) %>%
+      sf::st_write(paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],
+                         ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
+                   quiet = TRUE)
 
-    #crop acummulation raster by buffer
-    Acum <- terra::crop(flowAcumRaster, buf)
+    #snap based on whitebox and overwrite shape generate at last step
 
-    #search value at acumulation raster  which is nearest of nPixel
-    nearestValue <- terra::na.omit(terra::unique(Acum))[which.min(abs(terra::na.omit(terra::unique(Acum)) - nPixel) %>% dplyr::pull()), ]
-    Acum[Acum != nearestValue] <- NA
+    whitebox::wbt_snap_pour_points(pour_pts = paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],
+                                                    ".shp", sep = ""),
+                                   flow_accum = flowAcumPath,
+                                   output = paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],".shp", sep = ""),
+                                   snap_dist = bufferSearch)
 
-    #convert pour point to shapefile and delineate watershed boundaries
-    suppressWarnings(terra::as.points(Acum) %>% sf::st_as_sf() %>% dplyr::slice(1) %>% dplyr::mutate(sttn_cd = stationsPath$sttn_cd[i]) %>%
-                       dplyr::select(sttn_cd, geometry) %>%
-                       sf::st_write(paste(outputDirPath, "/pourPoints/pour_", stationsPath$sttn_cd[i],
-                                          ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
-                                    quiet = TRUE))
+
+    #delinate basin
 
     whitebox::wbt_watershed(flowDir8Path, paste(outputDirPath, "/pourPoints/pour_",
                                                 stationsPath$sttn_cd[i], ".shp",
                                                 sep = ""), paste(outputDirPath, "/waterShedRaster/",
                                                                  "waterShed", stationsPath$sttn_cd[i], ".tif",
-                                                                 sep = ""), verbose_mode = NULL)
+                                                                 sep = ""))
 
     #read watershed, trim extent and export agains
     y <- terra::trim(terra::rast(paste(outputDirPath, "/waterShedRaster/",
@@ -121,6 +126,7 @@ wDelimitationAreaBased = function(stationsPath,
     terra::writeRaster(y, paste(outputDirPath, "/waterShedRaster/",
                                 "waterShed", stationsPath$sttn_cd[i], ".tif",
                                 sep = ""), overwrite = TRUE, datatype = "INT2S")
+
 
     #convert watershed rastes to polygon, set station_code, area_km2, area_km2_predicted and export
     q <- sf::st_as_sf(terra::as.polygons(y)) %>% dplyr::mutate(station_code = stationsPath$sttn_cd[i],
@@ -132,13 +138,11 @@ wDelimitationAreaBased = function(stationsPath,
                                            "/waterShedShape/", "waterShed", stationsPath$sttn_cd[i],
                                            ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
                                   quiet = TRUE))
-
     print(paste("--------> Station ", stationsPath$sttn_cd[i],
                 " Done ", i, "/", nrow(stationsPath),  " <--------", sep = ""))
   }
 
   print("Generating final files")
-
 
   #read basins pour_points, combine in one shapefile and export
   suppressWarnings(list.files(paste0(outputDirPath, "/pourPoints"), pattern = ".shp",
@@ -154,6 +158,7 @@ wDelimitationAreaBased = function(stationsPath,
                                     sep = ""
   ), pattern = ".shp", full.names = TRUE) %>%
     lapply(sf::st_read, quiet = TRUE) %>% dplyr::bind_rows() %>%
+    dplyr::mutate(Rel_Er_P = round((ar_km2p - are_km2)/are_km2*100, 2)) %>%
     sf::st_write(
       paste(outputDirPath, "/Watersheds_unested.shp",
             sep = ""
@@ -200,8 +205,11 @@ wDelimitationAreaBased = function(stationsPath,
     dplyr::select(sttn_cd, area_km2 = are_km2, area_km2p = ar_km2p, dplyr::contains("Relative"))
 
 
-  gc()
+
+
+  # unlink(tempDirPath, recursive = TRUE)
   return(resumo)
+  gc()
   print("Job Done! Congratz!")
   print(resumo)
 
@@ -213,6 +221,9 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("areakm2",
                                                         'areakm2_p',
                                                         "area_km2",
                                                         "area_km2p",
+                                                        'ar_km2p',
+                                                        'are_km2',
+                                                        'a_km2p_nest',
                                                         'Watersheds_nested',
                                                         'geometry',
                                                         'sttn_cd'))
