@@ -27,27 +27,29 @@ watershedDelineation(
 \value{
 \itemize{
 \item nested and unested watersheds in raster and shape format
-\item snaped pour points
+\item snapped pour points
 }
-
-#' @references
-whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 }
 \description{
 This function delineates watershed boundaries. See details.
 }
 \details{
-\itemize{
-\item Stations shapefile must include a 'sttn_cd' column containing numerical identifiers for stations.
-\item station shapefile must include an 'area_km2' column containing area values for stations. If the area is not known, leave it empty. However, the column must exist.
-\item The delineation could be based on two algorithms: (1)
-Pour points are snapped based on river proximity.
-The algorithm chooses the river point with the biggest flow accumulation value.
-This function is particularly useful when the basin area value is not known in advance.
-This function delineates watershed boundaries based on the area value displayed in ANA fluviometric station data.
-}
+The stations shapefile MUST INCLUDE a 'sttn_cd' column containing numerical identifiers for stations.
 
-shapefiles and rasters must be at same projection coordinate system (metric)
+Shapefiles and rasters MUST BE in the same projection coordinate system (metric).
+
+The delineation could be based on two algorithms:
+
+(1) Pour points are snapped to the chosen flow accumulation pixel value which most approximates the area of the respective station at 'bufferSearch';
+
+(2) Pour points are snapped to the chosen biggest flow accumulation value within a 'bufferSearch' radius.
+
+To choose which algorithm is implemented, the user must configure the input shapefile:
+
+(1) If the first method is desired, the station shapefile MUST INCLUDE an 'are_km2' column containing area values for station basins in km².
+If the area is not known for a specific station, leave the 'are_km2' column of this specific station as 'NA', and the function will use the second algorithm to delineate watershed boundaries.
+
+(2) If you're interested in the second algorithm, just make sure that 'are_km2' is not provided ou set 'NA' to all station value at 'are_km2' column.
 }
 \examples{
 
@@ -79,4 +81,7 @@ watershedDelineation(
 
 }
 
+}
+\references{
+whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 }

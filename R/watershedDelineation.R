@@ -13,22 +13,33 @@
 #'
 #'
 #' @details
-#' - Stations shapefile must include a 'sttn_cd' column containing numerical identifiers for stations.
-#' - station shapefile must include an 'area_km2' column containing area values for stations. If the area is not known, leave it empty. However, the column must exist.
-#' - The delineation could be based on two algorithms: (1)
-#' Pour points are snapped based on river proximity.
-#' The algorithm chooses the river point with the biggest flow accumulation value.
-#' This function is particularly useful when the basin area value is not known in advance.
-#' This function delineates watershed boundaries based on the area value displayed in ANA fluviometric station data.
+#
+#'The stations shapefile MUST INCLUDE a 'sttn_cd' column containing numerical identifiers for stations.
+#'
+#'Shapefiles and rasters MUST BE in the same projection coordinate system (metric).
+#'
+#'The delineation could be based on two algorithms:
+#'
+#'(1) Pour points are snapped to the chosen flow accumulation pixel value which most approximates the area of the respective station at 'bufferSearch';
+#'
+#'(2) Pour points are snapped to the chosen biggest flow accumulation value within a 'bufferSearch' radius.
+#'
+#'To choose which algorithm is implemented, the user must configure the input shapefile:
+#'
+#'(1) If the first method is desired, the station shapefile MUST INCLUDE an 'are_km2' column containing area values for station basins in km².
+#'If the area is not known for a specific station, leave the 'are_km2' column of this specific station as 'NA', and the function will use the second algorithm to delineate watershed boundaries.
+#'
+#'(2) If you're interested in the second algorithm, just make sure that 'are_km2' is not provided ou set 'NA' to all station value at 'are_km2' column.
 #'
 #'
-#' shapefiles and rasters must be at same projection coordinate system (metric)
+#' @return
 #'
-#' @return - nested and unested watersheds in raster and shape format
-#' - snaped pour points
+#' - nested and unested watersheds in raster and shape format
+#' - snapped pour points
 #'
 #'
-#'#' @references
+#'@references
+#'
 #' whitetoolbox package (https://cran.r-project.org/web/packages/whitebox/index.html)
 #'
 #' @examples
@@ -66,19 +77,35 @@
 
 
 watershedDelineation = function(stationsPath,
-                              flowAcumPath,
-                              flowDir8Path,
-                              bufferSearch = 1000,
-                              outputDirPath)
+                                 flowAcumPath,
+                                 flowDir8Path,
+                                 bufferSearch = 1000,
+                                 outputDirPath)
 {
 
 
   stopifnot(
-    "Stations shapefile must include a 'sttn_cd' column containing numerical identifiers for stations." = "sttn_cd" %in% names(sf::st_read(stationsPath, quiet = TRUE)),
-    "The station shapefile must include an 'area_km2' column containing area values for stations. If the area is not known, leave it empty. However, the column must exist." = "are_km2" %in% names(sf::st_read(stationsPath, quiet = TRUE)))
+    "Stations shapefile must include a 'sttn_cd' column containing numerical identifiers for stations." = "sttn_cd" %in% names(sf::st_read(stationsPath, quiet = TRUE)))
+
+
+  if(!"are_km2" %in% names(sf::st_read(stationsPath))){
+
+    print("column `are_km2` (area in km2) not provided. Watersheds will be deliniated based on maximum flow accumulation method at a `bufferSearch` radius")
+
+  }
 
   stationsPath <- sf::st_read(stationsPath, quiet = TRUE) %>%
     dplyr::arrange(sttn_cd)
+
+
+  #criar coluna are_km2 se nao existir
+
+  if(!"are_km2" %in% names(stationsPath)){
+
+    stationsPath = stationsPath %>%
+      dplyr::mutate(are_km2 = NA)
+
+  }
 
   flowAcumRaster <- terra::rast(flowAcumPath)
 
@@ -103,7 +130,6 @@ watershedDelineation = function(stationsPath,
 
     if("are_km2" %in% names(stationsPath) & !is.na(stationsPath$are_km2[i])){
 
-      print("area_based")
       #number of pixel associated with area_km2 at ANA database for station i
 
       nPixel <- round(as.numeric(stationsPath$are_km2[i]) *
@@ -154,13 +180,12 @@ watershedDelineation = function(stationsPath,
                                     quiet = TRUE))
 
       print(paste("--------> Station ", stationsPath$sttn_cd[i],
-                  " Done ", i, "/", nrow(stationsPath),  " <--------", sep = ""))
+                  " Done ", i, "/", nrow(stationsPath),  "(Area based) <--------", sep = ""))
 
 
 
     } else {
 
-      print("no_area_based")
       #select station "i" and export to folder
 
       stationsPath %>%
@@ -207,7 +232,7 @@ watershedDelineation = function(stationsPath,
                                              ".shp", sep = ""), delete_layer = TRUE, append = FALSE,
                                     quiet = TRUE))
       print(paste("--------> Station ", stationsPath$sttn_cd[i],
-                  " Done ", i, "/", nrow(stationsPath),  " <--------", sep = ""))
+                  " Done ", i, "/", nrow(stationsPath),  "(maximum flow accumulation at `bufferSearch` radius) <--------", sep = ""))
 
 
 
