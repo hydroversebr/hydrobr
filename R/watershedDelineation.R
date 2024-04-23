@@ -60,9 +60,9 @@
 #')
 #'
 #'}
-#' @export
-
-
+#'
+#'
+#'@export
 wDelineation = function(stationsPath,
                               flowAcumPath,
                               flowDir8Path,
