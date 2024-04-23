@@ -51,7 +51,7 @@
 #')
 #'
 #' #run watersheDelimit
-#' watersheDelimit(
+#' watershedDelineation(
 #'   stationsPath = "./example/results/stations_aoi.shp",
 #'   flowAcumPath = "./example/results/demproducts/03flowAccumulation.tif",
 #'   flowDir8Path = "./example/results/demproducts/03flowDirection.tif",
@@ -61,9 +61,11 @@
 #'
 #'}
 #'
-#'
-#'@export
-wDelineation = function(stationsPath,
+#' @export
+
+
+
+watershedDelineation = function(stationsPath,
                               flowAcumPath,
                               flowDir8Path,
                               bufferSearch = 1000,
