@@ -50,7 +50,7 @@
 #')
 #'
 #'}
-#' @export
+#'
 
 
 wDelimitationAreaBased = function(stationsPath,

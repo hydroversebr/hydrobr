@@ -51,7 +51,7 @@
 #')
 #'
 #'}
-#' @export
+#'
 
 
 wDelimitation = function(stationsPath,
