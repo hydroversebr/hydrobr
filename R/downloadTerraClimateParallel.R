@@ -242,7 +242,7 @@ downloadTerraClimateParallel = function (aoi,
 
     ano = substr(imagens, nchar(imagens) - 7 + 1, nchar(imagens)-3)
 
-    names(img) = paste0(variable, "___", seq(as.Date(paste0(ano, "-01-01")), as.Date(paste0(ano, "-12-01")), by = "month"))
+    names(img) = paste0(variable, "_", seq(as.Date(paste0(ano, "-01-01")), as.Date(paste0(ano, "-12-01")), by = "month"))
 
     terra::writeRaster(img, filename = gsub(imagens, replacement = ".tif", pattern = ".nc"),
                        filetype = "GTiff", overwrite = TRUE)
@@ -260,7 +260,7 @@ downloadTerraClimateParallel = function (aoi,
 }
 
 
-ano = 2011
+
 
 
 
