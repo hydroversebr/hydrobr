@@ -61,7 +61,7 @@
 #'
 #'downloadTerraClimate(dir_out = "./temp/terraClimate",
 #'                      variable = "ppt",
-#'                     years = c(1990:1991),
+#'                     years = c(1990:2000),
 #'                    aoi = area_of_interest)
 #'
 #'}
@@ -89,7 +89,7 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
   #set crs do spatVector
   terra::crs(aoi) = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-
+  i=1
   if (variable == "ppt" | variable == "pet") {
     for (i in 1:length(years)) {
 
@@ -114,6 +114,8 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
       img <- terra::crop(img, aoi)
 
       img <- terra::mask(img, aoi)
+
+      names(img) = seq(as.Date(paste0(years[i], "-01-01")), as.Date(paste0(years[i], "-12-01")), by = "month")
 
       unlink(outfile)
 
@@ -140,6 +142,8 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
   else {
     message("Please, pay attention. You should download the variable ppt or eto!")
   }
+
+
 }
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("variable"))

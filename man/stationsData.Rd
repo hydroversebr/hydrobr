@@ -36,6 +36,7 @@ Improvement of the code developed by Artur Lourenço
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
+\dontrun{
 inv <- inventory(
   states = "MINAS GERAIS",
   stationType = "flu",
@@ -57,7 +58,7 @@ s_data <- stationsData(
 stations_code = data.frame(station_code = c("42600000","42690001"),
                            stationType = "fluviometric")
 
-
+}
 
 s_data = stationsData(stations_code)
 

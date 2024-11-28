@@ -40,6 +40,7 @@
 #' @examplesIf interactive()
 #' # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 #'
+#'\dontrun{
 #' inventory(
 #'   states = c("GOIÁS", "MINAS GERAIS"),
 #'   stationType = "plu",
@@ -47,6 +48,7 @@
 #'   aoi = NULL
 #' )
 #'
+#'}
 #' @export
 inventory <- function(states, stationType = "plu", as_sf = F, aoi = NULL) {
 

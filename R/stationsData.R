@@ -33,6 +33,7 @@
 #' @examplesIf interactive()
 #' # Fech a inventory of fluviometric stations for the state of Minas Gerais
 #'
+#'\dontrun{
 #' inv <- inventory(
 #'   states = "MINAS GERAIS",
 #'   stationType = "flu",
@@ -54,7 +55,7 @@
 #' stations_code = data.frame(station_code = c("42600000","42690001"),
 #'                            stationType = "fluviometric")
 #'
-#'
+#'}
 #'
 #' s_data = stationsData(stations_code)
 #'

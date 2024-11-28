@@ -43,12 +43,15 @@ stations within its boundaries.
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 
+\dontrun{
 inventory(
   states = c("GOIÁS", "MINAS GERAIS"),
   stationType = "plu",
   as_sf = TRUE,
   aoi = NULL
 )
+
+}
 \dontshow{\}) # examplesIf}
 }
 \references{
