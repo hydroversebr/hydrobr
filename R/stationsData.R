@@ -55,9 +55,11 @@
 #' stations_code = data.frame(station_code = c("42600000","42690001"),
 #'                            stationType = "fluviometric")
 #'
+#' s_data = stationsData(stations_code)
+#'
 #'}
 #'
-#' s_data = stationsData(stations_code)
+#'
 #'
 #'
 #' @export
