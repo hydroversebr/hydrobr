@@ -92,7 +92,7 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
 
   #projet to wgs84 epsg
   aoi = terra::project(aoi, y = "epsg:4326")
-
+  i = 1
   for (i in 1:length(years)) {
 
     baseurl <- paste0("http://thredds.northwestknowledge.net:8080/thredds/fileServer/TERRACLIMATE_ALL/data/TerraClimate_",
@@ -122,7 +122,7 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
     unlink(outfile)
 
     terra::writeRaster(img, filename = paste0(dir_out,
-                                              "/", paste0(substr(name_img, 1, 21), ".tif")),
+                                              "/", paste0(substr(name_img, 1, nchar(name_img)-3), ".tif")),
                        filetype = "GTiff", overwrite = TRUE)
 
     print(paste0(years[i], " Done"))
