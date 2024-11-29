@@ -81,6 +81,8 @@
 #' @export
 #'
 #' @importFrom rlang .data
+#'
+
 selectStations <- function(organizeResult,
                            mode = "yearly",
                            maxMissing = 10,
@@ -186,12 +188,12 @@ selectStations <- function(organizeResult,
   }
 
   # Type of station?
-  if (names(organizeResult[[1]])[4] == "streamflow_m3_s") {
-    stationType <- "flu"
-  } else {
-    stationType <- "plu"
-  }
-  varName <- switch (stationType, plu = 'rainfall_mm', flu = 'stream_flow_m3_s')
+  # if (names(organizeResult[[1]])[4] == "streamflow_m3_s") {
+  #   stationType <- "flu"
+  # } else {
+  #   stationType <- "plu"
+  # }
+  varName <- names(organizeResult[[1]])[4]
 
 
   ##first date to be considered based on month
