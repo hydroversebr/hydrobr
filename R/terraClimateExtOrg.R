@@ -44,12 +44,21 @@ terraClimateExtOrg = function(terraClimateRast, aoi, fun, colname){
   # Verificações iniciais
   stopifnot(
     "`terraClimateRast` must be a raster of class `rast` (terra package)" = "SpatRaster" %in% class(terraClimateRast),
-    "`aoi` must be a polygon of class `sf` (sf package)" = "sf" %in% class(aoi),
+    "`aoi` must be a polygon of class `sf` (sf package)" = sum(class(aoi) %in% c("sf", "SpatVector"))==1,
     "`fun` must be a character indicating function to be use in zonal statistics" = is.character(fun),
     "`fun` must be a character indicating function to be use in zonal statistics" = fun %in% c("min", "max", "sum", "mean", "median", "mode", "majority", "minority"),
     "`colname` must be a character indicating column of `aoi` to summarise zonal statistics" = colname %in% names(aoi)
 
   )
+
+  #if aoi  is SpatVector convert to sf
+
+  if(unique(class(aoi)%in%"SpatVector")==TRUE){
+
+    aoi = aoi %>%
+      sf::st_as_sf(aoi)
+
+  }
 
   #convert aoi to wgs84
   aoi = aoi %>%
@@ -81,10 +90,9 @@ terraClimateExtOrg = function(terraClimateRast, aoi, fun, colname){
     dplyr::mutate(name = substr(.$name, nchar(.$name)-9,nchar(.$name)),
                   data = as.Date(name),
                   month = lubridate::month(data),
-                  station_code = dplyr::contains(colname),
                   consistency_level = 2,
                   !!variavel_unidade := value) %>%
-    dplyr::select(station_code,
+    dplyr::select(station_code = dplyr::any_of(colname),
                   consistency_level,
                   date = data,
                   dplyr::contains(variavel_unidade)) %>%
