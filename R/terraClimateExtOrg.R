@@ -44,7 +44,7 @@ terraClimateExtOrg = function(terraClimateRast, aoi, fun, colname){
   # Verificações iniciais
   stopifnot(
     "`terraClimateRast` must be a raster of class `rast` (terra package)" = "SpatRaster" %in% class(terraClimateRast),
-    "`aoi` must be a polygon of class `sf` (sf package)" = sum(class(aoi) %in% c("sf", "SpatVector"))==1,
+    "`aoi` must be a polygon of class `sf` (sf package) or `SpatVector` (terra package)" = sum(class(aoi) %in% c("sf", "SpatVector"))==1,
     "`fun` must be a character indicating function to be use in zonal statistics" = is.character(fun),
     "`fun` must be a character indicating function to be use in zonal statistics" = fun %in% c("min", "max", "sum", "mean", "median", "mode", "majority", "minority"),
     "`colname` must be a character indicating column of `aoi` to summarise zonal statistics" = colname %in% names(aoi)

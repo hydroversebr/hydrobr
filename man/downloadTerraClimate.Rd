@@ -13,7 +13,7 @@ downloadTerraClimate(dir_out, variable, years, aoi)
 
 \item{years}{numeric. The period in years that the function should download images.}
 
-\item{aoi}{spatVector object. Provides the boundaries where chirps data should be limited to (datum = WGS84).}
+\item{aoi}{spatVector or sf object. Provides the boundaries where terraClimate data should be limited to.}
 }
 \value{
 raster files of each year containing 12 layers each (1 for each month of given year).
