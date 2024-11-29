@@ -75,7 +75,6 @@
 #'}
 #'
 
-variable = "eto"
 downloadTerraClimateParallel = function (aoi,
                                           dir_out,
                                           variable,

@@ -74,12 +74,9 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
 
   stopifnot(
     "`dir_out` parameter must be character indicating output folder path (i.e `c:/temp`)" = is.character(dir_out),
-    "`variable` must be `ppt` or `eto`" = variable %in% c("ppt", "aet", "def", "pet", "q", "soil", 'srad', "swe", "tmax", "tmin", "vap", "ws", "vpd", "PDSI"),
+    "`variable` must be 'aet`, `def`, `pet`, `ppt`, `q`, `soil`, `srad`, `swe`, `tmax`, `tmin`, `vap`, `ws`, `vpd`or `PSDI` (see function description for information"= variable %in% c("ppt", "aet", "def", "pet", "q", "soil", 'srad', "swe", "tmax", "tmin", "vap", "ws", "vpd", "PDSI"),
     "`years` must be numeric vector containing years to be downloaded" = is.numeric(years),
     "`aoi` must be a polygon of class `SpatVector` (terra package)" = class(aoi) == "SpatVector")
-
-
-
 
 
   #create output dir if do not exist
@@ -90,7 +87,7 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
   terra::crs(aoi) = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
   i=1
-  if (variable == "ppt" | variable == "pet") {
+
     for (i in 1:length(years)) {
 
       baseurl <- paste0("http://thredds.northwestknowledge.net:8080/thredds/fileServer/TERRACLIMATE_ALL/data/TerraClimate_",
@@ -115,7 +112,7 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
 
       img <- terra::mask(img, aoi)
 
-      names(img) = seq(as.Date(paste0(years[i], "-01-01")), as.Date(paste0(years[i], "-12-01")), by = "month")
+      names(img) = paste0(variable, "_", seq(as.Date(paste0(years[i], "-01-01")), as.Date(paste0(years[i], "-12-01")), by = "month"))
 
       unlink(outfile)
 
@@ -139,11 +136,6 @@ downloadTerraClimate = function (dir_out, variable, years, aoi) {
     return(s)
   }
 
-  else {
-    message("Please, pay attention. You should download the variable ppt or eto!")
-  }
 
-
-}
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("variable"))
