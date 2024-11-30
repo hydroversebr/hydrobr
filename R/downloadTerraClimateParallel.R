@@ -76,24 +76,22 @@
 #'
 
 downloadTerraClimateParallel = function (aoi,
-                                          dir_out,
-                                          variable,
-                                          years,
-                                          ncores = 1,
-                                          retry = 1000,
-                                          timeout = 120)
+                                         dir_out,
+                                         variable,
+                                         years,
+                                         ncores = 1,
+                                         retry = 10,
+                                         timeout = 600)
 
 {
 
-  stopifnot(
-    "`dir_out` parameter must be character indicating output folder path (i.e `c:/temp`)" = is.character(dir_out),
-    "`variable` must be `ppt` or `eto`" = variable %in% c("ppt", "aet", "def", "pet", "q", "soil", 'srad', "swe", "tmax", "tmin", "vap", "ws", "vpd", "PDSI"),
-    "`years` must be numeric vector containing years to be downloaded" = is.numeric(years),
-    "`aoi` must be a polygon of class `SpatVector` (terra package)" = class(aoi) == "SpatVector",
-    "`ncores`  must be numeric" = is.numeric(ncores),
-    "`retry`  must be numeric" = is.numeric(retry),
-    "`timeout`  must be numeric" = is.numeric(timeout))
-
+  stopifnot(`\`dir_out\` parameter must be character indicating output folder path (i.e \`c:/temp\`)` = is.character(dir_out),
+            `\`variable\` must be \`ppt\` or \`eto\`` = variable %in%
+              c("ppt", "aet", "def", "pet", "q", "soil", "srad",
+                "swe", "tmax", "tmin", "vap", "ws", "vpd", "PDSI"),
+            `\`years\` must be numeric vector containing years to be downloaded` = is.numeric(years),
+            `\`aoi\` must be a polygon of class \`SpatVector\` (terra package)` = class(aoi) ==
+              "SpatVector")
 
   #criar diretório de saída
   dir.create(dir_out, recursive = F, showWarnings = FALSE)
@@ -113,7 +111,7 @@ downloadTerraClimateParallel = function (aoi,
 
   names = sapply(years, function(year) {
 
-    name_img <- paste0("TerraClimate_", variable, "_",
+    name_img <- paste0("terraclimate_", variable, "_",
                        year, ".nc")
 
     outfile <- paste0(dir_out, "/", name_img)
@@ -166,7 +164,7 @@ downloadTerraClimateParallel = function (aoi,
     failed_downloads <- which(rep(TRUE, length(url)))
 
     results = rep("download_failed", length(url))
-
+    attempt = 1
     for (attempt in 1:retry) {
 
       # print(attempt)
