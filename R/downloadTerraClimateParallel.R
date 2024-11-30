@@ -216,6 +216,8 @@ downloadTerraClimateParallel = function (aoi,
 
   future::plan(future::multisession, workers = ncores)
 
+  progressr::handlers(global = TRUE)
+
   teste = suppressWarnings(download_tile_with_retry(url = links,
                                                     destfile = names,
                                                     retry = retry,
