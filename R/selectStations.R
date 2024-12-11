@@ -521,7 +521,7 @@ selectStations <- function(organizeResult,
   #ajeitando umas coisas
 
   failureMatrix[is.na(failureMatrix)] = FALSE
-  missingMatrix[is.na(failureMatrix)] = 100
+  missingMatrix[is.na(missingMatrix)] = 100
 
   failureMatrix = failureMatrix %>%
     dplyr::select(dplyr::any_of(c(names(failureMatrix)[1], sort(names(failureMatrix))[-1])))
