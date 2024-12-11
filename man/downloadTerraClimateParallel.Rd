@@ -10,8 +10,8 @@ downloadTerraClimateParallel(
   variable,
   years,
   ncores = 1,
-  retry = 1000,
-  timeout = 120
+  retry = 10,
+  timeout = 600
 )
 }
 \arguments{
