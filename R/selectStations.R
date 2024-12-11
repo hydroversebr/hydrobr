@@ -317,6 +317,8 @@ selectStations <- function(organizeResult,
       # Spread each station into a column
       tidyr::pivot_wider(names_from = .data$station_code, values_from = .data$missing)
 
+    failureMatrix[is.na(failureMatrix)] = FALSE
+
     # Creating missingMatrix
     missingMatrix <- selectDataResult %>%
       # Group by station and wateryear
@@ -338,6 +340,8 @@ selectStations <- function(organizeResult,
       dplyr::filter(.data$station_code %in% names(failureMatrix)[-1]) %>%
       # Spread each station into a column
       tidyr::pivot_wider(names_from = .data$station_code, values_from = .data$missing)
+
+    missingMatrix[is.na(missingMatrix)] = 100
 
     # Creating plot with consistency level and missing data
     g <- selectDataResult %>%
@@ -427,6 +431,8 @@ selectStations <- function(organizeResult,
       # Spread each station into a column
       tidyr::pivot_wider(names_from = .data$station_code, values_from = .data$missing)
 
+    failureMatrix[is.na(failureMatrix)] = FALSE
+
     # Creating missingMatrix
     missingMatrix <- selectDataResult %>%
       # Select stations in keepStations
@@ -445,6 +451,8 @@ selectStations <- function(organizeResult,
       dplyr::distinct() %>%
       # Spread each station into a column
       tidyr::pivot_wider(names_from = .data$station_code, values_from = .data$missing)
+
+    missingMatrix[is.na(missingMatrix)] = 100
 
     # Creating plot with consistency level and missing data
     g <- selectDataResult %>%
@@ -520,8 +528,8 @@ selectStations <- function(organizeResult,
 
   #ajeitando umas coisas
 
-  failureMatrix[is.na(failureMatrix)] = FALSE
-  missingMatrix[is.na(missingMatrix)] = 100
+
+
 
   failureMatrix = failureMatrix %>%
     dplyr::select(dplyr::any_of(c(names(failureMatrix)[1], sort(names(failureMatrix))[-1])))
