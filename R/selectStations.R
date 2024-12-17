@@ -532,9 +532,9 @@ selectStations <- function(organizeResult,
 
 
   failureMatrix = failureMatrix %>%
-    dplyr::select(dplyr::any_of(c(names(failureMatrix)[1], sort(names(failureMatrix))[-1])))
+    dplyr::select(dplyr::any_of(c(names(failureMatrix)[1], sort(names(failureMatrix)[-1]))))
 
-  missingMatrix %>%
+  missingMatrix = missingMatrix %>%
     dplyr::select(dplyr::any_of(names(failureMatrix)))
 
   out <- list(split(selectDataResult, selectDataResult$station_code),
