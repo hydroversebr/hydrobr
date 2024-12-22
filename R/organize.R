@@ -44,7 +44,15 @@
 #' @export
 #'
 #' @importFrom rlang .data
-organize <- function(stationsDataResult) {
+#'
+#'
+#'
+#'
+
+
+stationsDataResult = list(listaDadosf$"41440005")
+
+organize2 <- function(stationsDataResult) {
 
   # ## Verification if arguments are in the desired format
   # # is stationsDataResult an outcome from stationsData function?
@@ -83,6 +91,7 @@ organize <- function(stationsDataResult) {
     dplyr::mutate(date = .data$data + as.numeric(stringr::str_extract(.data$name, pattern = "[0-9]+")) - 1) %>%
     # Remove duplicates by selecting highest consistency level
     dplyr::group_by_at(c('station_code', 'date')) %>%
+    na.omit() %>%
     dplyr::filter(
       .data$consistency_level == max(.data$consistency_level),
       # Other duplicates may appear because more columns than days for certain months
@@ -139,6 +148,7 @@ organize <- function(stationsDataResult) {
                               dplyr::mutate(consistency_level = ifelse(is.na(consistency_level),
                                                                        2, consistency_level))) %>%
     suppressMessages()
+
   # attr(organizedResult, "hydrobr_class") <- "organize"
   return(organizedResult)
 }
