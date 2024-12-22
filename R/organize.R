@@ -49,10 +49,7 @@
 #'
 #'
 
-
-stationsDataResult = list(listaDadosf$"41440005")
-
-organize2 <- function(stationsDataResult) {
+organize <- function(stationsDataResult) {
 
   # ## Verification if arguments are in the desired format
   # # is stationsDataResult an outcome from stationsData function?
