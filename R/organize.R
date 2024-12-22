@@ -88,7 +88,7 @@ organize <- function(stationsDataResult) {
     dplyr::mutate(date = .data$data + as.numeric(stringr::str_extract(.data$name, pattern = "[0-9]+")) - 1) %>%
     # Remove duplicates by selecting highest consistency level
     dplyr::group_by_at(c('station_code', 'date')) %>%
-    na.omit() %>%
+    stats::na.omit() %>%
     dplyr::filter(
       .data$consistency_level == max(.data$consistency_level),
       # Other duplicates may appear because more columns than days for certain months
