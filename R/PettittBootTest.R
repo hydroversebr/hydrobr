@@ -114,7 +114,7 @@ PettittBootTest <- function(dfSeriesFromFillorSerieStatisticsFunc,
     dplyr::bind_rows() %>%
     dplyr::arrange(.[[2]]) %>%
     dplyr::ungroup() %>%
-    dplyr::slice(1, n()) %>%
+    dplyr::slice(1, dplyr::n()) %>%
     dplyr::pull(2)
 
 
