@@ -20,7 +20,7 @@ Imports: tibble, dplyr, tidyr, magrittr, stringr, lubridate, rlang, xml2,
     zoo, padr, plyr, openxlsx, chirps, gtools, future, future.apply, progressr, exactextractr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,

@@ -2,8 +2,8 @@
 
 export("%>%")
 export(MKTest)
+export(PettittBootTest)
 export(PettittTest)
-export(PettittTestBoot)
 export(Q7Tempiric)
 export(RunTest)
 export(aggregateChirpsTS)

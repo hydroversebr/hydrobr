@@ -6,9 +6,11 @@
 #'
 #'
 #' @param dfSeriesFromFillorSerieStatisticsFunc tibble containing annual or monthly series of all stations;
-#' @param byMonth logical. if byMounth = TRUE, Pettitt test is performed for each month.
-#' @param plotGraph logical. defalt = FALSE
-#' @param dirSub string. directory path to save plots. default = "./pettittTestGraph".
+#' @param byMonth logical. if byMounth = TRUE, Pettitt test is performed for each month;
+#' @param plotGraph logical. defalt = FALSE;
+#' @param dirSub string. directory path to save plots. default = "./pettittTestGraph";
+#' @param ylab character. ylab description, i.e, 'Qmean (m³/s)';
+#' @param legendlabel character. Legend label, i.e, 'Annual mean streamflow'.
 #'
 #' @return p-value for each continuous stations data
 #'
@@ -61,105 +63,86 @@
 #' Qmean_years = seriesStatistics(final_data, statistics = "Qmean")
 #'
 #' #Bootstrap pettitt test
-#' PettittTestBoot(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series, byMonth = FALSE)
+#' PettittBootTest(dfSeriesFromFillorSerieStatisticsFunc = Qmean_years$df_series,
+#' byMonth = FALSE,
+#' plotGraph = FALSE,
+#' dirSub = "./petitTestGraph",
+#'ylab = "Qmean (m³/s)",
+#'legendlabel = "Annual mean streamflow")
 #'
 #'
 #' @export
 #' @importFrom rlang :=
 #'
 
-PettittTestBoot <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FALSE, plotGraph = FALSE, dirSub = "./petitTestGraph") { # se byMonth for igual a TRUE, faz o RunTest por mÊs da série mensal. Caso contrário na série mensal ou anual
-
-
-  boot.pettitttest <- function(y, B = 1000)
-  {
-    #library(trend)
+PettittBootTest <- function(dfSeriesFromFillorSerieStatisticsFunc,
+                            byMonth = FALSE,
+                            plotGraph = TRUE,
+                            dirSub = "./pettittTestGraph",
+                            ylab,
+                            legendlabel) {
+  boot.pettitttest <- function(y, B = 1000) {
     n <- length(y)
-    # -------------------------------------------------- Pettitt test
     teste1 <- trend::pettitt.test(y)
     pvalor1 <- teste1$p.value
     estat1 <- teste1$statistic
     loca <- teste1$estimate
-
-    # -------------------------------------------------- bootstrap Pettitt
-    estat_boot <- rep(0,B)
-
-    for (j in 1:B){
+    estat_boot <- rep(0, B)
+    for (j in 1:B) {
       indice <- sample(1:n, replace = T)
       y_boot <- y[indice]
       teste_boot <- trend::pettitt.test(y_boot)
       estat_boot[j] <- teste_boot$statistic
     }
-
-    pvalor2 <-
-      (1 + sum(abs(estat_boot) >= abs(estat1))) / (B + 1)
-
-
-    mresults <- matrix(rep(NA,2),nrow = 2)
+    pvalor2 <- (1 + sum(abs(estat_boot) >= abs(estat1))) / (B +
+                                                              1)
+    mresults <- matrix(rep(NA, 2), nrow = 2)
     colnames(mresults) <- c("p-value")
     rownames(mresults) <- c("Pettitt test", "Bootstrap Pettitt test")
-    mresults[,1] <- c(pvalor1, pvalor2)
-
-    mresults1 = data.frame(test = c("Pettitt test", "Bootstrap Pettitt test"),
-                           pvalue = c(pvalor1, pvalor2),
-                           probableChangePoint = c(loca, loca))
-
-    # print(loca)
+    mresults[, 1] <- c(pvalor1, pvalor2)
+    mresults1 <- data.frame(
+      test = c("Pettitt test", "Bootstrap Pettitt test"),
+      pvalue = c(pvalor1, pvalor2), probableChangePoint = c(
+        loca,
+        loca
+      )
+    )
     return(mresults1)
-
   }
 
+  dataGrafico = dfSeriesFromFillorSerieStatisticsFunc %>%
+    dplyr::bind_rows() %>%
+    dplyr::arrange(.[[2]]) %>%
+    dplyr::ungroup() %>%
+    dplyr::slice(1, n()) %>%
+    dplyr::pull(2)
 
 
-
-
-
-  ## Verification if arguments are in the desired format
-  # is StatisticsResult an outcome from rainStatistics or flowStatistics function?
-
-  # if (!attributes(dfSeriesFromFillorSerieStatisticsFunc)$class[2] %in% c('flowStatistics','rainStatistics', 'fillGaps')) {
-  #   stop(
-  #     call. = FALSE,
-  #     '`StatisticsResult` does not inherit attribute "flowStatistics" or "rainStatistics".
-  #      The outcome from the flowStatistics() or rainStatistics() function should be passed as argument'
-  #   )
-  # }
-
-
-  dfSeriesFromFillorSerieStatisticsFunc = dfSeriesFromFillorSerieStatisticsFunc %>%
+  dfSeriesFromFillorSerieStatisticsFunc <- dfSeriesFromFillorSerieStatisticsFunc %>%
     split(dfSeriesFromFillorSerieStatisticsFunc$station_code)
 
-
-  ## verify byMonth parameter
-
-  #identify type of serie (annual or monthly)
-
-  if (names(dfSeriesFromFillorSerieStatisticsFunc[[1]])[2] == "waterYear"){
-    period = "waterYear"
-  } else {period = "monthWaterYear"}
-
-  if (byMonth == TRUE & period == "waterYear" | !is.logical(byMonth) | !length(byMonth) == 1) {
-    stop(
-      call. = FALSE,
-      '`byMonth` should be a logical vector of length == 1 (TRUE or FALSE).
-       if `dfSeriesFromFillorSerieStatisticsFunc` is an annual series list, byMonth is necessarily `FALSE`.
-       See arguments details for more information'
-    )
+  if (names(dfSeriesFromFillorSerieStatisticsFunc[[1]])[2] ==
+      "waterYear") {
+    period <- "waterYear"
+  } else {
+    period <- "monthWaterYear"
   }
 
-  dfSeriesFromFillorSerieStatisticsFunc2 <- lapply(dfSeriesFromFillorSerieStatisticsFunc, function(x) { # nome da coluna modificado para que a função funcione para vazao e precipitacao
-    names(x) <- c("station_code", "period", "value")
-    x
-  })
+  if (byMonth == TRUE & period == "waterYear" | !is.logical(byMonth) |
+      !length(byMonth) == 1) {
+    stop(call. = FALSE, "`byMonth` should be a logical vector of length == 1 (TRUE or FALSE).\n       if `dfSeriesFromFillorSerieStatisticsFunc` is an annual series list, byMonth is necessarily `FALSE`.\n       See arguments details for more information")
+  }
 
-  # if(names(dfSeriesFromFillorSerieStatisticsFunc[[1]])[2] == "monthWaterYear"){
-  #
-  #   dfSeriesFromFillorSerieStatisticsFunc2 = dfSeriesFromFillorSerieStatisticsFunc2 %>%
-  #     lapply(function(x) x %>% dplyr::mutate(period = as.Date(paste("01", period, sep = "-"),
-  #                                                             tryFormats = "%d-%m-%Y")))
-  # }
 
-  if (byMonth == FALSE) { # for time series
+  dfSeriesFromFillorSerieStatisticsFunc2 <- lapply(
+    dfSeriesFromFillorSerieStatisticsFunc,
+    function(x) {
+      names(x) <- c("station_code", "period", "value")
+      x
+    }
+  )
+
+  if (byMonth == FALSE) {
 
     if (dir.exists(dirSub) == FALSE) {
       dir.create(dirSub, recursive = TRUE)
@@ -167,226 +150,228 @@ PettittTestBoot <- function(dfSeriesFromFillorSerieStatisticsFunc, byMonth = FAL
 
     pvaluePTBoot <- as.numeric()
     station <- as.numeric()
-    dateChange = as.numeric()
-
-    i = 1
+    dateChange <- as.numeric()
+    i <- 1
     for (i in 1:length(dfSeriesFromFillorSerieStatisticsFunc2)) {
-
-      # pvalue
-
       testPT <- dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
         dplyr::pull(3) %>%
         stats::na.omit() %>%
         boot.pettitttest()
-
       pvaluePTBoot[i] <- round(testPT$pvalue[2], 3)
-      dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
+      dateChange[i] <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
         as.character()
       station[i] <- names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
 
-
-
-
-      # graph
+      dfSeriesFromFillorSerieStatisticsFunc2[[i]] = dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
+        dplyr::mutate(date = as.Date(paste0(.[[2]], "-01", "-01"))) %>%
+        padr::pad(start_val = as.Date(paste0(dataGrafico[1], "-01", "-01")),
+                  end_val = as.Date(paste0(dataGrafico[2], "-01", "-01")),
+                  by = "date") %>%
+        dplyr::mutate("period" = lubridate::year(date)) %>%
+        dplyr::select(c(1,2,3))
 
       if (plotGraph == TRUE) {
+        valuesBefore <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[1:testPT$probableChangePoint[1]]
+        valuesAfter <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[(testPT$probableChangePoint[1] +
+                                                                            1):nrow(dfSeriesFromFillorSerieStatisticsFunc2[[i]])]
 
-        ##trendness line parameters for plot
-
-        valuesBefore <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[1:testPT$probableChangePoint[1]] # values before break point
-
-        valuesAfter <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$value[(testPT$probableChangePoint[1] + 1):nrow(dfSeriesFromFillorSerieStatisticsFunc2[[i]])] #value after break point
-
-        meanValues <- c( # vector with mean values before and after breakpoint
-          rep(mean(valuesBefore), length(valuesBefore)),
-          rep(mean(valuesAfter), length(valuesAfter))
+        meanValues <- c(
+          rep(mean(valuesBefore, na.rm = TRUE), length(valuesBefore)),
+          rep(mean(valuesAfter, na.rm = TRUE), length(valuesAfter))
         )
 
-        # graph parameters
+        variavel <- names(dfSeriesFromFillorSerieStatisticsFunc[[i]])[3]
 
-        #identify type of data
+        # if (substr(variavel, 1, 1) == "Q") {
+        #   ylab <- paste(substring(variavel, 1, nchar(variavel) -
+        #     5), "(m3_s)")
+        # } else {
+        #   ylab <- paste(substring(variavel, 1, nchar(variavel) -
+        #     3), "(mm)")
+        # }
 
-        variavel = names(dfSeriesFromFillorSerieStatisticsFunc[[i]])[3]
-
-        if (substr(variavel, 1, 1) == "Q") {
-
-          ylab <- paste(substring(variavel, 1, nchar(variavel)-5), "(m3_s)")
-
-        } else {
-
-          ylab <- paste(substring(variavel, 1, nchar(variavel)-3), "(mm)")
-        }
-
-
-
-        #plot
+        ylab = ylab
 
         dfSeriesFromFillorSerieStatisticsFunc2[[i]] %>%
           ggplot2::ggplot() +
-          ggplot2::geom_point(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-          ggplot2::geom_line(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-          ggplot2::geom_line(ggplot2::aes(x = .data$period, y = meanValues, color = "tend")) +
-          ggplot2::scale_color_manual(name = "Legend",
-                                      values = c("value" = "darkblue", "tend" = "red"),
-                                      labels = c("Streamflow", "Tendency line"))+
+          ggplot2::geom_point(ggplot2::aes(.data$period,
+                                           .data$value,
+                                           colour = "value"
+          )) +
+          ggplot2::geom_line(ggplot2::aes(.data$period,
+                                          .data$value,
+                                          colour = "value"
+          )) +
+          ggplot2::geom_line(ggplot2::aes(
+            x = .data$period,
+            y = meanValues, color = "tend"
+          )) +
+          ggplot2::scale_color_manual(
+            name = "Legend",
+            values = c(value = "darkblue", tend = "red"),
+            labels = c("Mean value", legendlabel)
+          ) +
           ggplot2::labs(
-            x = period,
-            y = ylab,
-            title = paste("Petit test (p.value = ", round(testPT$pvalue, 3), ")", sep = ""),
+            x = period, y = ylab, title = paste("Pettitt test (p.value = ",
+                                                round(testPT$pvalue, 3), ")",
+                                                sep = ""
+            ),
             subtitle = names(dfSeriesFromFillorSerieStatisticsFunc2)[i]
           ) +
           ggplot2::theme_bw(base_size = 16) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+          ggplot2::theme(axis.text.x = ggplot2::element_text(
+            angle = 90,
+            vjust = 0.5, hjust = 1
+          )) +
           ggplot2::theme(
-            legend.position = c(1, 1),
-            legend.direction = "horizontal",
-            legend.justification = c(1, 0),
-            legend.key.height = ggplot2::unit(1, 'cm'),
-            legend.key.width = ggplot2::unit(1, 'cm'),
-            legend.text = ggplot2::element_text(size=14)
+            legend.position = c(
+              1,
+              1
+            ), legend.direction = "horizontal", legend.justification = c(
+              1,
+              0
+            ), legend.key.height = ggplot2::unit(1, "cm"),
+            legend.key.width = ggplot2::unit(1, "cm"),
+            legend.text = ggplot2::element_text(size = 14)
           )
 
-
-        ggplot2::ggsave(paste(dirSub,
-                              "/",
-                              names(dfSeriesFromFillorSerieStatisticsFunc[[1]][2]),
-                              "_",
-                              names(dfSeriesFromFillorSerieStatisticsFunc2)[i],
-                              ".png",
-                              sep = ""
-        ), dpi = 200, width = 14, height = 7)
+        ggplot2::ggsave(
+          paste(dirSub, "/", names(dfSeriesFromFillorSerieStatisticsFunc[[1]][2]),
+                "_", names(dfSeriesFromFillorSerieStatisticsFunc2)[i],
+                ".png",
+                sep = ""
+          ),
+          dpi = 200, width = 14,
+          height = 7
+        )
       }
     }
 
-    testPT <- dplyr::as_tibble(apply(cbind(station, pvaluePTBoot, dateChange), 2, as.numeric)) %>%
-      dplyr::mutate(station = as.character(station))
+    testPT <- dplyr::as_tibble(data.frame(station, pvaluePTBoot,dateChange)) %>% dplyr::mutate(station = as.character(station))
+
     testPT
-    names(testPT) = c("station_code", "pvaluePTBoot", "dateChange")
 
-
-  } else { # runtest for each month
-
-
+    names(testPT) <- c("station_code", "pvaluePTBoot", "dateChange")
+  } else {
     pvaluePTBoot <- as.numeric()
     station <- as.numeric()
-    dateChange = as.numeric()
-
+    dateChange <- as.numeric()
     testPT <- base::month.abb[1:12] %>%
       dplyr::as_tibble() %>%
       stats::setNames("month")
-
-    j = 1
+    j <- 1
     for (j in 1:length(dfSeriesFromFillorSerieStatisticsFunc2)) {
-      i = 1
+      i <- 1
       for (i in 1:12) {
-
-        station_name = unique(dfSeriesFromFillorSerieStatisticsFunc2[[j]]$station_code)
-
-        #df with monthly i data of station j
-
+        station_name <- unique(dfSeriesFromFillorSerieStatisticsFunc2[[j]]$station_code)
         monthdf <- dfSeriesFromFillorSerieStatisticsFunc2[[j]] %>%
           dplyr::mutate(month = lubridate::month(period)) %>%
           dplyr::filter(month == i)
-
-        #petit test for monthly i data of station j
-
         testPT_m <- monthdf %>%
           dplyr::pull(3) %>%
           stats::na.omit() %>%
           boot.pettitttest()
-
-
-        pvaluePTBoot[i] <- round(testPT_m$pvalue[2], 3)
-
+        pvaluePTBoot[i] <- round(
+          testPT_m$pvalue[2],
+          3
+        )
         station[i] <- station_name
-
-        dateChange[i] = dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
+        dateChange[i] <- dfSeriesFromFillorSerieStatisticsFunc2[[i]]$period[testPT$probableChangePoint[1]] %>%
           as.character()
-
-
-        # gráfico
-
         if (plotGraph == TRUE) {
-
-          dir_path = paste(dirSub, "/monthly/", station_name, sep = "")
-
+          dir_path <- paste(dirSub, "/monthly/", station_name,
+                            sep = ""
+          )
           if (dir.exists(dir_path) == FALSE) {
             dir.create(dir_path, recursive = TRUE)
           }
-
-          valuesBefore <- monthdf$value[1:testPT_m$probableChangePoint[1]] # values before break point
-
-          valuesAfter <- monthdf$value[(testPT_m$probableChangePoint[1] + 1):nrow(monthdf)] #value after break point
-
-          meanValues <- c( # vector with mean values before and after breakpoint
+          valuesBefore <- monthdf$value[1:testPT_m$probableChangePoint[1]]
+          valuesAfter <- monthdf$value[(testPT_m$probableChangePoint[1] +
+                                          1):nrow(monthdf)]
+          meanValues <- c(
             rep(mean(valuesBefore), length(valuesBefore)),
             rep(mean(valuesAfter), length(valuesAfter))
           )
+          variavel <- names(dfSeriesFromFillorSerieStatisticsFunc[[1]][[1]])[3]
 
-          # graph parameters
+          # if (substr(variavel, 1, 1) == "Q") {
+          #   ylab <- paste(substring(variavel, 1, nchar(variavel) -
+          #     5), "(m3_s)")
+          # } else {
+          #   ylab <- paste(substring(variavel, 1, nchar(variavel) -
+          #     3), "(mm)")
+          # }
 
-          variavel = names(dfSeriesFromFillorSerieStatisticsFunc[[1]][[1]])[3]
-
-          if (substr(variavel, 1, 1) == "Q") {
-
-            ylab <- paste(substring(variavel, 1, nchar(variavel)-5), "(m3_s)")
-
-          } else {
-
-            ylab <- paste(substring(variavel, 1, nchar(variavel)-3), "(mm)")
-          }
-
-          #plot
+          ylab = ylab
 
           dfSeriesFromFillorSerieStatisticsFunc2[[j]] %>%
             dplyr::mutate(month = lubridate::month(period)) %>%
             dplyr::filter(month == i) %>%
             ggplot2::ggplot() +
-            ggplot2::geom_point(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-            ggplot2::geom_line(ggplot2::aes(.data$period, .data$value, colour = "value")) +
-            ggplot2::geom_line(ggplot2::aes(x = .data$period, y = meanValues, color = "tend")) +
-            ggplot2::scale_color_manual(name = "Legend",
-                                        values = c("value" = "darkblue", "tend" = "red"),
-                                        labels = c("Streamflow", "Tendency line"))+
+            ggplot2::geom_point(ggplot2::aes(.data$period,
+                                             .data$value,
+                                             colour = "value"
+            )) +
+            ggplot2::geom_line(ggplot2::aes(.data$period,
+                                            .data$value,
+                                            colour = "value"
+            )) +
+            ggplot2::geom_line(ggplot2::aes(
+              x = .data$period,
+              y = meanValues, color = "tend"
+            )) +
+            ggplot2::scale_color_manual(
+              name = "Legend",
+              values = c(value = "darkblue", tend = "red"),
+              labels = c("Mean value", legendlabel)
+            ) +
             ggplot2::labs(
-              x = period,
-              y = ylab,
-              title = paste("Petit test (p.value = ", round(testPT_m$p.value, 3), ")", sep = ""),
+              x = period, y = ylab, title = paste("Pettitt test (p.value = ",
+                                                  round(testPT_m$p.value, 3), ")",
+                                                  sep = ""
+              ),
               subtitle = names(dfSeriesFromFillorSerieStatisticsFunc2)[j]
             ) +
             ggplot2::theme_bw(base_size = 16) +
-            ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-            ggplot2::theme(
-              legend.position = c(1, 1),
-              legend.direction = "horizontal",
-              legend.justification = c(1, 0),
-              legend.key.height = ggplot2::unit(1, 'cm'),
-              legend.key.width = ggplot2::unit(1, 'cm'),
-              legend.text = ggplot2::element_text(size=14)
-            )
-
-
-          ggplot2::ggsave(paste(dir_path,
-                                "/",
-                                substring(variavel, 1, nchar(variavel)-5),
-                                "_",
-                                station_name,
-                                "_",
-                                i,
-                                ".png",
-                                sep = ""
-          ), dpi = 200, width = 14, height = 7)
-
+            ggplot2::theme(axis.text.x = ggplot2::element_text(
+              angle = 90,
+              vjust = 0.5, hjust = 1
+            )) +
+            ggplot2::theme(legend.position = c(
+              1,
+              1
+            ), legend.direction = "horizontal", legend.justification = c(
+              1,
+              0
+            ), legend.key.height = ggplot2::unit(
+              1,
+              "cm"
+            ), legend.key.width = ggplot2::unit(
+              1,
+              "cm"
+            ), legend.text = ggplot2::element_text(size = 14))
+          ggplot2::ggsave(
+            paste(dir_path, "/", substring(
+              variavel,
+              1, nchar(variavel) - 5
+            ), "_", station_name,
+            "_", i, ".png",
+            sep = ""
+            ),
+            dpi = 200, width = 14,
+            height = 7
+          )
         }
       }
-
-      testPT <- testPT %>%
-        dplyr::mutate(!!paste("pval_PeTtest_", station_name, sep = "") := pvaluePTBoot)
+      testPT <- testPT %>% dplyr::mutate(`:=`(!!paste("pval_PeTtest_",
+                                                      station_name,
+                                                      sep = ""
+      ), pvaluePTBoot))
     }
   }
-
   return(testPT)
 }
+
 
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("month"))
