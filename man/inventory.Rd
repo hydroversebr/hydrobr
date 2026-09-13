@@ -40,7 +40,7 @@ The user can alternatively provide an area of interest to download all
 stations within its boundaries.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fetch pluviometric "plu" stations for the states of "GOIÁS" and "MINAS GERAIS"
 
 \dontrun{

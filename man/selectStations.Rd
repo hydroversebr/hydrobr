@@ -72,7 +72,7 @@ the maximum threshold of missing data, and (iii) filters out stations
 with less than a minimum years of complete observations.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(

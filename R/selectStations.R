@@ -93,24 +93,6 @@ selectStations <- function(organizeResult,
                            consistedOnly = FALSE,
                            plot = TRUE) {
 
-
-  # For the failureMatrix, NA represents no data, FALSE represents that the %
-  #  of missing data exceeded the threshold `maxMissing`, and TRUE represents
-  #  that the % of missing data did not exceed the threshold.
-  # For the missingMatrix, NA represents no data, and numeric values represent
-  #  the % of missing data.
-
-
-  # ## Verification if arguments are in the desired format
-  # # is stationsDataResult an outcome from stationsData function?
-  # if (!attributes(organizeResult)$hydrobr_class %in% 'organize') {
-  #   stop(
-  #     call. = FALSE,
-  #     '`organizeResult` does not inherit attribute "organize".
-  #      The outcome from the organize() function should be passed as argument'
-  #   )
-  # }
-
   # Is mode a character vector?
   if (!is.character(mode) | length(mode) != 1) {
     stop(
@@ -301,7 +283,7 @@ selectStations <- function(organizeResult,
                                        365,
                                        length(.data$value) %>% as.double())) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/.data$N) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/unique(.data$N)) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('^waterYear$'),
@@ -328,7 +310,7 @@ selectStations <- function(organizeResult,
                                        365,
                                        length(.data$value) %>% as.double())) %>%
       # Check percentage of missing data
-      dplyr::mutate(missing = 100*sum(is.na(.data$value))/.data$N) %>%
+      dplyr::mutate(missing = 100*sum(is.na(.data$value))/unique(.data$N)) %>%
       # Select waterYear, station, and % missing
       dplyr::select(
         dplyr::matches('^waterYear$'),
@@ -353,7 +335,7 @@ selectStations <- function(organizeResult,
                                        length(.data$value) %>% as.double())) %>%
       # Check % of consisted and missing
       dplyr::summarise(consisted = 100*sum(.data$consistency_level == 2)/dplyr::n(),
-                       missing   = 100*sum(is.na(.data$value))/.data$N,
+                       missing   = 100*sum(is.na(.data$value))/unique(.data$N),
                        .groups = 'drop') %>%
       dplyr::distinct() %>%
       # stations with at least minYears
@@ -463,7 +445,7 @@ selectStations <- function(organizeResult,
       # Check % of consisted and missing
       dplyr::summarise(consisted = 100*sum(.data$consistency_level == 2)/dplyr::n(),
                        missing   = 100*sum(is.na(.data$value))/
-                         lubridate::days_in_month(.data$monthWaterYear),
+                         lubridate::days_in_month(unique(.data$monthWaterYear)),
                        .groups = 'drop') %>%
       dplyr::distinct() %>%
       ggplot2::ggplot() +
@@ -545,6 +527,7 @@ selectStations <- function(organizeResult,
                   "failureMatrix",
                   "missingMatrix",
                   "plot")
+
   # class(out) <- c(class(out), 'selectData')
   return(out)
 }

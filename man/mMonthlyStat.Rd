@@ -19,7 +19,7 @@ Evaluate Mean and Median monthly statistics based \link{selectStations} function
 Computa estatística mensal (média ou mediana) nos meses do ano e, posteriormente, e realiza uma média movel de 6 meses para identificar período seco e úmido no ano.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(

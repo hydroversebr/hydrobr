@@ -25,7 +25,7 @@ desired return period.
 frequency evaluated with Kimbal method.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(

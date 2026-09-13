@@ -23,7 +23,7 @@ A list containing 2 objects:
 A partir da série histórica de vazões nas estações (output from \code{\link[=selectStations]{selectStations()}}), retorna os valores de Q7 anual com respectivas datasTakes as input a list containing data frames of organized records
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(

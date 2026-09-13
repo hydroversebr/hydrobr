@@ -28,7 +28,7 @@ p-value for each continuous stations data
 Performs the Pettitt trend test for annual or monthly rainfall (or streamflow) times series
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 

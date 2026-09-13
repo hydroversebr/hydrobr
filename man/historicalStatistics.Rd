@@ -58,7 +58,7 @@ streamflow or rainfall statistics
 Q7T is evaluated based on empirical distribution using Kimbal method.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais.
 
 inv <- inventory(

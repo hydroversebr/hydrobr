@@ -27,7 +27,7 @@ them into tidy data frames. As some dates may be provided with different
 consistency levels, priority is given to consisted data (consistency level = 2)
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Fech a inventory of fluviometric stations for the state of Minas Gerais
 
 inv <- inventory(

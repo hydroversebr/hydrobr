@@ -19,7 +19,7 @@ p-value for each continuous stations data
 Performs the Mann-Kendall trend test for annual or monthly rainfall (or streamflow) times series
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 inv <- inventory(
   states = "MINAS GERAIS",

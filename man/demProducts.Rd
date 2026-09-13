@@ -32,7 +32,7 @@ Obtain digital elevation model sub-products. All inputs must be projected.
 DEM must be in metric coordinates (projected)
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 #
 

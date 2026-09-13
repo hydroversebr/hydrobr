@@ -33,5 +33,7 @@ export(watershedDelineation)
 import(openxlsx)
 importFrom(gtools,mixedsort)
 importFrom(magrittr,"%>%")
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(rlang,
+  ":=",
+  .data
+)
