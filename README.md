@@ -42,7 +42,7 @@ vignette(package = 'hydrobr', topic = 'intro_to_hydrobr')
 
   ![](https://komarev.com/ghpvc/?username=hydrobr)
 
-  [![Unique Clones](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/hydroversebr/hydrobr/main/inst/extdata/clones_badge.json)](https://github.com/hydroversebr/hydrobr)
+[![Unique Clones](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/hydroversebr/hydrobr/main/inst/extdata/clones_badge.json&logo=git)](https://github.com/hydroversebr/hydrobr)
 
 
 
